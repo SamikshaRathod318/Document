@@ -1,0 +1,186 @@
+<!-- Navbar Component -->
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo" aria-label="DocManager Home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+        <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M8 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>DocManager</span>
+    </a>
+    
+    <!-- Mobile menu button -->
+    <button 
+      class="mobile-menu-button" 
+      [class.active]="isMenuOpen"
+      (click)="toggleMenu()" 
+      type="button"
+      [attr.aria-expanded]="isMenuOpen"
+      [attr.aria-controls]="'primary-navigation'"
+      aria-label="Toggle navigation menu">
+      <span class="sr-only">Menu</span>
+      <span class="menu-icon"></span>
+    </button>
+    
+    <!-- Navigation Links -->
+    <ul class="nav-menu" 
+        [class.active]="isMenuOpen"
+        id="primary-navigation"
+        role="menubar"
+        aria-label="Main navigation">
+  
+      <!-- Debug Info (remove in production) -->
+      <div *ngIf="false" style="display: none;">
+        isLoggedIn$: {{ isLoggedIn$ | async | json }}
+        currentRole: {{ currentRole | json }}
+        isClerkRoute: {{ isClerkRoute() | json }}
+        router.url: {{ router.url }}
+      </div>
+
+      <!-- Clerk Navigation -->
+      <ng-container *ngIf="(isLoggedIn$ | async) && (isClerkRoute() || currentRole)">
+        <!-- Dashboard Link -->
+        <li class="nav-item" role="none">
+          <a [routerLink]="['/clerk/dashboard']" 
+             routerLinkActive="active" 
+             class="nav-link"
+             role="menuitem"
+             (click)="closeMenu(); $event.stopPropagation()">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        
+        <!-- Documents Link -->
+        <li class="nav-item" role="none">
+          <a [routerLink]="['/clerk/documents']" 
+             routerLinkActive="active" 
+             class="nav-link"
+             role="menuitem"
+             (click)="closeMenu(); $event.stopPropagation()">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Documents</span>
+          </a>
+        </li>
+        
+        <!-- Upload Link - Only visible to clerk users -->
+        <li class="nav-item" role="none" *ngIf="(isLoggedIn$ | async) && (currentRole === 'adm_clerk' || currentRole === 'adm_sr_clerk')">
+          <a [routerLink]="['/clerk/upload']" 
+             routerLinkActive="active" 
+             class="nav-link"
+             role="menuitem"
+             (click)="closeMenu(); $event.stopPropagation()">
+            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Upload</span>
+          </a>
+        </li>
+
+        <li class="nav-item dropdown" role="none" *ngIf="isLoggedIn$ | async" (mouseenter)="isCategoriesOpen = true" (mouseleave)="isCategoriesOpen = false">
+          <a [routerLink]="['/department']" 
+             routerLinkActive="active" 
+             class="nav-link"
+             [class.active]="isCategoriesOpen"
+             role="menuitem"
+             [attr.aria-expanded]="isCategoriesOpen">
+            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span>Department</span>
+            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </a>
+          </li>
+      </ng-container>
+      <li class="nav-item" role="none">
+        <a [routerLink]="['/about']" 
+           routerLinkActive="active" 
+           class="nav-link"
+           role="menuitem"
+           (click)="closeMenu(); $event.stopPropagation()">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>About</span>
+        </a>
+      </li>
+      <li class="nav-item" role="none">
+        <a [routerLink]="['/contact']" 
+           routerLinkActive="active" 
+           class="nav-link"
+           role="menuitem"
+           (click)="closeMenu(); $event.stopPropagation()">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 16.92V19.92C22.0001 20.1984 21.9157 20.4703 21.7579 20.7002C21.6 20.9301 21.3759 21.1073 21.116 21.2077C20.8561 21.3082 20.5725 21.3275 20.3016 21.2629C20.0308 21.1983 19.7856 21.0528 19.6 20.847L17.3 18.337C14.9286 19.371 12.251 19.2486 9.98 18.002C7.78 16.7956 6.1724 14.8219 5.49 12.467C4.8076 10.112 5.1061 7.58105 6.31 5.48C7.51391 3.37895 9.52478 1.88105 11.889 1.31C12.2154 1.233 12.5497 1.27658 12.8479 1.43394C13.1461 1.5913 13.3912 1.8539 13.542 2.18L15.55 6.21C15.6843 6.50485 15.7158 6.83573 15.6392 7.1506C15.5626 7.46547 15.382 7.74645 15.128 7.947L12.5 10.035C12.5 10.035 13 12 14 13C14.324 13.34 15 14 15 14L17.286 12.274C17.5244 12.0937 17.8189 12.002 18.119 12.015C18.4191 12.028 18.7049 12.1448 18.926 12.344L21.3 14.516C21.5674 14.7581 21.7367 15.0888 21.775 15.446C21.8133 15.8032 21.7179 16.1628 21.507 16.454L20.267 18.092L20.26 18.1L19.5 19.085L18.734 20.077C18.734 20.077 17 18.5 16 17.5L14 16L12 17.5L10 19C10 19 9.5 19 8.5 18C7.5 17 5.5 15 5.5 15L4 14L3 13L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Contact</span>
+        </a>
+      </li>
+      
+      <!-- Login/User Menu -->
+      <li class="nav-item" role="none">
+        <ng-container *ngIf="!(isLoggedIn$ | async); else userMenu">
+          <a [routerLink]="['/login']" 
+             class="nav-link login-button"
+             role="menuitem"
+             (click)="closeMenu(); $event.stopPropagation()">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 17L15 12L10 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Login</span>
+          </a>
+        </ng-container>
+        
+        <ng-template #userMenu>
+          <div class="user-menu">
+            <button class="nav-link user-button" (click)="toggleUserMenu(); $event.stopPropagation()" [attr.aria-expanded]="isUserMenuOpen" aria-controls="user-dropdown">
+              <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>My Account</span>
+              <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="dropdown-menu" [class.show]="isUserMenuOpen" id="user-dropdown">
+              <a routerLink="/profile" class="dropdown-item" (click)="closeMenu(); isUserMenuOpen = false; $event.stopPropagation()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Profile</span>
+              </a>
+              <button (click)="logout(); closeMenu(); isUserMenuOpen = false; $event.stopPropagation()" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+</nav>

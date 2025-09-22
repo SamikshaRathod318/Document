@@ -1,0 +1,127 @@
+<div class="container">
+  <div class="header">
+    <h1>Departments</h1>
+    <div class="actions">
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Search departments..."
+          (input)="filterCategories()"
+        >
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <button type="button" class="btn primary" (click)="createNewCategory()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        New Department
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Department Modal -->
+  <div class="modal-backdrop" *ngIf="isCreateOpen" (click)="closeCreate()"></div>
+  <div class="modal" *ngIf="isCreateOpen" role="dialog" aria-modal="true" aria-labelledby="createDeptTitle">
+    <div class="modal-header">
+      <h2 id="createDeptTitle">New Department</h2>
+      <button type="button" class="close-btn" aria-label="Close" (click)="closeCreate()">×</button>
+    </div>
+    <div class="modal-body">
+      <label>
+        <span>Name</span>
+        <input type="text" [(ngModel)]="createForm.name" placeholder="Department name" />
+      </label>
+      <label>
+        <span>Description</span>
+        <textarea [(ngModel)]="createForm.description" rows="3" placeholder="Short description"></textarea>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" (click)="closeCreate()">Cancel</button>
+      <button type="button" class="btn primary" (click)="saveCreate()">Save</button>
+    </div>
+  </div>
+
+  <div class="categories-grid">
+    <div *ngFor="let category of filteredCategories" class="category-card" (click)="viewCategory(category)">
+      <div class="category-header">
+        <h3>{{ category.name }}</h3>
+        <span class="document-count">{{ category.documentCount }} {{ category.documentCount === 1 ? 'document' : 'documents' }}</span>
+      </div>
+      <p class="category-description">{{ category.description || 'No description provided' }}</p>
+      <div class="category-footer">
+        <span class="last-updated">Updated {{ category.lastUpdated | date:'mediumDate' }}</span>
+        <div class="card-actions">
+          <button type="button" class="btn-icon" (click)="editCategory(category, $event)" title="Edit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 4H4V20H20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.278 1.87868 20.554 1.93355 20.8118 2.04015C21.0696 2.14676 21.3039 2.30302 21.5 2.5C21.697 2.69697 21.8523 2.93137 21.9575 3.18919C22.0628 3.44702 22.1159 3.72314 22.1136 4.00121C22.1112 4.27928 22.0535 4.55345 21.9445 4.80838C21.8355 5.06331 21.6773 5.29376 21.48 5.486L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button type="button" class="btn-icon danger" (click)="openDelete(category, $event)" title="Delete">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()"></div>
+  <div class="modal" *ngIf="isDeleteOpen" role="dialog" aria-modal="true" aria-labelledby="deleteDeptTitle">
+    <div class="modal-header">
+      <h2 id="deleteDeptTitle">Delete Department</h2>
+      <button type="button" class="close-btn" aria-label="Close" (click)="closeDelete()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete <strong>{{ deleteTarget?.name }}</strong>? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" (click)="closeDelete()">Cancel</button>
+      <button type="button" class="btn danger" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
+
+  <!-- Edit Department Modal -->
+  <div class="modal-backdrop" *ngIf="isEditOpen" (click)="closeEdit()"></div>
+  <div class="modal" *ngIf="isEditOpen" role="dialog" aria-modal="true" aria-labelledby="editDeptTitle">
+    <div class="modal-header">
+      <h2 id="editDeptTitle">Edit Department</h2>
+      <button type="button" class="close-btn" aria-label="Close" (click)="closeEdit()">×</button>
+    </div>
+    <div class="modal-body">
+      <label>
+        <span>Name</span>
+        <input type="text" [(ngModel)]="editForm.name" placeholder="Department name" />
+      </label>
+      <label>
+        <span>Description</span>
+        <textarea [(ngModel)]="editForm.description" rows="3" placeholder="Short description"></textarea>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" (click)="closeEdit()">Cancel</button>
+      <button type="button" class="btn primary" (click)="saveEdit()">Save</button>
+    </div>
+  </div>
+
+  <div *ngIf="filteredCategories.length === 0" class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 6C3 4.34315 4.34315 3 6 3H14.1716C14.9672 3 15.7303 3.31607 16.2929 3.87868L20.1213 7.70711C20.6839 8.26972 21 9.03278 21 9.82843V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V6Z" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 3V9C8 9.55228 8.44772 10 9 10H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9 14H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9 18H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <h3>No departments found</h3>
+    <p>Create your first department to start organizing documents</p>
+    <button type="button" class="btn primary" (click)="createNewCategory()">Create Department</button>
+  </div>
+</div>
