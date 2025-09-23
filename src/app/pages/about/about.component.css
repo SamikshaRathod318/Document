@@ -1,0 +1,61 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.section {
+  text-align: left;
+  margin-top: 2rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-color, #222);
+}
+
+.feature-list {
+  padding-left: 1.25rem;
+  list-style: disc;
+  line-height: 1.8;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card {
+  background: var(--surface-color, #fff);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+  color: var(--primary-color);
+}
+
+.meta {
+  margin-top: 2rem;
+  color: #666;
+  font-size: 0.95rem;
+}
