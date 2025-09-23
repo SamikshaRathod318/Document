@@ -10,8 +10,15 @@ export const clerkGuard = (): Observable<boolean | UrlTree> => {
   return authService.currentUser$.pipe(
     take(1),
     map(user => {
-      // Check if user is logged in and has either adm_clerk or adm_sr_clerk role
-      if (user && (user.roles?.includes('adm_clerk') || user.roles?.includes('adm_sr_clerk'))) {
+      // Check if user is logged in and has clerk roles (support both adm_* and plain names)
+      if (
+        user && (
+          user.roles?.includes('adm_clerk') ||
+          user.roles?.includes('adm_sr_clerk') ||
+          user.roles?.includes('clerk') ||
+          user.roles?.includes('senior_clerk')
+        )
+      ) {
         return true;
       }
       

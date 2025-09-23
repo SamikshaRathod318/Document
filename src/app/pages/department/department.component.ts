@@ -37,7 +37,7 @@ export class DepartmentComponent implements OnInit {
     this.categories = [
       {
         id: '1',
-        name: 'Clerk',
+        name: 'Education',
         description: 'Quarterly and annual financial statements',
         documentCount: 24,
         lastUpdated: new Date('2023-10-15')
@@ -51,14 +51,14 @@ export class DepartmentComponent implements OnInit {
       },
       {
         id: '3',
-        name: 'HOD',
+        name: 'Finance',
         description: 'Company policies and procedures',
         documentCount: 8,
         lastUpdated: new Date('2023-09-28')
       },
       {
         id: '4',
-        name: 'Admin',
+        name: 'Transportation',
         description: 'Client project proposals and documentation',
         documentCount: 12,
         lastUpdated: new Date('2023-10-05')

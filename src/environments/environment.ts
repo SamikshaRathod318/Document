@@ -60,6 +60,10 @@ export const environment = {
     // googleClientId: 'your-google-client-id',
     // facebookAppId: 'your-facebook-app-id'
   },
+  supabase: {
+    url: 'https://bsmxfkijfgkwngztvkli.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzbXhma2lqZmdrd25nenR2a2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTIwMTksImV4cCI6MjA3NDE4ODAxOX0.h3c6P6yoVCRwQ1jPrVn_GMvCB96MJ4vLbwLYiYzGtiU'
+  },
   cors: {
     allowedOrigins: ['http://localhost:4200', 'http://localhost:3000']
   },

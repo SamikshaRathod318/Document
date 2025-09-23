@@ -36,7 +36,7 @@ export const routes: Routes = [
     path: 'clerk',
     loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['adm_clerk', 'adm_sr_clerk'] }
+    data: { roles: ['adm_clerk', 'adm_sr_clerk', 'clerk', 'senior_clerk'] }
   },
   // Profile route (protected)
   {

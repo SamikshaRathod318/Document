@@ -1,7 +1,7 @@
 <div class="upload-container">
   <h2>Upload New Document</h2>
   
-  <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form">
+  <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form" novalidate>
     <div class="form-row">
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Document Title *</mat-label>
@@ -13,7 +13,7 @@
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Document Class *</mat-label>
-        <mat-select formControlName="documentClass">
+        <mat-select formControlName="documentType">
           <mat-option *ngFor="let class of documentClass" [value]="class.value">
             {{class.viewValue}}
           </mat-option>

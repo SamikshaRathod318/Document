@@ -14,9 +14,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FileSizePipe } from '../../../../shared/pipes/file-size.pipe';
 import { Document } from '../../models/document.model';
+import { DocumentStoreService } from '../../services/document-store.service';
 
 @Component({
   selector: 'app-document-upload',
@@ -62,15 +63,17 @@ export class DocumentUploadComponent implements OnInit {
 
   // Departments from environment
   departments = [
-    'Clerk',
-    'Senior Clerk',
+    'Education',
     'Accountant',
-    'HOD'
+    'Manager',
+    'Finance'
   ];
 
   constructor(
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private store: DocumentStoreService,
+    private router: Router
   ) {
     this.uploadForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
@@ -148,7 +151,13 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('Upload submit triggered', {
+      status: this.uploadForm.status,
+      value: this.uploadForm.value,
+      hasSelectedFile: !!this.selectedFile
+    });
     if (this.uploadForm.invalid || !this.selectedFile) {
+      this.uploadForm.markAllAsTouched();
       this.snackBar.open('Please fill in all required fields and select a file.', 'Close', {
         duration: 5000,
         panelClass: 'error-snackbar'
@@ -179,12 +188,35 @@ export class DocumentUploadComponent implements OnInit {
         panelClass: 'success-snackbar'
       });
       
+      // Create a new Document from form and selected file
+      const formValue = this.uploadForm.value;
+      const newDoc: Document = {
+        id: 0, // will be assigned by store
+        title: formValue.title,
+        description: formValue.description || '',
+        type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
+        size: this.selectedFile?.size,
+        uploadedDate: new Date(),
+        status: 'Pending',
+        uploadedBy: 'Current User',
+        department: formValue.department,
+        documentType: formValue.documentType,
+        isConfidential: !!formValue.isConfidential,
+        fileUrl: undefined
+      };
+
+      // Update store so lists refresh
+      this.store.add(newDoc);
+
       // Reset the form after successful upload
       this.uploadForm.reset({
         effectiveDate: new Date(),
         isConfidential: false
       });
       this.selectedFile = null;
+
+      // Navigate back to documents list
+      this.router.navigate(['/clerk/documents']);
     }, 3000);
   }
 
@@ -204,6 +236,24 @@ export class DocumentUploadComponent implements OnInit {
         return 'text_snippet';
       default:
         return 'insert_drive_file';
+    }
+  }
+
+  private getDocTypeFromFile(fileName: string): string {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf':
+        return 'PDF';
+      case 'doc':
+      case 'docx':
+        return 'DOCX';
+      case 'xls':
+      case 'xlsx':
+        return 'XLSX';
+      case 'txt':
+        return 'TXT';
+      default:
+        return 'OTHER';
     }
   }
 }

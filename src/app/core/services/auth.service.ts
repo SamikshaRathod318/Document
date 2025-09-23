@@ -9,6 +9,7 @@ export interface User {
   name: string;
   roles: string[];
   department?: string;
+  activeRole?: string; // the role selected/used during login
 }
 
 @Injectable({
@@ -48,8 +49,9 @@ export class AuthService {
             id: '1',
             email: email,
             name: email.split('@')[0],
-            roles: ['adm_clerk'], // For testing clerk access
-            department: 'IT'
+            roles: ['clerk', 'senior_clerk', 'accountant', 'hod'], // User's previous plain role names
+            department: 'IT',
+            activeRole: 'clerk' // simulate logging in with 'clerk'
           };
           
           // Store token and user in local storage

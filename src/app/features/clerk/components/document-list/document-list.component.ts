@@ -7,15 +7,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Document } from '../../models/document.model';
+import { DocumentStoreService } from '../../services/document-store.service';
 
 @Component({
   selector: 'app-document-list',
@@ -40,6 +42,7 @@ import { Document } from '../../models/document.model';
     MatChipsModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatSnackBarModule,
     DatePipe
   ]
 })
@@ -50,6 +53,12 @@ export class DocumentListComponent implements OnInit {
   displayedColumns: string[] = ['title', 'type', 'uploadedDate', 'status', 'actions'];
   dataSource = new MatTableDataSource<Document>();
   
+  // Paginator state
+  pageSize = 5;
+  
+  // Backing list from store (unfiltered)
+  private baseDocuments: Document[] = [];
+
   // Status options for filter
   statusOptions = [
     { value: 'all', viewValue: 'All Documents' },
@@ -64,7 +73,7 @@ export class DocumentListComponent implements OnInit {
   selectedStatus = 'all';
   isLoading = false;
   
-  // Mock data - replace with actual API call
+  // Mock data (legacy) - replaced by DocumentStoreService; kept for fallback
   mockDocuments: Document[] = [
     { 
       id: 1, 
@@ -96,30 +105,49 @@ export class DocumentListComponent implements OnInit {
       department: 'Finance',
       documentType: 'Budget'
     },
+    { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy' },
+    { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide' },
+    { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast' },
+    { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist' },
+    { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan' },
+    { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory' },
+    { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief' },
+    { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings' },
   ];
 
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private store: DocumentStoreService
+  ) {}
 
   ngOnInit(): void {
-    this.loadDocuments();
+    // Subscribe to documents from the store
+    this.store.documents$.subscribe(docs => {
+      this.baseDocuments = docs;
+      this.applyFilter();
+    });
   }
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    // Ensure paginator reflects current pageSize
+    if (this.paginator) {
+      this.paginator.pageSize = this.pageSize;
+    }
   }
 
   loadDocuments(): void {
-    this.isLoading = true;
-    // Simulate API call
-    setTimeout(() => {
-      this.dataSource.data = this.mockDocuments;
-      this.isLoading = false;
-    }, 1000);
+    // Legacy method: set from store immediately
+    this.isLoading = false;
+    this.baseDocuments = this.store.documents;
+    this.applyFilter();
   }
 
   applyFilter(): void {
-    let filteredData = [...this.mockDocuments];
+    let filteredData = [...this.baseDocuments];
     
     // Apply status filter
     if (this.selectedStatus !== 'all') {
@@ -159,17 +187,28 @@ export class DocumentListComponent implements OnInit {
   }
 
   viewDocument(document: Document): void {
-    // Implement view document logic
-    console.log('View document:', document);
+    // Show quick feedback for now; can be replaced with a MatDialog viewer
+    this.snackBar.open(`Viewing: ${document.title}`, 'OK', { duration: 2000 });
   }
 
   editDocument(document: Document): void {
-    // Implement edit document logic
-    console.log('Edit document:', document);
+    // Navigate to upload/edit page with query param (placeholder flow)
+    this.router.navigate(['/clerk/upload'], { queryParams: { id: document.id } });
+    this.snackBar.open(`Opening editor for: ${document.title}`, 'Dismiss', { duration: 2000 });
   }
 
   deleteDocument(document: Document): void {
-    // Implement delete document logic
-    console.log('Delete document:', document);
+    const confirmed = window.confirm(`Delete "${document.title}"?`);
+    if (!confirmed) {
+      return;
+    }
+    // Delete via store so all subscribers update
+    this.store.delete(document.id);
+    this.applyFilter();
+    this.snackBar.open('Document deleted', 'Dismiss', { duration: 2000 });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageSize = event.pageSize;
   }
 }

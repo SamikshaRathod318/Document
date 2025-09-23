@@ -63,7 +63,7 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
           id: user.id,
           name: user.name || 'User',
           email: user.email,
-          role: user.roles?.[0] || 'clerk',
+          role: this.mapRole(user.roles?.[0]) || 'clerk',
           department: user.department || 'Clerk Department'
         };
         
@@ -89,5 +89,15 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Normalize internal role keys to a friendly display label for the UI
+  private mapRole(role?: string): string {
+    if (!role) return 'clerk';
+    const r = role.toLowerCase();
+    // Any clerk-like internal roles are shown simply as 'clerk'
+    if (r.includes('clerk')) return 'clerk';
+    // Fallback: return the raw role (consumer templates apply titlecase)
+    return role;
   }
 }
