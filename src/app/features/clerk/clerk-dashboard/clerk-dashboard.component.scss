@@ -1,0 +1,142 @@
+.sidenav-container {
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+.sidenav {
+  width: 280px;
+  background: #f9fafc;
+  color: white;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidenav-header {
+  padding: 20px;
+  background: #17181b;
+  border-bottom: 1px solid #d9e0eb;
+  
+  h3 {
+    margin: 0 0 20px 0;
+    font-weight: 500;
+    color: #e2e8f0;
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #94a3b8;
+  }
+  
+  .user-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: white;
+  }
+  
+  .user-role, .user-department {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+}
+
+.mat-nav-list {
+  padding-top: 10px;
+  flex: 1;
+  background-color: #ffffff;
+  
+  a {
+    color: #ffffff; 
+    margin: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: white;
+    }
+    
+    &.active {
+      background: #005ef5;
+      color: white;
+      
+      mat-icon {
+        color: white;
+      }
+    }
+    
+    mat-icon {
+      margin-right: 10px;
+      color: #ffffff;
+    }
+  }
+}
+
+.content {
+  padding: 20px;
+  background-color: #f8fafc;
+  min-height: 100%;
+  overflow-y: auto;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .sidenav {
+    width: 250px;
+  }
+  
+  .content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidenav {
+    width: 75px;
+    
+    .sidenav-header {
+      padding: 15px 10px;
+      
+      h3 {
+        display: none;
+      }
+      
+      .user-info {
+        flex-direction: column;
+        text-align: center;
+        
+        > div {
+          display: none;
+        }
+      }
+    }
+    
+    .mat-nav-list {
+      a {
+        padding: 0 10px;
+        text-align: center;
+        
+        span {
+          display: none;
+        }
+        
+        mat-icon {
+          margin: 0;
+          margin-top: 8px;
+        }
+      }
+    }
+  }
+  
+  .content {
+    padding: 10px;
+  }
+}

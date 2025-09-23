@@ -1,0 +1,119 @@
+<div class="upload-container">
+  <h2>Upload New Document</h2>
+  
+  <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form" novalidate>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Document Title *</mat-label>
+        <input matInput formControlName="title" placeholder="Enter document title">
+        <mat-error *ngIf="uploadForm.get('title')?.hasError('required')">
+          Title is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Document Class *</mat-label>
+        <mat-select formControlName="documentType">
+          <mat-option *ngFor="let class of documentClass" [value]="class.value">
+            {{class.viewValue}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="uploadForm.get('documentType')?.hasError('required')">
+          Document class is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Department *</mat-label>
+        <mat-select formControlName="department">
+          <mat-option *ngFor="let dept of departments" [value]="dept">
+            {{dept}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="uploadForm.get('department')?.hasError('required')">
+          Department is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Effective Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="effectiveDate">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="form-field full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" 
+                placeholder="Enter document description (optional)"></textarea>
+    </mat-form-field>
+
+    <div class="file-upload-container">
+      <div class="file-drop-zone" (click)="fileInput.click()" 
+           [class.file-over]="isDragging"
+           (dragover)="$event.preventDefault(); isDragging = true"
+           (dragleave)="isDragging = false"
+           (drop)="onFileDrop($event)">
+        <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
+        
+        <div *ngIf="!selectedFile" class="upload-prompt">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <h3>Drag & Drop your file here</h3>
+          <p>or</p>
+          <button mat-raised-button color="primary" type="button">
+            Browse Files
+          </button>
+          <p class="file-requirements">
+            Supported formats: PDF, DOCX, XLSX, TXT (Max 10MB)
+          </p>
+        </div>
+
+        <div *ngIf="selectedFile" class="file-preview">
+          <div class="file-info">
+            <mat-icon class="file-icon">{{ getFileIcon(selectedFile.name) }}</mat-icon>
+            <div>
+              <h4>{{ selectedFile.name }}</h4>
+              <p>{{ selectedFile.size | fileSize }}</p>
+            </div>
+            <button mat-icon-button (click)="$event.stopPropagation(); selectedFile = null; uploadForm.patchValue({file: null})">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          
+          <mat-progress-bar *ngIf="isUploading" mode="determinate" [value]="uploadProgress">
+          </mat-progress-bar>
+          <div *ngIf="isUploading" class="upload-progress">
+            {{ uploadProgress }}% uploaded
+          </div>
+        </div>
+      </div>
+
+      <mat-error *ngIf="uploadForm.get('file')?.invalid && uploadForm.get('file')?.touched" 
+                 class="file-error">
+        Please select a file to upload
+      </mat-error>
+    </div>
+
+    <div class="form-actions">
+      <mat-checkbox formControlName="isConfidential" color="primary">
+        This document contains confidential information
+      </mat-checkbox>
+      
+      <div class="action-buttons">
+        <button mat-button type="button" routerLink="/clerk/documents">
+          Cancel
+        </button>
+        <button mat-raised-button 
+                color="primary" 
+                type="submit"
+                [disabled]="uploadForm.invalid || isUploading">
+          <mat-icon>cloud_upload</mat-icon>
+          Upload Document
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

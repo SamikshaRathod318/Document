@@ -1,0 +1,110 @@
+<div class="document-list-container">
+  <div class="header">
+    <h2>My Documents</h2>
+    <button mat-raised-button color="primary" routerLink="/clerk/upload">
+      <mat-icon>add</mat-icon> Upload New Document
+    </button>
+  </div>
+
+  <div class="filter-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search Documents</mat-label>
+      <input 
+        matInput 
+        placeholder="Search by title, type, or status"
+        [(ngModel)]="searchText"
+        (ngModelChange)="applyFilter()"
+      >
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="status-filter">
+      <mat-label>Filter by Status</mat-label>
+      <mat-select 
+        [(ngModel)]="selectedStatus"
+        (selectionChange)="applyFilter()"
+      >
+        <mat-option [value]="'all'">All Documents</mat-option>
+        <mat-option [value]="'Pending'">Pending</mat-option>
+        <mat-option [value]="'In Review'">In Review</mat-option>
+        <mat-option [value]="'Approved'">Approved</mat-option>
+        <mat-option [value]="'Rejected'">Rejected</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z1" matSort>
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+        <td mat-cell *matCellDef="let element">{{element.id}}</td>
+      </ng-container>
+
+      <!-- Title Column -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="document-title">
+            <mat-icon class="file-icon">
+              {{ element.type === 'PDF' ? 'picture_as_pdf' : 
+                 element.type === 'DOCX' ? 'description' : 
+                 element.type === 'XLSX' ? 'table_chart' : 'insert_drive_file' }}
+            </mat-icon>
+            {{element.title}}
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Type Column -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+        <td mat-cell *matCellDef="let element">{{element.type}}</td>
+      </ng-container>
+
+      <!-- Uploaded Date Column -->
+      <ng-container matColumnDef="uploadedDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded On</th>
+        <td mat-cell *matCellDef="let element">{{element.uploadedDate | date:'mediumDate'}}</td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="status-badge" [ngClass]="getStatusClass(element.status)">
+            {{element.status}}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="viewDocument(element)" matTooltip="View">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteDocument(element)" matTooltip="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    [length]="dataSource.data.length || 0"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="onPageChange($event)"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>
+
