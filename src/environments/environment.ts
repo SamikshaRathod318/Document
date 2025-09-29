@@ -1,10 +1,10 @@
 export const environment = {
   production: false,
   api: {
-    baseUrl: 'http://localhost:3000/api',
+    baseUrl: 'https://vnuwevyywuujtskiroyk.supabase.co/rest/v1',
     timeout: 30000,
     endpoints: {
-      auth: '/auth',
+      auth: '/auth/v1',
       users: '/users',
       documents: '/documents',
       departments: '/departments',
@@ -61,8 +61,8 @@ export const environment = {
     // facebookAppId: 'your-facebook-app-id'
   },
   supabase: {
-    url: 'https://bsmxfkijfgkwngztvkli.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzbXhma2lqZmdrd25nenR2a2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2MTIwMTksImV4cCI6MjA3NDE4ODAxOX0.h3c6P6yoVCRwQ1jPrVn_GMvCB96MJ4vLbwLYiYzGtiU'
+    url: 'https://vnuwevyywuujtskiroyk.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZudXdldnl5d3V1anRza2lyb3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxMjUyOTEsImV4cCI6MjA3NDcwMTI5MX0.9y65fxjzWwA9vvLlKcAFAfHEBUGigqJFCB-CHgmtSJ0'
   },
   cors: {
     allowedOrigins: ['http://localhost:4200', 'http://localhost:3000']
@@ -74,5 +74,12 @@ export const environment = {
   security: {
     enableHttps: false,
     strictTransportSecurity: false
+  },
+  devBypass: {
+    enabled: true,
+    email: 'test@local.dev',
+    password: 'Passw0rd!',
+    roles: ['admin'],
+    department: 'Administration'
   }
 };

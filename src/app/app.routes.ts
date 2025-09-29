@@ -11,12 +11,18 @@ import { AccountantModule } from './features/accountant/accountant.module';
 import { HodModule } from './features/hod/hod.module';
 import { DepartmentComponent } from './pages/department/department.component';
 import { ProfileComponent } from './features/clerk/components/profile/profile.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
     title: 'Login - Document Management System'
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+    title: 'Reset Password - Document Management System'
   },
   {
     path: '',

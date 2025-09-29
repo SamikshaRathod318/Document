@@ -12,8 +12,9 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
 
-    // Get token from local storage
-    const token = localStorage.getItem('auth_token');
+    // Get token from local storage (use environment key for consistency)
+    const tokenKey = environment.auth?.tokenKey || 'auth_token';
+    const token = localStorage.getItem(tokenKey);
     
     // Clone the request and add the authorization header
     if (token) {

@@ -2,7 +2,7 @@
   <div class="login-card">
     <h2>Login to Your Account</h2>
     
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
       <div class="form-group">
         <label for="email">Email Address</label>
         <input 
@@ -11,8 +11,13 @@
           formControlName="email" 
           [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
           placeholder="Enter your email"
-          required>
-        <div class="error-message" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+          [attr.autocomplete]="'email'"
+          [attr.inputmode]="'email'"
+          required
+          aria-required="true"
+          [attr.aria-invalid]="email?.invalid && (email?.dirty || email?.touched) ? 'true' : 'false'"
+          [attr.aria-describedby]="(email?.invalid && (email?.dirty || email?.touched)) ? 'email-error' : null">
+        <div id="email-error" class="error-message" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
           <span *ngIf="email?.errors?.['required']">Email is required</span>
           <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
         </div>
@@ -26,8 +31,12 @@
           formControlName="password" 
           [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)"
           placeholder="Enter your password"
-          required>
-        <div class="error-message" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+          [attr.autocomplete]="'current-password'"
+          required
+          aria-required="true"
+          [attr.aria-invalid]="password?.invalid && (password?.dirty || password?.touched) ? 'true' : 'false'"
+          [attr.aria-describedby]="(password?.invalid && (password?.dirty || password?.touched)) ? 'password-error' : null">
+        <div id="password-error" class="error-message" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
           <span *ngIf="password?.errors?.['required']">Password is required</span>
           <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</span>
         </div>
@@ -36,10 +45,22 @@
       <div class="error-message" *ngIf="error">
         {{ error }}
       </div>
+      <div class="info-message" *ngIf="info">
+        {{ info }}
+      </div>
 
-      <button type="submit" class="login-button" [disabled]="isLoading || loginForm.invalid">
+      <button type="submit" class="login-button" [disabled]="isLoading || loginForm.invalid" [attr.aria-busy]="isLoading ? 'true' : 'false'">
         <span *ngIf="!isLoading">Sign In</span>
         <span *ngIf="isLoading" class="spinner">Logging in...</span>
+      </button>
+      <button type="button" class="link-button" (click)="onForgotPassword()" [disabled]="isLoading">
+        Forgot password?
+      </button>
+      <button type="button" class="create-users-button" (click)="onInsertUsers()" [disabled]="isLoading">
+        Insert Test Users
+      </button>
+      <button type="button" class="delete-users-button" (click)="onDeleteUsers()" [disabled]="isLoading">
+        Delete All Users
       </button>
     </form>
     

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -16,7 +17,10 @@ export class ErrorInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           // Auto logout if 401 response returned from API
-          localStorage.removeItem('auth_token');
+          const tokenKey = environment.auth?.tokenKey || 'auth_token';
+          const refreshKey = environment.auth?.refreshTokenKey || 'refresh_token';
+          localStorage.removeItem(tokenKey);
+          localStorage.removeItem(refreshKey);
           this.router.navigate(['/login'], { 
             queryParams: { returnUrl: this.router.url } 
           });
