@@ -22,7 +22,7 @@ import { DocumentStoreService } from '../../services/document-store.service';
 @Component({
   selector: 'app-document-upload',
   templateUrl: './document-upload.component.html',
-  styleUrls: ['./document-upload.component.scss'],
+  styleUrls: ['./upload-attractive.css'],
   standalone: true,
   imports: [
     CommonModule,

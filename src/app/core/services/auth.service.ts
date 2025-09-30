@@ -59,7 +59,7 @@ export class AuthService {
               id: user.user_id.toString(),
               email: user.email,
               name: user.full_name,
-              roles: ['clerk'],
+              roles: ['admin', 'clerk', 'user'],
               department: 'Administration'
             };
             

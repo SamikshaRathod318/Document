@@ -8,50 +8,7 @@ export class DatabaseService {
   private supabase = inject(SupabaseService);
 
   async insertUsers() {
-    const users = [
-      { full_name: 'Admin User', email: 'admin@test.com', password: 'admin123', role_id: 1 },
-      { full_name: 'Clerk User', email: 'clerk@test.com', password: 'clerk123', role_id: 2 },
-      { full_name: 'HOD User', email: 'hod@test.com', password: 'hod123', role_id: 3 }
-    ];
-
-    for (const user of users) {
-      try {
-        // Create user in Supabase auth
-        const { data: authData, error: authError } = await this.supabase.getClient().auth.signUp({
-          email: user.email,
-          password: user.password,
-          options: {
-            data: {
-              full_name: user.full_name,
-              role_id: user.role_id
-            }
-          }
-        });
-        
-        if (authError) {
-          console.error(`Auth signup failed for ${user.email}:`, authError);
-          continue;
-        }
-        
-        // Insert into custom users table
-        const { error: dbError } = await this.supabase.getClient()
-          .from('users')
-          .insert({
-            full_name: user.full_name,
-            email: user.email,
-            password: user.password, // Note: In production, don't store plain passwords
-            role_id: user.role_id
-          });
-        
-        if (dbError) {
-          console.error(`DB insert failed for ${user.email}:`, dbError);
-        } else {
-          console.log(`Created user: ${user.email}`);
-        }
-      } catch (error) {
-        console.error(`Error creating ${user.email}:`, error);
-      }
-    }
+    throw new Error('Direct user insertion disabled. Use proper user registration flow.');
   }
 
   async deleteAllUsers() {
@@ -99,35 +56,91 @@ export class DatabaseService {
         return data[0];
       }
       
-      console.log('No user found in database, checking hardcoded users');
-      return this.getHardcodedUser(email, password);
+      console.log('No user found in database, checking test user');
+      return await this.getHardcodedUser(email, password);
     } catch (error) {
       console.error('Authentication error:', error);
-      return this.getHardcodedUser(email, password);
+      return await this.getHardcodedUser(email, password);
     }
   }
 
-  private getHardcodedUser(email: string, password: string) {
-    const hardcodedUsers = [
-      { user_id: 1, full_name: 'Admin User', email: 'admin@test.com', password: 'admin123', role_id: 1 },
-      { user_id: 2, full_name: 'Admin User', email: 'admin@gmail.com', password: 'admin123', role_id: 1 },
-      { user_id: 3, full_name: 'Clerk User', email: 'clerk@test.com', password: 'clerk123', role_id: 2 },
-      { user_id: 4, full_name: 'Test User', email: 'test@local.dev', password: 'Passw0rd!', role_id: 1 }
-    ];
-    
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPassword = password.trim();
-    
-    const user = hardcodedUsers.find(u => 
-      u.email === normalizedEmail && u.password === normalizedPassword
-    );
-    
-    if (user) {
-      console.log('Hardcoded user found:', user);
-      return user;
+  private async getHardcodedUser(email: string, password: string) {
+    // Allow any email/password combination for testing
+    if (email && password) {
+      console.log('Backend: User logged in with email:', email);
+      
+      // Insert user into users table
+      await this.insertUserToTable(email, password);
+      
+      return {
+        user_id: 1,
+        full_name: 'Test User',
+        email: email,
+        role_id: 1
+      };
     }
-    
-    console.log('No hardcoded user found');
     return null;
+  }
+
+  private async insertUserToTable(email: string, password: string) {
+    try {
+      // First ensure role exists
+      await this.ensureRoleExists();
+      
+      console.log('Attempting to insert user:', email);
+      // Get random role_id (1-4)
+      const randomRoleId = Math.floor(Math.random() * 4) + 1;
+      
+      const { data, error } = await this.supabase.getClient()
+        .from('users')
+        .insert({
+          full_name: 'Test User',
+          email: email,
+          password: password,
+          role_id: randomRoleId
+        })
+        .select();
+      
+      if (error) {
+        console.error('Failed to insert user:', error);
+        console.error('Error details:', error.message, error.code);
+      } else {
+        console.log('User successfully inserted:', data);
+      }
+    } catch (error) {
+      console.error('Error inserting user:', error);
+    }
+  }
+
+  private async ensureRoleExists() {
+    try {
+      const roles = [
+        { role_name: 'Clerk' },
+        { role_name: 'Senior Clerk' },
+        { role_name: 'Accountant' },
+        { role_name: 'HOD' }
+      ];
+      
+      for (const role of roles) {
+        await this.supabase.getClient()
+          .from('roles')
+          .upsert(role, { onConflict: 'role_name' });
+      }
+      
+      console.log('All roles ensured in database');
+    } catch (error) {
+      console.error('Error ensuring roles:', error);
+    }
+  }
+
+  private async logUserLogin(email: string) {
+    try {
+      // Send login info to backend
+      await this.supabase.getClient()
+        .from('login_logs')
+        .insert({ email: email, login_time: new Date() });
+    } catch (error) {
+      console.error('Failed to log user login:', error);
+    }
   }
 }

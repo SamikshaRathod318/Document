@@ -81,7 +81,7 @@ export class LoginComponent {
           if (msgLower.includes('invalid login credentials')) {
             this.error = 'Invalid email or password. Try again or reset your password.';
             if (!environment.production && environment.devBypass?.enabled) {
-              this.info = `Dev mode: Try ${environment.devBypass.email} / ${environment.devBypass.password}`;
+              this.info = `Test login: ${environment.devBypass.email} / ${environment.devBypass.password}`;
             }
           } else if (msgLower.includes('email not confirmed')) {
             this.error = 'Email not confirmed. Please check your inbox for the confirmation email.';
@@ -93,7 +93,7 @@ export class LoginComponent {
         } else {
           this.error = 'Invalid email or password';
           if (!environment.production && environment.devBypass?.enabled) {
-            this.info = `Dev mode: Try ${environment.devBypass.email} / ${environment.devBypass.password}`;
+            this.info = `Test login: ${environment.devBypass.email} / ${environment.devBypass.password}`;
           }
         }
         console.error('Login error:', err);
@@ -106,27 +106,11 @@ export class LoginComponent {
   }
 
   async onCreateTestUsers() {
-    this.isLoading = true;
-    this.info = 'Creating test users...';
-    try {
-      await this.userSeed.seedUsers();
-      this.info = 'Test users created! Try: admin@test.com/admin123 or clerk@test.com/clerk123';
-    } catch (error) {
-      this.error = 'Failed to create users: ' + (error as any)?.message;
-    }
-    this.isLoading = false;
+    this.error = 'Test user creation is disabled for security.';
   }
 
   async onInsertUsers() {
-    this.isLoading = true;
-    this.info = 'Inserting users into database...';
-    try {
-      await this.dbService.insertUsers();
-      this.info = 'Users inserted! Try: admin@test.com/admin123';
-    } catch (error) {
-      this.error = 'Failed to insert users: ' + (error as any)?.message;
-    }
-    this.isLoading = false;
+    this.error = 'Direct user insertion is disabled for security.';
   }
 
   async onDeleteUsers() {

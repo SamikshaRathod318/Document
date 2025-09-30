@@ -14,11 +14,11 @@
     </div>
 
     <mat-nav-list>
-      <a mat-list-item routerLink="documents" routerLinkActive="active">
+      <a mat-list-item routerLink="/clerk/documents" routerLinkActive="active">
         <mat-icon>description</mat-icon>
         <span>Documents</span>
       </a>
-      <a mat-list-item routerLink="upload" routerLinkActive="active">
+      <a mat-list-item routerLink="/clerk/upload" routerLinkActive="active">
         <mat-icon>cloud_upload</mat-icon>
         <span>Upload Document</span>
       </a>
@@ -31,6 +31,24 @@
 
   <!-- Main Content -->
   <mat-sidenav-content>
+    <div class="dashboard-content">
+      <h1>Dashboard</h1>
+      <p>Welcome to your dashboard!</p>
+      <div class="dashboard-cards">
+        <div class="card">
+          <h3>Total Documents</h3>
+          <p>25</p>
+        </div>
+        <div class="card">
+          <h3>Pending</h3>
+          <p>5</p>
+        </div>
+        <div class="card">
+          <h3>Approved</h3>
+          <p>20</p>
+        </div>
+      </div>
+    </div>
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

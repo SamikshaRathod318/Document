@@ -11,7 +11,7 @@
   </section>
 
   <section id="features" class="features">
-    <h2>Features</h2>
+    <h2>What we offer</h2>
     <div class="feature-grid">
       <div class="feature-card">
         <div class="feature-icon">📄</div>
@@ -27,6 +27,128 @@
         <div class="feature-icon">🔍</div>
         <h3>Smart Search</h3>
         <p>Quickly find what you're looking for with our powerful search.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="case-studies">
+    <h2>Case Studies</h2>
+    <div class="case-study-grid">
+      <div class="case-study-card">
+        <h3>Government Office</h3>
+        <p>Streamlined document processing by 60% with our digital solution.</p>
+      </div>
+      <div class="case-study-card">
+        <h3>Corporate Enterprise</h3>
+        <p>Reduced document retrieval time from hours to minutes.</p>
+      </div>
+      <div class="case-study-card">
+        <h3>Healthcare System</h3>
+        <p>Improved patient record management and compliance by 75%.</p>
+      </div>
+      <div class="case-study-card">
+        <h3>Educational Institute</h3>
+        <p>Digitized student records and reduced paperwork by 80%.</p>
+      </div>
+      <div class="case-study-card">
+        <h3>Financial Services</h3>
+        <p>Enhanced security and audit trails for sensitive documents.</p>
+      </div>
+      <div class="case-study-card">
+        <h3>Manufacturing Company</h3>
+        <p>Centralized quality control documents and improved efficiency.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="service-delivery">
+    <div class="service-content">
+      <h2>Enhance service delivery through a user-centric approach</h2>
+      <p>Our platform focuses on user experience to deliver efficient document management solutions that meet your specific needs.</p>
+      <div class="service-features">
+        <div class="service-item">
+          <span class="checkmark">✓</span>
+          <span>User-friendly interface</span>
+        </div>
+        <div class="service-item">
+          <span class="checkmark">✓</span>
+          <span>24/7 support</span>
+        </div>
+        <div class="service-item">
+          <span class="checkmark">✓</span>
+          <span>Customizable workflows</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="questions">
+    <div class="questions-content">
+      <div class="questions-header">
+        <h2>Have Questions?</h2>
+        <button class="view-all-btn">View all FAQs ↗</button>
+      </div>
+      
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question" (click)="toggleFaq(0)">
+            <span>WHAT IS DOCMANAGER?</span>
+            <span class="faq-icon">{{ openFaq === 0 ? '-' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.open]="openFaq === 0">
+            DocManager is a comprehensive document management system designed to help organizations digitize, organize, and manage their documents efficiently.
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question" (click)="toggleFaq(1)">
+            <span>WHAT SUPPORT DOES DOCMANAGER PROVIDE?</span>
+            <span class="faq-icon">{{ openFaq === 1 ? '-' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.open]="openFaq === 1">
+            We provide 24/7 technical support, user training, system maintenance, and regular updates to ensure optimal performance.
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question" (click)="toggleFaq(2)">
+            <span>HOW CAN ONE CONNECT WITH THE DOCMANAGER TEAM?</span>
+            <span class="faq-icon">{{ openFaq === 2 ? '-' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.open]="openFaq === 2">
+            If you have any questions, want to engage, or require assistance, please reach out to us at <a href="mailto:support@docmanager.com">support@docmanager.com</a>
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question" (click)="toggleFaq(3)">
+            <span>WHAT IS USER INTERFACE (UI)? HOW IT IS IMPORTANT?</span>
+            <span class="faq-icon">{{ openFaq === 3 ? '-' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.open]="openFaq === 3">
+            User Interface (UI) is the visual design and layout that users interact with. It's important because it determines how easily users can navigate and use the system effectively.
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question" (click)="toggleFaq(4)">
+            <span>WHAT IS A DESIGN SYSTEM?</span>
+            <span class="faq-icon">{{ openFaq === 4 ? '-' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.open]="openFaq === 4">
+            A design system is a collection of reusable components, guidelines, and standards that ensure consistency across all user interfaces and experiences.
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question" (click)="toggleFaq(5)">
+            <span>HOW DO I REGISTER FOR THE SYSTEM?</span>
+            <span class="faq-icon">{{ openFaq === 5 ? '-' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.open]="openFaq === 5">
+            Contact your system administrator or HR department to get access credentials. They will provide you with login details and initial setup instructions.
+          </div>
+        </div>
       </div>
     </div>
   </section>

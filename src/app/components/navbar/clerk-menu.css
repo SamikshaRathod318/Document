@@ -1,0 +1,60 @@
+/* Clerk Menu Styles */
+
+.clerk-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    margin-right: 16px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.clerk-menu:hover {
+    background-color: rgba(208, 213, 220, 0.1);
+}
+
+.hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-right: 8px;
+}
+
+.hamburger-icon span {
+    width: 18px;
+    height: 2px;
+    background-color: currentColor;
+    transition: all 0.3s ease;
+}
+
+.clerk-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    padding: 8px 0;
+    margin-top: 8px;
+    z-index: 9999;
+    border: 1px solid #e0e0e0;
+}
+
+.clerk-dropdown a {
+    display: block;
+    padding: 12px 16px;
+    color: #c1c7d0;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.clerk-dropdown a:hover {
+    background-color: #f3f4f6;
+    color: #2563eb;
+}

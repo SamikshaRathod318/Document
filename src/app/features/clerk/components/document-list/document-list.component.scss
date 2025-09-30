@@ -1,116 +1,110 @@
 // Document List Component Styles
-
 .document-list-container {
-  padding: 20px;
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    
-    h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 500;
-    }
-    
-    .add-button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-  }
-  
-  .filters {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    
-    .search-field, .status-filter {
-      flex: 1;
-    }
-    
-    @media (max-width: 600px) {
-      flex-direction: column;
-      gap: 15px;
-    }
-  }
-  
-  .document-table {
-    width: 100%;
-    overflow-x: auto;
-    
-    table {
-      width: 100%;
-      
-      .file-icon {
-        margin-right: 8px;
-        vertical-align: middle;
-      }
-      
-      .status-badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: capitalize;
-        
-        &.status-pending {
-          background-color: #fff3e0;
-          color: #e65100;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    margin: 8px;
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 500;
         }
-        
-        &.status-approved {
-          background-color: #e8f5e9;
-          color: #2e7d32;
+        .add-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        &.status-rejected {
-          background-color: #ffebee;
-          color: #c62828;
-        }
-      }
-      
-      .action-button {
-        margin: 0 4px;
-        
-        &:first-child {
-          margin-left: 0;
-        }
-        
-        &:last-child {
-          margin-right: 0;
-        }
-      }
     }
-  }
-  
-  .mat-paginator {
-    margin-top: 20px;
-    background: transparent;
-  }
-  
-  .no-documents {
+    .filter-section {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 24px;
+        align-items: flex-start;
+        .search-container {
+            flex: 2;
+            min-width: 300px;
+        }
+        .filter-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        .search-field,
+        .status-filter {
+            width: 100%;
+        }
+        mat-form-field {
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            flex-direction: column;
+            gap: 16px;
+            .search-container,
+            .filter-container {
+                min-width: unset;
+            }
+        }
+    }
+    .document-table {
+        width: 50%;
+        table {
+            width: 50%;
+            .file-icon {
+                margin-right: 8px;
+                vertical-align: middle;
+            }
+            .status-badge {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+                text-transform: capitalize;
+                &.status-pending {
+                    background-color: #fff3e0;
+                    color: #e65100;
+                }
+                &.status-approved {
+                    background-color: #e8f5e9;
+                    color: #2e7d32;
+                }
+                &.status-rejected {
+                    background-color: #ffebee;
+                    color: #c62828;
+                }
+            }
+            .action-button {
+                margin: 0 4px;
+                &:first-child {
+                    margin-left: 0;
+                }
+                &:last-child {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+}
+
+.no-documents {
     text-align: center;
     padding: 40px 20px;
     color: rgba(0, 0, 0, 0.6);
-    
     mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
     }
-    
     h3 {
-      margin: 0 0 8px;
-      font-weight: 500;
+        margin: 0 0 8px;
+        font-weight: 500;
     }
-    
     p {
-      margin: 0;
-      color: rgba(0, 0, 0, 0.54);
+        margin: 0;
+        color: rgba(0, 0, 0, 0.54);
     }
-  }
 }

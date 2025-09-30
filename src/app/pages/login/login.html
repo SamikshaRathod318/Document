@@ -53,19 +53,11 @@
         <span *ngIf="!isLoading">Sign In</span>
         <span *ngIf="isLoading" class="spinner">Logging in...</span>
       </button>
-      <button type="button" class="link-button" (click)="onForgotPassword()" [disabled]="isLoading">
-        Forgot password?
-      </button>
-      <button type="button" class="create-users-button" (click)="onInsertUsers()" [disabled]="isLoading">
-        Insert Test Users
-      </button>
-      <button type="button" class="delete-users-button" (click)="onDeleteUsers()" [disabled]="isLoading">
-        Delete All Users
-      </button>
+      
     </form>
     
     <div class="signup-link">
-      Don't have an account? <a routerLink="/register">Sign up</a>
+      Don't have an account? <a routerLink=""></a> | <a (click)="onForgotPassword()">Forgot password?</a>
     </div>
   </div>
 </div>

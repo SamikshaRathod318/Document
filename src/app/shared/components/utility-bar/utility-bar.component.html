@@ -1,0 +1,30 @@
+
+  <div class="utility-container">
+    <div class="utility-left">
+      <div class="flag-section">
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjUuMzMiIGZpbGw9IiNGRjk5MzMiLz4KPHJlY3QgeT0iNS4zMyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjUuMzQiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeT0iMTAuNjciIHdpZHRoPSIyNCIgaGVpZ2h0PSI1LjMzIiBmaWxsPSIjMTM4ODA4Ii8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iMiIgZmlsbD0iIzAwMDA4MCIvPgo8L3N2Zz4K" alt="India Flag" class="flag-icon">
+        <span class="gov-text">Government of India</span>
+      </div>
+    </div>
+    
+    <div class="utility-right">
+      <button class="font-btn" (click)="decreaseFontSize()" title="Decrease font size">-A</button>
+      <button class="font-btn" (click)="resetFontSize()" title="Normal font size">A</button>
+      <button class="font-btn" (click)="increaseFontSize()" title="Increase font size">A+</button>
+      <span class="separator">|</span>
+      <div class="language-selector" (click)="toggleLanguageDropdown()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span>{{ currentLanguage }}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+        <div class="language-dropdown" *ngIf="showLanguageDropdown">
+          <div class="dropdown-item" (click)="selectLanguage('English'); $event.stopPropagation()">English</div>
+    
+        </div>
+      </div>
+    </div>
+  </div>

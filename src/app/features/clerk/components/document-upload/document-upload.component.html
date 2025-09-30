@@ -63,7 +63,7 @@
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
           <h3>Drag & Drop your file here</h3>
           <p>or</p>
-          <button mat-raised-button color="primary" type="button">
+          <button mat-raised-button color="primary" type="button" (click)="fileInput.click()">
             Browse Files
           </button>
           <p class="file-requirements">
@@ -109,6 +109,7 @@
         <button mat-raised-button 
                 color="primary" 
                 type="submit"
+                class="upload-btn"
                 [disabled]="uploadForm.invalid || isUploading">
           <mat-icon>cloud_upload</mat-icon>
           Upload Document

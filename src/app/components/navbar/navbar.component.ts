@@ -10,13 +10,14 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css', './clerk-menu.css']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   isMenuOpen = false;
   isScrolled = false;
   isUserMenuOpen = false;
   isCategoriesOpen = false;
+  showClerkMenu = false;
   private routeSubscription: Subscription | undefined;
   private authService = inject(AuthService);
   
@@ -133,5 +134,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.authService.logout();
     this.isUserMenuOpen = false;
     this.router.navigate(['/login']);
+  }
+
+  toggleClerkMenu() {
+    this.showClerkMenu = !this.showClerkMenu;
+  }
+
+  closeClerkMenu() {
+    this.showClerkMenu = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.clerk-menu')) {
+      this.showClerkMenu = false;
+    }
+    if (!target.closest('.user-menu')) {
+      this.isUserMenuOpen = false;
+    }
   }
 }

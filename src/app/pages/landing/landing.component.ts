@@ -7,8 +7,12 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.css']
+  styleUrls: ['./landing.component.css', './landing-sections.css']
 })
 export class LandingComponent {
-  // Add any component logic here
+  openFaq: number | null = null;
+
+  toggleFaq(index: number) {
+    this.openFaq = this.openFaq === index ? null : index;
+  }
 }

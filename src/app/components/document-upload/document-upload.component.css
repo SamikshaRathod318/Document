@@ -106,24 +106,29 @@
 .file-list {
   margin: 2rem 0;
   max-height: 300px;
-  overflow-y: auto;
+  overflow-y: scroll;
   padding-right: 0.5rem;
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) var(--border-color);
+  scrollbar-color: #2563eb #e5e7eb;
+  -webkit-overflow-scrolling: touch;
 }
 
 .file-list::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .file-list::-webkit-scrollbar-track {
-  background: var(--border-color);
-  border-radius: 3px;
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
 .file-list::-webkit-scrollbar-thumb {
-  background-color: var(--primary-color);
-  border-radius: 3px;
+  background-color: #2563eb;
+  border-radius: 4px;
+}
+
+.file-list::-webkit-scrollbar-thumb:hover {
+  background-color: #1d4ed8;
 }
 
 .file-item {

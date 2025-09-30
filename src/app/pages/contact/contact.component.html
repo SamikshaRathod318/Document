@@ -1,38 +1,106 @@
-<div class="container">
-  <h1>Contact Us</h1>
-  <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form" novalidate>
-    <div class="form-group">
-      <label for="name">Name</label>
-      <input type="text" id="name" formControlName="name" class="form-control">
-      <small class="error" *ngIf="contactForm.get('name')?.touched && contactForm.get('name')?.hasError('required')">
-        Name is required.
-      </small>
+<div class="contact-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <h1>Contact Us</h1>
+  </div>
+
+
+  <!-- Additional Information -->
+  <div class="additional-info">
+    <div class="info-section">
+      <h2>Get in Touch</h2>
+      <p>If you have any questions, want to engage, or require assistance, please reach out to us. We're here to help you with your document management needs.</p>
+    </div>
+    <div class="info-section">
+      <h2>Office Hours</h2>
+      <p>Monday to Friday: 9:00 AM - 6:00 PM<br>Saturday: 10:00 AM - 2:00 PM<br>Sunday: Closed</p>
+    </div>
+    <div class="info-section">
+      <h2>Support</h2>
+      <p>For technical support and assistance with the Document Management System, please contact our support team. We provide comprehensive help for all your queries.</p>
+    </div>
+  </div>
+
+
+  
+  <!-- Contact Form -->
+  <div class="contact-form-container">
+    <h2 class="form-title">We'll email you a detailed response</h2>
+    
+    <div class="success-message" *ngIf="showSuccess">
+      Message sent successfully! We'll get back to you soon.
     </div>
     
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" formControlName="email" class="form-control">
-      <small class="error" *ngIf="contactForm.get('email')?.touched && contactForm.get('email')?.hasError('required')">
-        Email is required.
-      </small>
-      <small class="error" *ngIf="contactForm.get('email')?.touched && contactForm.get('email')?.hasError('email')">
-        Please enter a valid email address.
-      </small>
+    <div class="error-message" *ngIf="showError">
+      Please fill in all required fields correctly.
     </div>
     
-    <div class="form-group">
-      <label for="message">Message</label>
-      <textarea id="message" formControlName="message" rows="5" class="form-control"></textarea>
-      <small class="error" *ngIf="contactForm.get('message')?.touched && contactForm.get('message')?.hasError('required')">
-        Message is required.
-      </small>
-      <small class="error" *ngIf="contactForm.get('message')?.touched && contactForm.get('message')?.hasError('minlength')">
-        Message must be at least 10 characters.
-      </small>
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Full Name<span class="required">*</span></label>
+          <input type="text" id="name" formControlName="name" placeholder="Full Name">
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email Address<span class="required">*</span></label>
+          <input type="email" id="email" formControlName="email" placeholder="example@digitalindia.gov.in">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="designation">Designation<span class="required">*</span></label>
+        <input type="text" id="designation" formControlName="designation" placeholder="e.g., Developer">
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Add any additional details</label>
+        <textarea id="message" formControlName="message" placeholder="Provide additional details (max 200 characters)." rows="6" maxlength="200"></textarea>
+        <div class="char-count">{{ getCharCount() }}/200</div>
+      </div>
+      
+      <div class="form-group">
+        <label>Upload Attachment</label>
+        <div class="file-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onFileDrop($event)">
+          <div class="upload-icon">📤</div>
+          <h3>Upload Document</h3>
+          <p>PDF, PNG, JPEG are supported formats</p>
+          <small>Upload a file (PDF, PNG, JPEG, max 25MB).</small>
+          <input #fileInput type="file" (change)="onFileSelected($event)" accept=".pdf,.png,.jpg,.jpeg" style="display: none;">
+        </div>
+        <div class="selected-file" *ngIf="selectedFile">
+          <span>📄 {{ selectedFile.name }}</span>
+          <button type="button" (click)="removeFile()">✕</button>
+        </div>
+      </div>
+      
+      <button type="submit" class="submit-btn" [class.sending]="isSubmitting" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting">✓ Submit</span>
+        <span *ngIf="isSubmitting">Submitting...</span>
+      </button>
+    </form>
+  </div>
+  
+  <!-- Contact Information -->
+  <div class="contact-info">
+    <div class="info-card">
+      <div class="icon">📧</div>
+      <h3>Email Us</h3>
+      <p>support.ux4g@digitalindia.gov.in<br>info@docmanager.com</p>
     </div>
     
-    <button type="submit" class="btn btn-primary" [disabled]="contactForm.invalid">
-      Send Message
-    </button>
-  </form>
+    <div class="info-card">
+      <div class="icon">📞</div>
+      <h3>Call Us</h3>
+      <p>+91-11-24305000<br>Mon-Fri 9AM-6PM</p>
+    </div>
+    
+    <div class="info-card">
+      <div class="icon">📍</div>
+      <h3>Visit Us</h3>
+      <p>Ministry of Electronics & IT<br>Electronics Niketan, 6 CGO Complex<br>Lodhi Road, New Delhi - 110003</p>
+    </div>
+  </div>
+  
+  
 </div>

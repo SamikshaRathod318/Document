@@ -1,0 +1,117 @@
+/* New UI Styles */
+.document-list-container {
+  padding: 24px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+}
+
+.upload-btn {
+  background-color: #007bff !important;
+  color: white !important;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+.filter-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: flex-end;
+}
+
+.search-container {
+  flex: 1;
+  max-width: 400px;
+}
+
+.filter-container {
+  min-width: 200px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  padding: 16px;
+}
+
+.mat-mdc-cell {
+  padding: 16px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.document-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-icon {
+  color: #6c757d;
+  font-size: 20px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-approved {
+  background-color: #d1edff;
+  color: #0c5460;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-in-review {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.mat-mdc-paginator {
+  background: white;
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #f1f3f4;
+}

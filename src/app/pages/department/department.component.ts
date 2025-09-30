@@ -15,7 +15,7 @@ export interface Category {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './department.component.html',
-  styleUrls: ['./department.component.css']
+  styleUrls: ['./department-attractive.css', './modal-styles.css']
 })
 export class DepartmentComponent implements OnInit {
   categories: Category[] = [];

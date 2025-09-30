@@ -21,7 +21,7 @@ interface User {
 @Component({
   selector: 'app-clerk-dashboard',
   templateUrl: './clerk-dashboard.component.html',
-  styleUrls: ['./clerk-dashboard.component.scss'],
+  styleUrls: ['./clerk-dashboard.component.scss', './dashboard-attractive.css'],
   standalone: true,
   imports: [
     CommonModule,
@@ -37,6 +37,8 @@ interface User {
 })
 export class ClerkDashboardComponent implements OnInit, OnDestroy {
   user: User | null = null;
+  showDocuments = false;
+  currentFilter = 'all';
   private userSubscription: Subscription | undefined;
   private routerEventsSubscription: Subscription;
   
@@ -89,6 +91,24 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  showFilteredDocuments(filter: string): void {
+    this.currentFilter = filter;
+    this.showDocuments = true;
+  }
+  
+  backToDashboard(): void {
+    this.showDocuments = false;
+  }
+  
+  getDocumentTitle(): string {
+    switch(this.currentFilter) {
+      case 'pending': return 'Pending Documents';
+      case 'approved': return 'Approved Documents';
+      case 'all': return 'All Documents';
+      default: return 'Documents';
+    }
   }
 
   // Normalize internal role keys to a friendly display label for the UI

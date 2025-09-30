@@ -77,9 +77,7 @@ export const environment = {
   },
   devBypass: {
     enabled: true,
-    email: 'test@local.dev',
-    password: 'Passw0rd!',
-    roles: ['admin'],
-    department: 'Administration'
+    email: 'admin@test.com',
+    password: 'admin123'
   }
 };

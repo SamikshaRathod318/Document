@@ -1,0 +1,304 @@
+/* Attractive Upload UI */
+
+.upload-container {
+    padding: 40px;
+    background: linear-gradient(135deg, #d198de 0%, #a789c6 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+.upload-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 25s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    100% {
+        transform: translateY(-100px);
+    }
+}
+
+.upload-container h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.upload-form {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.form-field {
+    width: 100%;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.mat-mdc-form-field {
+    width: 100%;
+}
+
+.mat-mdc-text-field-wrapper {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.mat-mdc-text-field-wrapper:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--focused {
+    border-color: #667eea;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.file-upload-container {
+    margin: 32px 0;
+}
+
+.file-drop-zone {
+    border: 3px dashed #667eea;
+    border-radius: 20px;
+    padding: 60px 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.file-drop-zone::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.file-drop-zone:hover::before {
+    opacity: 1;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.file-over {
+    border-color: #764ba2;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    transform: scale(1.02);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
+}
+
+.upload-prompt h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 20px 0 10px;
+}
+
+.upload-prompt p {
+    color: #7f8c8d;
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.upload-icon {
+    font-size: 64px;
+    color: #667eea;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.mat-mdc-raised-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-radius: 50px;
+    padding: 16px 32px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.mat-mdc-raised-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+}
+
+.file-preview {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    margin-top: 20px;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.file-icon {
+    font-size: 48px;
+    color: #667eea;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 12px;
+    border-radius: 50%;
+}
+
+.file-info h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.file-info p {
+    color: #7f8c8d;
+    margin: 4px 0 0;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.mat-mdc-checkbox {
+    color: #667eea;
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.upload-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+}
+
+.upload-btn:disabled {
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
+.mat-mdc-progress-bar {
+    border-radius: 10px;
+    height: 8px;
+    margin-top: 16px;
+}
+
+.upload-progress {
+    text-align: center;
+    margin-top: 12px;
+    font-weight: 600;
+    color: #667eea;
+}
+
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+    .upload-container {
+        padding: 20px;
+    }
+    .upload-form {
+        padding: 24px;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .file-drop-zone {
+        padding: 40px 20px;
+    }
+    .form-actions {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .action-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+}

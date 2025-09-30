@@ -1,0 +1,38 @@
+<div class="document-view-container">
+  <h2>Document Form View</h2>
+  
+  <div class="form-container">
+    <form class="document-form">
+      <div class="form-group">
+        <label for="title">Document Title</label>
+        <input type="text" id="title" class="form-control" placeholder="Enter document title">
+      </div>
+      
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" class="form-control" rows="4" placeholder="Enter description"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="department">Department</label>
+        <select id="department" class="form-control">
+          <option value="">Select Department</option>
+          <option value="admin">Administration</option>
+          <option value="water">Water</option>
+          <option value="account">Account</option>
+          <option value="property">Property</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="file">Upload Document</label>
+        <input type="file" id="file" class="form-control">
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Document</button>
+        <button type="button" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

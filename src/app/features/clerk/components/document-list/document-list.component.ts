@@ -22,7 +22,7 @@ import { DocumentStoreService } from '../../services/document-store.service';
 @Component({
   selector: 'app-document-list',
   templateUrl: './document-list.component.html',
-  styleUrls: ['./document-list.component.scss'],
+  styleUrls: ['./document-list.component.scss', './attractive-ui.css'],
   standalone: true,
   imports: [
     CommonModule,
@@ -128,6 +128,20 @@ export class DocumentListComponent implements OnInit {
       this.baseDocuments = docs;
       this.applyFilter();
     });
+    
+    // Check for filter query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterParam = urlParams.get('filter');
+    if (filterParam) {
+      if (filterParam === 'pending') {
+        this.selectedStatus = 'Pending';
+      } else if (filterParam === 'approved') {
+        this.selectedStatus = 'Approved';
+      } else if (filterParam === 'all') {
+        this.selectedStatus = 'all';
+      }
+      this.applyFilter();
+    }
   }
 
   ngAfterViewInit() {
