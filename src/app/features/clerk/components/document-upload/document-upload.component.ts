@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FileSizePipe } from '../../../../shared/pipes/file-size.pipe';
 import { Document } from '../../models/document.model';
 import { DocumentStoreService } from '../../services/document-store.service';
@@ -51,6 +51,8 @@ export class DocumentUploadComponent implements OnInit {
   isUploading = false;
   uploadProgress = 0;
   isDragging = false;
+  isEditMode = false;
+  editingDocumentId: number | null = null;
 
   // Document types for the dropdown
   documentClass = [
@@ -73,7 +75,8 @@ export class DocumentUploadComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private store: DocumentStoreService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.uploadForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
@@ -86,7 +89,33 @@ export class DocumentUploadComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Check if we're in edit mode
+    this.route.queryParams.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.editingDocumentId = +params['id'];
+        this.loadDocumentForEdit(this.editingDocumentId);
+      }
+    });
+  }
+
+  private loadDocumentForEdit(id: number): void {
+    const document = this.store.documents.find(doc => doc.id === id);
+    if (document) {
+      this.uploadForm.patchValue({
+        title: document.title,
+        description: document.description || '',
+        documentType: document.documentType,
+        department: document.department,
+        effectiveDate: document.uploadedDate,
+        isConfidential: document.isConfidential || false
+      });
+      // Make file field not required for edit mode
+      this.uploadForm.get('file')?.clearValidators();
+      this.uploadForm.get('file')?.updateValueAndValidity();
+    }
+  }
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
@@ -154,11 +183,17 @@ export class DocumentUploadComponent implements OnInit {
     console.log('Upload submit triggered', {
       status: this.uploadForm.status,
       value: this.uploadForm.value,
-      hasSelectedFile: !!this.selectedFile
+      hasSelectedFile: !!this.selectedFile,
+      isEditMode: this.isEditMode
     });
-    if (this.uploadForm.invalid || !this.selectedFile) {
+    
+    // For edit mode, file is optional; for create mode, file is required
+    if (this.uploadForm.invalid || (!this.isEditMode && !this.selectedFile)) {
       this.uploadForm.markAllAsTouched();
-      this.snackBar.open('Please fill in all required fields and select a file.', 'Close', {
+      const message = this.isEditMode ? 
+        'Please fill in all required fields.' : 
+        'Please fill in all required fields and select a file.';
+      this.snackBar.open(message, 'Close', {
         duration: 5000,
         panelClass: 'error-snackbar'
       });
@@ -183,30 +218,54 @@ export class DocumentUploadComponent implements OnInit {
       this.uploadProgress = 100;
       this.isUploading = false;
       
-      this.snackBar.open('Document uploaded successfully!', 'Close', {
+      const successMessage = this.isEditMode ? 
+        'Document updated successfully!' : 
+        'Document uploaded successfully!';
+      
+      this.snackBar.open(successMessage, 'Close', {
         duration: 5000,
         panelClass: 'success-snackbar'
       });
       
-      // Create a new Document from form and selected file
       const formValue = this.uploadForm.value;
-      const newDoc: Document = {
-        id: 0, // will be assigned by store
-        title: formValue.title,
-        description: formValue.description || '',
-        type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
-        size: this.selectedFile?.size,
-        uploadedDate: new Date(),
-        status: 'Pending',
-        uploadedBy: 'Current User',
-        department: formValue.department,
-        documentType: formValue.documentType,
-        isConfidential: !!formValue.isConfidential,
-        fileUrl: undefined
-      };
-
-      // Update store so lists refresh
-      this.store.add(newDoc);
+      
+      if (this.isEditMode && this.editingDocumentId) {
+        // Update existing document
+        const existingDoc = this.store.documents.find(doc => doc.id === this.editingDocumentId);
+        if (existingDoc) {
+          const updatedDoc: Document = {
+            ...existingDoc,
+            title: formValue.title,
+            description: formValue.description || '',
+            department: formValue.department,
+            documentType: formValue.documentType,
+            isConfidential: !!formValue.isConfidential,
+            // Only update file info if new file was selected
+            ...(this.selectedFile && {
+              type: this.getDocTypeFromFile(this.selectedFile.name),
+              size: this.selectedFile.size
+            })
+          };
+          this.store.update(updatedDoc);
+        }
+      } else {
+        // Create new document
+        const newDoc: Document = {
+          id: 0, // will be assigned by store
+          title: formValue.title,
+          description: formValue.description || '',
+          type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
+          size: this.selectedFile?.size,
+          uploadedDate: new Date(),
+          status: 'Pending',
+          uploadedBy: 'Current User',
+          department: formValue.department,
+          documentType: formValue.documentType,
+          isConfidential: !!formValue.isConfidential,
+          fileUrl: undefined
+        };
+        this.store.add(newDoc);
+      }
 
       // Reset the form after successful upload
       this.uploadForm.reset({

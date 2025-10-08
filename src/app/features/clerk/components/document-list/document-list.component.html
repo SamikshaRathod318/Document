@@ -112,3 +112,79 @@
   ></mat-paginator>
 </div>
 
+<!-- Document View Form Modal -->
+<div class="form-overlay" *ngIf="showForm" (click)="closeForm()">
+  <div class="form-modal" (click)="$event.stopPropagation()">
+    <div class="form-header">
+      <h3>Document Details</h3>
+      <button class="close-btn" (click)="closeForm()">&times;</button>
+    </div>
+    <div class="form-content">
+      <div class="form-field">
+        <label>Title:</label>
+        <input type="text" [value]="selectedDocument?.title" readonly>
+      </div>
+      <div class="form-field">
+        <label>Type:</label>
+        <input type="text" [value]="selectedDocument?.type" readonly>
+      </div>
+      <div class="form-field">
+        <label>Uploaded Date:</label>
+        <input type="text" [value]="selectedDocument?.uploadedDate | date:'mediumDate'" readonly>
+      </div>
+      <div class="form-field">
+        <label>Status:</label>
+        <span class="status-badge" [ngClass]="getStatusClass(selectedDocument?.status || '')">{{ selectedDocument?.status }}</span>
+      </div>
+      <div class="form-field">
+        <label>Uploaded By:</label>
+        <input type="text" [value]="selectedDocument?.uploadedBy" readonly>
+      </div>
+      <div class="form-field">
+        <label>Department:</label>
+        <input type="text" [value]="selectedDocument?.department" readonly>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Form Modal -->
+<div class="form-overlay" *ngIf="showEditForm" (click)="closeEditForm()">
+  <div class="form-modal edit-modal" (click)="$event.stopPropagation()">
+    <div class="form-header">
+      <h3>Edit Document</h3>
+      <button class="close-btn" (click)="closeEditForm()">&times;</button>
+    </div>
+    <div class="form-content">
+      <form [formGroup]="editForm" (ngSubmit)="saveDocument()">
+        <div class="form-field">
+          <label>Title:</label>
+          <input type="text" formControlName="title">
+        </div>
+        <div class="form-field">
+          <label>Type:</label>
+          <input type="text" formControlName="type" readonly>
+        </div>
+        <div class="form-field">
+          <label>Department:</label>
+          <select formControlName="department">
+            <option value="Finance">Finance</option>
+            <option value="HR">HR</option>
+            <option value="Operations">Operations</option>
+            <option value="Legal">Legal</option>
+            <option value="IT">IT</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Document Type:</label>
+          <input type="text" formControlName="documentType">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeEditForm()">Cancel</button>
+          <button type="submit" class="btn-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

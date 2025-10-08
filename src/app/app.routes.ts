@@ -37,17 +37,7 @@ export const routes: Routes = [
     title: 'Departments - Document Management System',
     canActivate: [authGuard]
   },
-  // Document routes
-  {
-    path: 'documents',
-    loadComponent: () => import('./pages/documents/documents.component').then(m => m.DocumentsComponent),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'documents/view',
-    loadComponent: () => import('./pages/documents/document-view.component').then(m => m.DocumentViewComponent),
-    canActivate: [authGuard]
-  },
+
   // Clerk routes
   {
     path: 'clerk',

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,7 +22,7 @@ import { DocumentStoreService } from '../../services/document-store.service';
 @Component({
   selector: 'app-document-list',
   templateUrl: './document-list.component.html',
-  styleUrls: ['./document-list.component.scss', './attractive-ui.css'],
+  styleUrls: ['./document-list.component.scss', './attractive-ui.css', './form-modal.css'],
   standalone: true,
   imports: [
     CommonModule,
@@ -55,9 +55,12 @@ export class DocumentListComponent implements OnInit {
   
   // Paginator state
   pageSize = 5;
+  currentPage = 4;
+  totalPages = 8;
   
   // Backing list from store (unfiltered)
   private baseDocuments: Document[] = [];
+  private filteredDocuments: Document[] = [];
 
   // Status options for filter
   statusOptions = [
@@ -72,6 +75,10 @@ export class DocumentListComponent implements OnInit {
   searchText = '';
   selectedStatus = 'all';
   isLoading = false;
+  showForm = false;
+  selectedDocument: Document | null = null;
+  showEditForm = false;
+  editForm: FormGroup;
   
   // Mock data (legacy) - replaced by DocumentStoreService; kept for fallback
   mockDocuments: Document[] = [
@@ -119,8 +126,16 @@ export class DocumentListComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private store: DocumentStoreService
-  ) {}
+    private store: DocumentStoreService,
+    private fb: FormBuilder
+  ) {
+    this.editForm = this.fb.group({
+      title: ['', Validators.required],
+      type: [''],
+      department: ['', Validators.required],
+      documentType: ['', Validators.required]
+    });
+  }
 
   ngOnInit(): void {
     // Subscribe to documents from the store
@@ -179,11 +194,24 @@ export class DocumentListComponent implements OnInit {
       );
     }
     
-    this.dataSource.data = filteredData;
+    // Store filtered data
+    this.filteredDocuments = filteredData;
     
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+    // Calculate total pages
+    this.totalPages = Math.max(1, Math.ceil(filteredData.length / this.pageSize));
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = 1;
     }
+    
+    // Apply pagination
+    this.updateDisplayedData();
+  }
+
+  private updateDisplayedData(): void {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    const paginatedData = this.filteredDocuments.slice(startIndex, endIndex);
+    this.dataSource.data = paginatedData;
   }
 
   getStatusClass(status: string): string {
@@ -201,14 +229,42 @@ export class DocumentListComponent implements OnInit {
   }
 
   viewDocument(document: Document): void {
-    // Show quick feedback for now; can be replaced with a MatDialog viewer
-    this.snackBar.open(`Viewing: ${document.title}`, 'OK', { duration: 2000 });
+    this.selectedDocument = document;
+    this.showForm = true;
+  }
+
+  closeForm(): void {
+    this.showForm = false;
+    this.selectedDocument = null;
   }
 
   editDocument(document: Document): void {
-    // Navigate to upload/edit page with query param (placeholder flow)
-    this.router.navigate(['/clerk/upload'], { queryParams: { id: document.id } });
-    this.snackBar.open(`Opening editor for: ${document.title}`, 'Dismiss', { duration: 2000 });
+    this.selectedDocument = document;
+    this.editForm.patchValue({
+      title: document.title,
+      type: document.type,
+      department: document.department,
+      documentType: document.documentType
+    });
+    this.showEditForm = true;
+  }
+
+  closeEditForm(): void {
+    this.showEditForm = false;
+    this.selectedDocument = null;
+    this.editForm.reset();
+  }
+
+  saveDocument(): void {
+    if (this.editForm.valid && this.selectedDocument) {
+      const updatedDoc = {
+        ...this.selectedDocument,
+        ...this.editForm.value
+      };
+      this.store.update(updatedDoc);
+      this.snackBar.open('Document updated successfully!', 'Close', { duration: 3000 });
+      this.closeEditForm();
+    }
   }
 
   deleteDocument(document: Document): void {
