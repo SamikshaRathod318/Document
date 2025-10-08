@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { Subscription, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -8,7 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css', './clerk-menu.css']
 })
@@ -27,6 +28,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isAuthenticated = false;
   isOnClerkRoute = false;
   currentRole: string | null = null;
+  
+  // Search functionality
+  searchQuery = '';
+  isSearchFocused = false;
 
   constructor(public router: Router) {
     // Subscribe to auth state changes
@@ -142,6 +147,33 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   closeClerkMenu() {
     this.showClerkMenu = false;
+  }
+
+  // Search methods
+  onSearch(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.searchQuery = target.value;
+    // Add debounced search logic here if needed
+  }
+
+  performSearch() {
+    if (this.searchQuery.trim()) {
+      // Navigate to search results or trigger search
+      console.log('Searching for:', this.searchQuery);
+      // Example: this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
+    }
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+  }
+
+  onSearchFocus() {
+    this.isSearchFocused = true;
+  }
+
+  onSearchBlur() {
+    this.isSearchFocused = false;
   }
 
   @HostListener('document:click', ['$event'])

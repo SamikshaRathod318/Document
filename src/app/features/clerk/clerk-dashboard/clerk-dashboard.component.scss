@@ -1,6 +1,6 @@
 .sidenav-container {
     height: calc(100vh - 100px);
-    background: linear-gradient(90deg, #f9fafb 0%, #ffffff 100%);
+    background: white;
     box-sizing: none;
 }
 
@@ -109,7 +109,7 @@ mat-sidenav-content {
     background: white;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -117,7 +117,7 @@ mat-sidenav-content {
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
@@ -134,7 +134,7 @@ mat-sidenav-content {
 
 .content {
     padding: 20px;
-    background-color: #829bb4;
+    background-color: white;
     min-height: 100%;
     overflow-y: auto;
 }

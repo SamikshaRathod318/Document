@@ -2,7 +2,7 @@
 
 .about-container {
     padding: 0;
-    background: linear-gradient(135deg, #cd95cf 0%, #c0a2de 100%);
+    background: white;
     min-height: 100vh;
     position: relative;
     overflow: hidden;
@@ -38,10 +38,10 @@
 .hero-section h1 {
     font-size: 4rem;
     font-weight: 800;
-    color: white;
+    color: rgb(5, 5, 5);
     margin-bottom: 30px;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(45deg, #ffffff, #e3f2fd);
+    background: linear-gradient(45deg, #000000, #080808);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: glow 2s ease-in-out infinite alternate;
@@ -58,7 +58,7 @@
 
 .hero-section p {
     font-size: 1.3rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;

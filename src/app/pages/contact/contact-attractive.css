@@ -2,7 +2,7 @@
 
 .contact-container {
     padding: 0;
-    background: linear-gradient(135deg, #816a85 0%, #c0a6dc 100%);
+    background: white;
     min-height: 100vh;
     position: relative;
     overflow: hidden;
@@ -41,7 +41,7 @@
     color: white;
     margin-bottom: 30px;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(45deg, #ffffff, #e3f2fd);
+    background: linear-gradient(45deg, #070606, #000000);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: glow 2s ease-in-out infinite alternate;

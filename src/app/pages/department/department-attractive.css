@@ -1,245 +1,247 @@
 /* Attractive Department UI */
+
 .department-container {
-  padding: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  position: relative;
+    padding: 40px;
+    background: white;
+    min-height: 100vh;
+    position: relative;
 }
 
 .department-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
-  animation: float 25s infinite linear;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 25s infinite linear;
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-100px); }
+    0% {
+        transform: translateY(0px);
+    }
+    100% {
+        transform: translateY(-100px);
+    }
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
 }
 
 .header h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-  text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    font-size: 3rem;
+    font-weight: 700;
+    color: rgb(22, 20, 20);
+    margin: 0;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .search-container {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .search-box {
-  position: relative;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 50px;
-  padding: 12px 20px 12px 50px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50px;
+    padding: 12px 20px 12px 50px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .search-box input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 1rem;
-  width: 300px;
-  color: #2c3e50;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1rem;
+    width: 300px;
+    color: #2c3e50;
 }
 
 .search-box input::placeholder {
-  color: #95a5a6;
+    color: #95a5a6;
 }
 
 .search-icon {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #667eea;
-  font-size: 1.2rem;
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #667eea;
+    font-size: 1.2rem;
 }
 
 .new-dept-btn {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .new-dept-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-  background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    background: white;
 }
 
 .departments-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  position: relative;
-  z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    position: relative;
+    z-index: 1;
 }
 
 .department-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 30px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .department-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-  transition: left 0.6s;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.6s;
 }
 
 .department-card:hover::before {
-  left: 100%;
+    left: 100%;
 }
 
 .department-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.2);
-  border-color: rgba(102, 126, 234, 0.3);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    border-color: rgba(102, 126, 234, 0.3);
 }
 
 .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
 }
 
 .department-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
 }
 
 .document-count {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .department-description {
-  color: #666;
-  font-size: 1rem;
-  line-height: 1.5;
-  margin: 15px 0 20px;
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 15px 0 20px;
 }
 
 .card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .last-updated {
-  color: #95a5a6;
-  font-size: 0.9rem;
+    color: #95a5a6;
+    font-size: 0.9rem;
 }
 
 .card-actions {
-  display: flex;
-  gap: 10px;
+    display: flex;
+    gap: 10px;
 }
 
 .action-btn {
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: #95a5a6;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #95a5a6;
 }
 
 .action-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
-  transform: scale(1.1);
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transform: scale(1.1);
 }
 
 .edit-btn:hover {
-  background: rgba(52, 152, 219, 0.1);
-  color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
 }
 
 .delete-btn:hover {
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
 }
 
+
 /* Responsive Design */
+
 @media (max-width: 768px) {
-  .department-container {
-    padding: 20px;
-  }
-  
-  .header {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-  
-  .header h1 {
-    font-size: 2.2rem;
-  }
-  
-  .search-container {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .search-box input {
-    width: 250px;
-  }
-  
-  .departments-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
+    .department-container {
+        padding: 20px;
+    }
+    .header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    .header h1 {
+        font-size: 2.2rem;
+    }
+    .search-container {
+        flex-direction: column;
+        width: 100%;
+    }
+    .search-box input {
+        width: 250px;
+    }
+    .departments-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
 }

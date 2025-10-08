@@ -67,7 +67,7 @@ export class AuthService {
             localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
             this.isAuthenticatedSubject.next(true);
             this.currentUserSubject.next(userData);
-            this.router.navigate(['/clerk']);
+            this.router.navigate(['/']);
             observer.next(true);
             observer.complete();
           } else {

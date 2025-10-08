@@ -7,7 +7,7 @@
 }
 
 .navbar {
-    background: linear-gradient(135deg, #3c3643 0%, #baabc8 100%);
+    background: linear-gradient(135deg, #2e2d30 0%, #615a67 100%);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
@@ -29,6 +29,7 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
+    gap: 2rem;
 }
 
 .logo {
@@ -101,6 +102,72 @@
 }
 
 
+/* Search Bar Styles */
+
+.search-container {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 1rem;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.search-box:focus-within {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(132, 206, 226, 0.5);
+    box-shadow: 0 0 0 3px rgba(132, 206, 226, 0.1);
+}
+
+.search-icon {
+    color: rgba(255, 255, 255, 0.7);
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.95rem;
+    padding: 0;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.clear-search {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 0.5rem;
+}
+
+.clear-search:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+
 /* Mobile Menu Button */
 
 .mobile-menu-button {
@@ -170,6 +237,12 @@
 @media (max-width: 768px) {
     .mobile-menu-button {
         display: block;
+    }
+    .navbar-container {
+        gap: 1rem;
+    }
+    .search-container {
+        display: none;
     }
     .nav-menu {
         position: fixed;
@@ -352,6 +425,18 @@
     .dropdown-item {
         padding: 1rem;
         justify-content: center;
+    }
+}
+
+@media (max-width: 1024px) {
+    .search-container {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 900px) {
+    .search-container {
+        max-width: 250px;
     }
 }
 
