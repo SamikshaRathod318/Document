@@ -160,12 +160,7 @@ export class DocumentListComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    // Ensure paginator reflects current pageSize
-    if (this.paginator) {
-      this.paginator.pageSize = this.pageSize;
-    }
   }
 
   loadDocuments(): void {
@@ -211,6 +206,7 @@ export class DocumentListComponent implements OnInit {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     const paginatedData = this.filteredDocuments.slice(startIndex, endIndex);
+    console.log('Pagination:', { currentPage: this.currentPage, totalPages: this.totalPages, filteredCount: this.filteredDocuments.length, displayedCount: paginatedData.length });
     this.dataSource.data = paginatedData;
   }
 
@@ -276,6 +272,26 @@ export class DocumentListComponent implements OnInit {
     this.store.delete(document.id);
     this.applyFilter();
     this.snackBar.open('Document deleted', 'Dismiss', { duration: 2000 });
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updateDisplayedData();
+    }
+  }
+
+  getVisiblePages(): number[] {
+    const pages: number[] = [];
+    const start = Math.max(2, this.currentPage - 1);
+    const end = Math.min(this.totalPages - 1, this.currentPage + 1);
+    
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== this.totalPages) {
+        pages.push(i);
+      }
+    }
+    return pages;
   }
 
   onPageChange(event: PageEvent): void {
