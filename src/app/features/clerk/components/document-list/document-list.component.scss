@@ -1,14 +1,23 @@
 // Document List Component Styles
 .document-list-container {
-    padding: 16px;
+    padding: 12px;
     background: white;
     border-radius: 8px;
     margin: 8px;
+    max-width: 120%;
     .header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
+        background: transparent;
+        /* removes background box */
+        border: none;
+        /* removes border if any */
+        box-shadow: none;
+        /* removes shadow if any */
+        padding: 0;
+        /* removes inner spacing */
         h1 {
             margin: 0;
             font-size: 24px;
@@ -28,10 +37,29 @@
         .search-container {
             flex: 2;
             min-width: 300px;
+            height: auto;
+            /* Adjusts to content height */
+            background: transparent;
+            /* Removes any background color */
+            padding: 0;
+            /* Removes inner spacing */
+            margin: 0;
+            /* Removes outer spacing */
+            border: none;
+            /* Removes border if present */
         }
         .filter-container {
-            flex: 1;
-            min-width: 200px;
+            flex: 2;
+            min-width: 300px;
+            height: 0px;
+            /* allows natural content height */
+            background: transparent;
+            /* removes background color */
+            padding: 0;
+            /* removes internal spacing */
+            margin: 0;
+            /* removes external spacing */
+            border: none;
         }
         .search-field,
         .status-filter {
