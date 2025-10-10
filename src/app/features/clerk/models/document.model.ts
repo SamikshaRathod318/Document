@@ -9,6 +9,7 @@ export interface Document {
   uploadedBy: string;
   department: string;
   documentType: string;
+  class?: string;
   isConfidential?: boolean;
   fileUrl?: string;
   reviewerComments?: string;

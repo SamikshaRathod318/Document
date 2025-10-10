@@ -180,6 +180,37 @@
     color: white;
 }
 
+.class-badge {
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.class-a {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+}
+
+.class-b {
+    background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+}
+
+.class-c {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.class-d {
+    background: linear-gradient(135deg, #9E9E9E 0%, #757575 100%);
+}
+
+.class-default {
+    background: linear-gradient(135deg, #757575 0%, #424242 100%);
+}
+
 .mat-mdc-icon-button {
     margin: 0 4px;
     border-radius: 50%;

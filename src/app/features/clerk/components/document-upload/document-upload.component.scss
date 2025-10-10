@@ -119,6 +119,60 @@
     }
 }
 
+// Document Class Selection Styles
+.document-class-section {
+    width: 100%;
+    margin-bottom: 16px;
+    
+    .class-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+        margin-bottom: 8px;
+    }
+    
+    .class-options {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .class-option {
+        width: 60px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        
+        .class-text {
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        &:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        &.selected {
+            border-color: #333;
+            box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.3);
+        }
+    }
+    
+    .class-error {
+        font-size: 12px;
+        color: #f44336;
+        margin-top: 4px;
+    }
+}
+
 // Responsive styles
 @media (max-width: 600px) {
     .upload-container {
@@ -129,5 +183,9 @@
         button {
             width: 100%;
         }
+    }
+    
+    .document-class-section .class-options {
+        justify-content: center;
     }
 }

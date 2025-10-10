@@ -66,6 +66,16 @@
         <td mat-cell *matCellDef="let element">{{element.type}}</td>
       </ng-container>
 
+      <!-- Class Column -->
+      <ng-container matColumnDef="class">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Class</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="class-badge" [ngClass]="getClassColor(element.class)">
+            {{element.class}}
+          </span>
+        </td>
+      </ng-container>
+
       <!-- Uploaded Date Column -->
       <ng-container matColumnDef="uploadedDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded On</th>

@@ -14,8 +14,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { FileSizePipe } from '../../../../shared/pipes/file-size.pipe';
 import { Document } from '../../models/document.model';
 import { DocumentStoreService } from '../../services/document-store.service';
 
@@ -42,7 +42,7 @@ import { DocumentStoreService } from '../../services/document-store.service';
     MatSnackBarModule,
     MatCardModule,
     MatTooltipModule,
-    FileSizePipe
+    MatTableModule
   ]
 })
 export class DocumentUploadComponent implements OnInit {
@@ -54,13 +54,12 @@ export class DocumentUploadComponent implements OnInit {
   isEditMode = false;
   editingDocumentId: number | null = null;
 
-  // Document types for the dropdown
+  // Document classes with colors
   documentClass = [
-    { value: 'a', viewValue: 'A' },
-    { value: 'b', viewValue: 'B' },
-    { value: 'c', viewValue: 'C' },
-    { value: 'd', viewValue: 'D' },
-    { value: 'other', viewValue: 'Other' }
+    { value: 'a', viewValue: 'A', color: '#4CAF50' },
+    { value: 'b', viewValue: 'B', color: '#F44336' },
+    { value: 'c', viewValue: 'C', color: '#2196F3' },
+    { value: 'd', viewValue: 'D', color: '#9E9E9E' }
   ];
 
   // Departments from environment
@@ -82,7 +81,8 @@ export class DocumentUploadComponent implements OnInit {
       title: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', [Validators.maxLength(500)]],
       documentType: ['', Validators.required],
-      department: ['', Validators.required],
+      class: ['', Validators.required],
+
       effectiveDate: [new Date(), Validators.required],
       isConfidential: [false],
       file: [null, Validators.required]
@@ -179,6 +179,20 @@ export class DocumentUploadComponent implements OnInit {
     });
   }
 
+  selectedClass: string = '';
+  filteredDocuments = new MatTableDataSource<Document>();
+  tableColumns: string[] = ['title', 'type', 'status', 'uploadedDate'];
+
+  onClassChange(classValue: string): void {
+    this.selectedClass = classValue;
+    this.loadDocumentsByClass(classValue);
+  }
+
+  loadDocumentsByClass(classValue: string): void {
+    const documents = this.store.documents.filter(doc => doc.class?.toLowerCase() === classValue.toLowerCase());
+    this.filteredDocuments.data = documents;
+  }
+
   onSubmit(): void {
     console.log('Upload submit triggered', {
       status: this.uploadForm.status,
@@ -239,6 +253,7 @@ export class DocumentUploadComponent implements OnInit {
             description: formValue.description || '',
             department: formValue.department,
             documentType: formValue.documentType,
+            class: formValue.class,
             isConfidential: !!formValue.isConfidential,
             // Only update file info if new file was selected
             ...(this.selectedFile && {
@@ -261,6 +276,7 @@ export class DocumentUploadComponent implements OnInit {
           uploadedBy: 'Current User',
           department: formValue.department,
           documentType: formValue.documentType,
+          class: formValue.class,
           isConfidential: !!formValue.isConfidential,
           fileUrl: undefined
         };

@@ -50,7 +50,7 @@ export class DocumentListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['title', 'type', 'uploadedDate', 'status', 'actions'];
+  displayedColumns: string[] = ['title', 'type', 'class', 'uploadedDate', 'status', 'actions'];
   dataSource = new MatTableDataSource<Document>();
   
   // Paginator state
@@ -90,7 +90,8 @@ export class DocumentListComponent implements OnInit {
       status: 'Pending',
       uploadedBy: 'John Doe',
       department: 'Finance',
-      documentType: 'Annual Report'
+      documentType: 'Annual Report',
+      class: 'A'
     },
     { 
       id: 2, 
@@ -100,7 +101,8 @@ export class DocumentListComponent implements OnInit {
       status: 'Approved',
       uploadedBy: 'Jane Smith',
       department: 'HR',
-      documentType: 'Minutes'
+      documentType: 'Minutes',
+      class: 'B'
     },
     { 
       id: 3, 
@@ -110,16 +112,17 @@ export class DocumentListComponent implements OnInit {
       status: 'Rejected',
       uploadedBy: 'Mike Johnson',
       department: 'Finance',
-      documentType: 'Budget'
+      documentType: 'Budget',
+      class: 'C'
     },
-    { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy' },
-    { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide' },
-    { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast' },
-    { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist' },
-    { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan' },
-    { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory' },
-    { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief' },
-    { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings' },
+    { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy', class: 'D' },
+    { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide', class: 'A' },
+    { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast', class: 'B' },
+    { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist', class: 'C' },
+    { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan', class: 'D' },
+    { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory', class: 'A' },
+    { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief', class: 'B' },
+    { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings', class: 'C' },
   ];
 
   constructor(
@@ -138,6 +141,10 @@ export class DocumentListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Clear and add fresh mock data
+    this.store.documents.length = 0;
+    this.mockDocuments.forEach(doc => this.store.add(doc));
+    
     // Subscribe to documents from the store
     this.store.documents$.subscribe(docs => {
       this.baseDocuments = docs;
@@ -221,6 +228,21 @@ export class DocumentListComponent implements OnInit {
       case 'Pending':
       default:
         return 'status-pending';
+    }
+  }
+
+  getClassColor(classValue: string): string {
+    switch (classValue?.toUpperCase()) {
+      case 'A':
+        return 'class-a';
+      case 'B':
+        return 'class-b';
+      case 'C':
+        return 'class-c';
+      case 'D':
+        return 'class-d';
+      default:
+        return 'class-default';
     }
   }
 

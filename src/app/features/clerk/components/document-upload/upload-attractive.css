@@ -277,6 +277,27 @@
 }
 
 
+/* Document Class Colors */
+.mat-mdc-option[value="a"] {
+    background-color: #90EE90 !important;
+    color: #000 !important;
+}
+
+.mat-mdc-option[value="b"] {
+    background-color: #FF0000 !important;
+    color: #fff !important;
+}
+
+.mat-mdc-option[value="c"] {
+    background-color: #0000FF !important;
+    color: #fff !important;
+}
+
+.mat-mdc-option[value="d"] {
+    background-color: #808080 !important;
+    color: #fff !important;
+}
+
 /* Responsive Design */
 
 @media (max-width: 768px) {

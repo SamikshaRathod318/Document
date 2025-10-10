@@ -104,6 +104,28 @@
                     color: #c62828;
                 }
             }
+            .class-badge {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: bold;
+                color: white;
+                &.class-A {
+                    background-color: #4CAF50;
+                }
+                &.class-B {
+                    background-color: #F44336;
+                }
+                &.class-C {
+                    background-color: #2196F3;
+                }
+                &.class-D {
+                    background-color: #9E9E9E;
+                }
+                &.class-default {
+                    background-color: #757575;
+                }
+            }
             .action-button {
                 margin: 0 4px;
                 &:first-child {

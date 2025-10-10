@@ -12,28 +12,24 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Document Class *</mat-label>
-        <mat-select formControlName="documentType">
-          <mat-option *ngFor="let class of documentClass" [value]="class.value">
-            {{class.viewValue}}
-          </mat-option>
-        </mat-select>
+        <mat-label>Document Type *</mat-label>
+        <input matInput formControlName="documentType" placeholder="Enter document type">
         <mat-error *ngIf="uploadForm.get('documentType')?.hasError('required')">
-          Document class is required
+          Document type is required
         </mat-error>
       </mat-form-field>
     </div>
 
     <div class="form-row">
       <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Department *</mat-label>
-        <mat-select formControlName="department">
-          <mat-option *ngFor="let dept of departments" [value]="dept">
-            {{dept}}
+        <mat-label>Document Class *</mat-label>
+        <mat-select formControlName="class" (selectionChange)="onClassChange($event.value)">
+          <mat-option *ngFor="let class of documentClass" [value]="class.value">
+            <span [style.color]="class.color" style="font-weight: bold;">{{class.viewValue}}</span>
           </mat-option>
         </mat-select>
-        <mat-error *ngIf="uploadForm.get('department')?.hasError('required')">
-          Department is required
+        <mat-error *ngIf="uploadForm.get('class')?.hasError('required')">
+          Document class is required
         </mat-error>
       </mat-form-field>
 
@@ -76,7 +72,7 @@
             <mat-icon class="file-icon">{{ getFileIcon(selectedFile.name) }}</mat-icon>
             <div>
               <h4>{{ selectedFile.name }}</h4>
-              <p>{{ selectedFile.size | fileSize }}</p>
+              <p>{{ selectedFile.size }} bytes</p>
             </div>
             <button mat-icon-button (click)="$event.stopPropagation(); selectedFile = null; uploadForm.patchValue({file: null})">
               <mat-icon>close</mat-icon>
