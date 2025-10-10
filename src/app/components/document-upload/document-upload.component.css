@@ -1,4 +1,10 @@
 /* Document Upload Component Styles */
+:host {
+  background-color: white;
+  min-height: 100vh;
+  display: block;
+}
+
 .document-upload-container {
   max-width: 800px;
   margin: 2rem auto;

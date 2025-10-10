@@ -18,7 +18,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isScrolled = false;
   isUserMenuOpen = false;
   isCategoriesOpen = false;
-  showClerkMenu = false;
+
   private routeSubscription: Subscription | undefined;
   private authService = inject(AuthService);
   
@@ -141,13 +141,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  toggleClerkMenu() {
-    this.showClerkMenu = !this.showClerkMenu;
-  }
 
-  closeClerkMenu() {
-    this.showClerkMenu = false;
-  }
 
   // Search methods
   onSearch(event: Event) {
@@ -179,9 +173,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
     const target = event.target as HTMLElement;
-    if (!target.closest('.clerk-menu')) {
-      this.showClerkMenu = false;
-    }
+
     if (!target.closest('.user-menu')) {
       this.isUserMenuOpen = false;
     }

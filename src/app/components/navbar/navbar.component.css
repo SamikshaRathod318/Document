@@ -12,6 +12,7 @@
     transition: all 0.3s ease;
     position: relative;
     border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    height: 60px;
 }
 
 .navbar.scrolled {
@@ -24,12 +25,13 @@
 .navbar-container {
     max-width: 1550px;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
     gap: 2rem;
+    height: 100%;
 }
 
 .logo {
@@ -248,7 +250,6 @@
         display: block;
         order: 3;
     }
-    
     .logo {
         order: 1;
     }
@@ -473,58 +474,54 @@
         background-color: rgba(59, 130, 246, 0.1);
     }
 }
+
+
 /* Enhanced Mobile Menu Button Visibility */
+
 @media (max-width: 768px) {
-  .navbar-container {
-    padding: 0.75rem 1rem;
-    flex-wrap: nowrap;
-  }
-  
-  .mobile-menu-button {
-    min-width: 44px;
-    min-height: 44px;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  
-  .mobile-menu-button:active {
-    background: rgba(255, 255, 255, 0.25);
-    transform: scale(0.95);
-  }
-  
-  .nav-menu {
-    background: linear-gradient(135deg, #2e2d30 0%, #615a67 100%);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .nav-link {
-    color: white;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgb(132, 206, 226);
-  }
+    .navbar-container {
+        padding: 0.75rem 1rem;
+        flex-wrap: nowrap;
+    }
+    .mobile-menu-button {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    .mobile-menu-button:active {
+        background: rgba(255, 255, 255, 0.25);
+        transform: scale(0.95);
+    }
+    .nav-menu {
+        background: linear-gradient(135deg, #2e2d30 0%, #615a67 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .nav-link {
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgb(132, 206, 226);
+    }
 }
 
 @media (max-width: 480px) {
-  .navbar-container {
-    padding: 0.5rem 0.75rem;
-  }
-  
-  .logo span {
-    font-size: 1.25rem;
-  }
-  
-  .mobile-menu-button {
-    min-width: 40px;
-    min-height: 40px;
-  }
+    .navbar-container {
+        padding: 0.5rem 0.75rem;
+    }
+    .logo span {
+        font-size: 1.25rem;
+    }
+    .mobile-menu-button {
+        min-width: 40px;
+        min-height: 40px;
+    }
 }

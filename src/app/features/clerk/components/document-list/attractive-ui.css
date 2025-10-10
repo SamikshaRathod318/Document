@@ -2,7 +2,7 @@
 
 .document-list-container {
     padding: 32px;
-    background: linear-gradient(135deg, #d198de 0%, #a789c6 100%);
+    background: white;
     min-height: 100vh;
     position: relative;
 }
