@@ -2,25 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { UtilityBarComponent } from './shared/components/utility-bar/utility-bar.component';
-import { FooterComponent } from './shared/components/footer/footer.component';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, NavbarComponent, UtilityBarComponent, FooterComponent],
-  template: `
-    <div class="app-layout">
-      <app-utility-bar></app-utility-bar>
-      <app-navbar></app-navbar>
-      <main class="main-content">
-        <div class="content-wrapper">
-          <router-outlet></router-outlet>
-        </div>
-      </main>
-      <app-footer></app-footer>
-    </div>
-  `,
+  imports: [CommonModule, RouterOutlet, NavbarComponent],
+  templateUrl: './app.html',
   styles: [`
     .app-layout {
       min-height: 100vh;

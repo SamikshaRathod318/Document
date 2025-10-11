@@ -22,8 +22,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LandingComponent,
-    title: 'Home - Document Management System',
-    canActivate: [authGuard]
+    title: 'Home - Document Management System'
   },
   // Department route
   {
@@ -49,9 +48,7 @@ export const routes: Routes = [
   // Clerk routes
   {
     path: 'clerk',
-    loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule),
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['adm_clerk', 'adm_sr_clerk'] }
+    loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule)
   },
   // Profile route (protected)
   {
@@ -85,15 +82,13 @@ export const routes: Routes = [
   {
     path: 'contact',
     component: ContactComponent,
-    title: 'Contact Us - Document Management System',
-    canActivate: [authGuard]
+    title: 'Contact Us - Document Management System'
   },
   // About route
   {
     path: 'about',
     component: AboutComponent,
-    title: 'About - Document Management System',
-    canActivate: [authGuard]
+    title: 'About - Document Management System'
   },
   // Fallback route
   {

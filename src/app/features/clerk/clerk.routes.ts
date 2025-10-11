@@ -6,7 +6,6 @@ export const CLERK_ROUTES: Routes = [
   {
     path: 'dashboard',
     component: ClerkDashboardComponent,
-    canActivate: [clerkGuard],
     data: { title: 'Dashboard' }
   },
   {

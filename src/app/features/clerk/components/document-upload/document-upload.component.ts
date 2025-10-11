@@ -291,7 +291,7 @@ export class DocumentUploadComponent implements OnInit {
       this.selectedFile = null;
 
       // Navigate back to documents list
-      this.router.navigate(['/clerk/documents']);
+      this.router.navigate(['/documents']);
     }, 3000);
   }
 
