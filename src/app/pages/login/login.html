@@ -10,18 +10,18 @@
           <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <h1>Document Management System</h1>
-      <p>Sign in to your account</p>
+      <h1>{{ 'Document Management System' | translate }}</h1>
+      <p>{{ 'Sign in to your account' | translate }}</p>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="login-form">
       <div class="form-group">
-        <label for="email">Email Address</label>
+        <label for="email">{{ 'Email Address' | translate }}</label>
         <input 
           type="email" 
           id="email" 
           formControlName="email" 
-          placeholder="Enter your email"
+          placeholder="{{ 'Enter your email' | translate }}"
           [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
           required>
         <div class="error-message" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
@@ -31,12 +31,12 @@
       </div>
       
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ 'Password' | translate }}</label>
         <input 
           type="password" 
           id="password" 
           formControlName="password" 
-          placeholder="Enter your password"
+          placeholder="{{ 'Enter your password' | translate }}"
           [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)"
           required>
         <div class="error-message" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
@@ -47,7 +47,7 @@
 
       <div class="form-actions">
         <button type="button" class="forgot-password-link" (click)="onForgotPassword()">
-          Forgot your password?
+          {{ 'Forgot your password?' | translate }}
         </button>
       </div>
 
@@ -59,15 +59,17 @@
       </div>
 
       <button type="submit" class="login-button" [disabled]="isLoading || loginForm.invalid">
-        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="!isLoading">{{ 'Login' | translate }}</span>
         <span *ngIf="isLoading" class="loading-text">
           <svg class="spinner" width="16" height="16" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
             <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"/>
           </svg>
-          Logging in...
+          {{ 'Logging in...' | translate }}
         </span>
       </button>
+
+
 
     </form>
   </div>

@@ -6,13 +6,15 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserSeedService } from '../../core/services/user-seed.service';
 import { DatabaseService } from '../../core/services/database.service';
 import { environment } from '../../../environments/environment';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslatePipe
   ],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
@@ -45,6 +47,36 @@ export class LoginComponent {
         this.password?.setErrors(null);
       }
     });
+
+    // Redirect if already authenticated
+    if (this.authService.isAuthenticated()) {
+      this.redirectToDashboard();
+    }
+  }
+
+  private redirectToDashboard(): void {
+    const user = this.authService.currentUserValue;
+    if (user) {
+      const role = user.roles[0];
+      switch (role) {
+        case 'admin':
+          this.router.navigate(['/admin/dashboard']);
+          break;
+        case 'accountant':
+          this.router.navigate(['/accountant/dashboard']);
+          break;
+        case 'adm_hod':
+          this.router.navigate(['/hod/dashboard']);
+          break;
+        case 'adm_clerk':
+        case 'adm_sr_clerk':
+        case 'clerk':
+        case 'senior_clerk':
+        default:
+          this.router.navigate(['/clerk/dashboard']);
+          break;
+      }
+    }
   }
 
   onSubmit() {
@@ -123,6 +155,8 @@ export class LoginComponent {
     }
     this.isLoading = false;
   }
+
+
 
   get email() {
     return this.loginForm.get('email');

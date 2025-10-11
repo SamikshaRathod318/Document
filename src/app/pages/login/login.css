@@ -30,13 +30,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #c2c3c8 0%, #a284bf 100%);
+    background: white;
     padding: 1rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-
-.login-container:hover {
-    background: linear-gradient(135deg, #a284bf 0%, #c2c3c8 100%);
 }
 
 .login-card {
@@ -197,6 +193,31 @@ input.is-invalid {
 }
 
 .login-button:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.show-users-btn {
+    width: 100%;
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.show-users-btn:hover:not(:disabled) {
+    background: #047857;
+    transform: translateY(-1px);
+}
+
+.show-users-btn:disabled {
     background: var(--secondary-color);
     cursor: not-allowed;
     opacity: 0.6;

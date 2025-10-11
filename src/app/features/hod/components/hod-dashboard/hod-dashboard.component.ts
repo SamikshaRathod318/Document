@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-hod-dashboard',
+  standalone: true,
   template: `
     <div class="dashboard-container">
       <h2>HOD Dashboard</h2>

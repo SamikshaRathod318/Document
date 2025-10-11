@@ -274,7 +274,7 @@ export class DocumentUploadComponent implements OnInit {
           uploadedDate: new Date(),
           status: 'Pending',
           uploadedBy: 'Current User',
-          department: formValue.department,
+          department: 'General',
           documentType: formValue.documentType,
           class: formValue.class,
           isConfidential: !!formValue.isConfidential,

@@ -55,19 +55,21 @@ export class AuthService {
           
           if (user) {
             console.log('Backend authentication successful:', user);
+            const roleName = (user as any).roles?.role_name || 'Clerk';
             const userData: User = {
               id: user.user_id.toString(),
               email: user.email,
               name: user.full_name,
-              roles: ['admin', 'clerk', 'user'],
-              department: 'Administration'
+              roles: [roleName.toLowerCase().replace(' ', '_')],
+              department: 'Administration',
+              activeRole: roleName
             };
             
             localStorage.setItem(this.TOKEN_KEY, 'backend-auth-token');
             localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
             this.isAuthenticatedSubject.next(true);
             this.currentUserSubject.next(userData);
-            this.router.navigate(['/']);
+            this.navigateToUserDashboard(userData);
             observer.next(true);
             observer.complete();
           } else {
@@ -111,6 +113,8 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
+
+
   requestPasswordReset(email: string, redirectTo?: string): Observable<boolean> {
     if (!email) {
       return of(false);
@@ -125,5 +129,52 @@ export class AuthService {
         observer.complete();
       }).catch(err => observer.error(err));
     });
+  }
+
+  private navigateToUserDashboard(user: User): void {
+    const role = user.roles[0];
+    console.log('Navigating user to dashboard. Role:', role, 'User:', user);
+    
+    switch (role) {
+      case 'admin':
+        console.log('Navigating to admin dashboard');
+        this.router.navigate(['/admin/dashboard']);
+        break;
+      case 'accountant':
+        console.log('Navigating to accountant dashboard');
+        this.router.navigate(['/accountant/dashboard']);
+        break;
+      case 'adm_hod':
+        console.log('Navigating to HOD dashboard');
+        this.router.navigate(['/hod/dashboard']);
+        break;
+      case 'adm_clerk':
+      case 'adm_sr_clerk':
+      case 'clerk':
+      case 'senior_clerk':
+      default:
+        console.log('Navigating to clerk dashboard');
+        this.router.navigate(['/clerk/dashboard']);
+        break;
+    }
+  }
+
+  async refreshUserRoles(): Promise<void> {
+    const currentUser = this.currentUserValue;
+    if (!currentUser) return;
+
+    try {
+      const userRoles = await this.dbService.getUserRoles(currentUser.id);
+      if (userRoles) {
+        const updatedUser: User = {
+          ...currentUser,
+          activeRole: (userRoles as any).roles?.role_name || currentUser.activeRole
+        };
+        localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
+        this.currentUserSubject.next(updatedUser);
+      }
+    } catch (error) {
+      console.error('Failed to refresh user roles:', error);
+    }
   }
 }

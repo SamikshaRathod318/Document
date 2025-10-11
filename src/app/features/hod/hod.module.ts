@@ -5,9 +5,14 @@ import { HodDashboardComponent } from './components/hod-dashboard/hod-dashboard.
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'dashboard',
     component: HodDashboardComponent,
     title: 'HOD Dashboard'
+  },
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
   }
 ];
 

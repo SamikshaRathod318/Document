@@ -3,7 +3,7 @@
     <div class="utility-left">
       <div class="flag-section">
         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjUuMzMiIGZpbGw9IiNGRjk5MzMiLz4KPHJlY3QgeT0iNS4zMyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjUuMzQiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeT0iMTAuNjciIHdpZHRoPSIyNCIgaGVpZ2h0PSI1LjMzIiBmaWxsPSIjMTM4ODA4Ii8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iMiIgZmlsbD0iIzAwMDA4MCIvPgo8L3N2Zz4K" alt="India Flag" class="flag-icon">
-        <span class="gov-text">Government of India</span>
+        <span class="gov-text">{{ 'Government of India' | translate }}</span>
       </div>
     </div>
     
@@ -23,7 +23,7 @@
         </svg>
         <div class="language-dropdown" *ngIf="showLanguageDropdown">
           <div class="dropdown-item" (click)="selectLanguage('English'); $event.stopPropagation()">English</div>
-    
+          <div class="dropdown-item" (click)="selectLanguage('मराठी'); $event.stopPropagation()">मराठी</div>
         </div>
       </div>
     </div>

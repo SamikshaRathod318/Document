@@ -5,11 +5,12 @@ import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/ro
 import { Subscription, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css', './clerk-menu.css']
 })
@@ -112,6 +113,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isClerkRoute(): boolean {
     return this.router.url.startsWith('/clerk') || this.currentRole === 'clerk' || this.currentRole === 'adm_clerk' || this.currentRole === 'adm_sr_clerk';
   }
+
+
 
   toggleCategories(event: Event, navigate: boolean = false) {
     event.preventDefault();

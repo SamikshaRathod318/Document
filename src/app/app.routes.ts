@@ -11,18 +11,13 @@ import { AccountantModule } from './features/accountant/accountant.module';
 import { HodModule } from './features/hod/hod.module';
 import { DepartmentComponent } from './pages/department/department.component';
 import { ProfileComponent } from './features/clerk/components/profile/profile.component';
-import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { DocumentViewComponent } from './pages/documents/document-view.component';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
     title: 'Login - Document Management System'
-  },
-  {
-    path: 'reset-password',
-    component: ResetPasswordComponent,
-    title: 'Reset Password - Document Management System'
   },
   {
     path: '',
@@ -37,13 +32,26 @@ export const routes: Routes = [
     title: 'Departments - Document Management System',
     canActivate: [authGuard]
   },
-
+  // Documents route - direct to document list
+  {
+    path: 'documents',
+    loadComponent: () => import('./features/clerk/components/document-list/document-list.component')
+      .then(m => m.DocumentListComponent),
+    title: 'Documents - Document Management System'
+  },
+  // Upload route
+  {
+    path: 'upload',
+    loadComponent: () => import('./features/clerk/components/document-upload/document-upload.component')
+      .then(m => m.DocumentUploadComponent),
+    title: 'Upload Document - Document Management System'
+  },
   // Clerk routes
   {
     path: 'clerk',
     loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['adm_clerk', 'adm_sr_clerk', 'clerk', 'senior_clerk'] }
+    data: { roles: ['adm_clerk', 'adm_sr_clerk'] }
   },
   // Profile route (protected)
   {
@@ -77,13 +85,15 @@ export const routes: Routes = [
   {
     path: 'contact',
     component: ContactComponent,
-    title: 'Contact Us - Document Management System'
+    title: 'Contact Us - Document Management System',
+    canActivate: [authGuard]
   },
   // About route
   {
     path: 'about',
     component: AboutComponent,
-    title: 'About - Document Management System'
+    title: 'About - Document Management System',
+    canActivate: [authGuard]
   },
   // Fallback route
   {

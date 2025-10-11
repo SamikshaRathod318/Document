@@ -1,14 +1,14 @@
 <div class="department-container">
   <div class="header">
-    <h1>Departments</h1>
+    <h1>{{ 'Departments' | translate }}</h1>
     <div class="search-container">
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search departments..." [(ngModel)]="searchQuery" (input)="filterCategories()">
+        <input type="text" placeholder="{{ 'Search departments...' | translate }}" [(ngModel)]="searchQuery" (input)="filterCategories()">
       </div>
       <button class="new-dept-btn" (click)="createNewCategory()">
         <span>+</span>
-        New Department
+        {{ 'New Department' | translate }}
       </button>
     </div>
   </div>
@@ -16,19 +16,19 @@
   <div class="departments-grid">
     <div class="department-card" *ngFor="let category of filteredCategories">
       <div class="card-header">
-        <h2 class="department-name">{{ category.name }}</h2>
-        <span class="document-count">{{ category.documentCount }} documents</span>
+        <h2 class="department-name">{{ category.name | translate }}</h2>
+        <span class="document-count">{{ category.documentCount }} {{ 'documents' | translate }}</span>
       </div>
       
-      <p class="department-description">{{ category.description || 'No description provided' }}</p>
+      <p class="department-description">{{ (category.description | translate) || ('No description provided' | translate) }}</p>
       
       <div class="card-footer">
-        <span class="last-updated">Updated {{ category.lastUpdated | date:'MMM d, y' }}</span>
+        <span class="last-updated">{{ 'Updated' | translate }} {{ category.lastUpdated | date:'MMM d, y' }}</span>
         <div class="card-actions">
-          <button class="action-btn edit-btn" (click)="editCategory(category, $event)" title="Edit">
+          <button class="action-btn edit-btn" (click)="editCategory(category, $event)" title="{{ 'Edit' | translate }}">
             📝
           </button>
-          <button class="action-btn delete-btn" (click)="openDelete(category, $event)" title="Delete">
+          <button class="action-btn delete-btn" (click)="openDelete(category, $event)" title="{{ 'Delete' | translate }}">
             🗑️
           </button>
         </div>
@@ -40,22 +40,22 @@
   <div class="modal-backdrop" *ngIf="isCreateOpen" (click)="closeCreate()"></div>
   <div class="modal" *ngIf="isCreateOpen">
     <div class="modal-header">
-      <h2>New Department</h2>
+      <h2>{{ 'New Department' | translate }}</h2>
       <button type="button" class="close-btn" (click)="closeCreate()">×</button>
     </div>
     <div class="modal-body">
       <label>
         <span>Name</span>
-        <input type="text" [(ngModel)]="createForm.name" placeholder="Department name" />
+        <input type="text" [(ngModel)]="createForm.name" placeholder="{{ 'Department name' | translate }}" />
       </label>
       <label>
-        <span>Description</span>
-        <textarea [(ngModel)]="createForm.description" rows="3" placeholder="Short description"></textarea>
+        <span>{{ 'Description' | translate }}</span>
+        <textarea [(ngModel)]="createForm.description" rows="3" placeholder="{{ 'Short description' | translate }}"></textarea>
       </label>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn" (click)="closeCreate()">Cancel</button>
-      <button type="button" class="btn primary" (click)="saveCreate()">Save</button>
+      <button type="button" class="btn" (click)="closeCreate()">{{ 'Cancel' | translate }}</button>
+      <button type="button" class="btn primary" (click)="saveCreate()">{{ 'Save' | translate }}</button>
     </div>
   </div>
 
@@ -63,15 +63,15 @@
   <div class="modal-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()"></div>
   <div class="modal" *ngIf="isDeleteOpen">
     <div class="modal-header">
-      <h2>Delete Department</h2>
+      <h2>{{ 'Delete Department' | translate }}</h2>
       <button type="button" class="close-btn" (click)="closeDelete()">×</button>
     </div>
     <div class="modal-body">
-      <p>Are you sure you want to delete <strong>{{ deleteTarget?.name }}</strong>? This action cannot be undone.</p>
+      <p>{{ 'Are you sure you want to delete' | translate }} <strong>{{ deleteTarget?.name }}</strong>? {{ 'This action cannot be undone.' | translate }}</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn" (click)="closeDelete()">Cancel</button>
-      <button type="button" class="btn danger" (click)="confirmDelete()">Delete</button>
+      <button type="button" class="btn" (click)="closeDelete()">{{ 'Cancel' | translate }}</button>
+      <button type="button" class="btn danger" (click)="confirmDelete()">{{ 'Delete' | translate }}</button>
     </div>
   </div>
 
@@ -79,22 +79,22 @@
   <div class="modal-backdrop" *ngIf="isEditOpen" (click)="closeEdit()"></div>
   <div class="modal" *ngIf="isEditOpen">
     <div class="modal-header">
-      <h2>Edit Department</h2>
+      <h2>{{ 'Edit Department' | translate }}</h2>
       <button type="button" class="close-btn" (click)="closeEdit()">×</button>
     </div>
     <div class="modal-body">
       <label>
         <span>Name</span>
-        <input type="text" [(ngModel)]="editForm.name" placeholder="Department name" />
+        <input type="text" [(ngModel)]="editForm.name" placeholder="{{ 'Department name' | translate }}" />
       </label>
       <label>
-        <span>Description</span>
-        <textarea [(ngModel)]="editForm.description" rows="3" placeholder="Short description"></textarea>
+        <span>{{ 'Description' | translate }}</span>
+        <textarea [(ngModel)]="editForm.description" rows="3" placeholder="{{ 'Short description' | translate }}"></textarea>
       </label>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn" (click)="closeEdit()">Cancel</button>
-      <button type="button" class="btn primary" (click)="saveEdit()">Save</button>
+      <button type="button" class="btn" (click)="closeEdit()">{{ 'Cancel' | translate }}</button>
+      <button type="button" class="btn primary" (click)="saveEdit()">{{ 'Save' | translate }}</button>
     </div>
   </div>
 </div>

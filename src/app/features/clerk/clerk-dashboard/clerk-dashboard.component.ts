@@ -69,10 +69,7 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
           department: user.department || 'Clerk Department'
         };
         
-        // If this is the initial load, navigate to the documents route
-        if (this.router.url === '/clerk' || this.router.url === '/clerk/') {
-          this.router.navigate(['documents'], { relativeTo: this.route, replaceUrl: true });
-        }
+
       } else {
         this.router.navigate(['/login']);
       }

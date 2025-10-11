@@ -1,16 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-utility-bar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './utility-bar.component.html',
   styleUrls: ['./utility-bar.component.css']
 })
 export class UtilityBarComponent {
   private authService = inject(AuthService);
+  private translationService = inject(TranslationService);
   
   currentUser$ = this.authService.currentUser$;
   currentLanguage = 'English';
@@ -48,6 +51,7 @@ export class UtilityBarComponent {
 
   selectLanguage(language: string) {
     this.currentLanguage = language;
+    this.translationService.setLanguage(language);
     this.showLanguageDropdown = false;
   }
 }

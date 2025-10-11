@@ -5,9 +5,14 @@ import { AccountantDashboardComponent } from './components/accountant-dashboard/
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'dashboard',
     component: AccountantDashboardComponent,
     title: 'Accountant Dashboard'
+  },
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
   }
 ];
 

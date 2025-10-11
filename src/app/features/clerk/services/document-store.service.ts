@@ -4,7 +4,8 @@ import { Document } from '../models/document.model';
 
 @Injectable({ providedIn: 'root' })
 export class DocumentStoreService {
-  private readonly _documents$ = new BehaviorSubject<Document[]>(this.createInitialMock());
+  private readonly STORAGE_KEY = 'doc_management_documents';
+  private readonly _documents$ = new BehaviorSubject<Document[]>(this.loadFromStorage());
   readonly documents$ = this._documents$.asObservable();
 
   get documents(): Document[] {
@@ -16,21 +17,51 @@ export class DocumentStoreService {
     // Ensure unique id
     const nextId = docs.length ? Math.max(...docs.map(d => d.id)) + 1 : 1;
     const withId = { ...doc, id: doc.id ?? nextId } as Document;
-    this._documents$.next([withId, ...docs]);
+    const updatedDocs = [withId, ...docs];
+    this._documents$.next(updatedDocs);
+    this.saveToStorage(updatedDocs);
   }
 
   update(updated: Document): void {
     const docs = this._documents$.value.map(d => d.id === updated.id ? { ...d, ...updated } : d);
     this._documents$.next(docs);
+    this.saveToStorage(docs);
   }
 
   delete(id: number): void {
     const docs = this._documents$.value.filter(d => d.id !== id);
     this._documents$.next(docs);
+    this.saveToStorage(docs);
   }
 
   setInitial(docs: Document[]): void {
     this._documents$.next(docs);
+    this.saveToStorage(docs);
+  }
+
+  private loadFromStorage(): Document[] {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Convert date strings back to Date objects
+        return parsed.map((doc: any) => ({
+          ...doc,
+          uploadedDate: new Date(doc.uploadedDate)
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading documents from storage:', error);
+    }
+    return this.createInitialMock();
+  }
+
+  private saveToStorage(docs: Document[]): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(docs));
+    } catch (error) {
+      console.error('Error saving documents to storage:', error);
+    }
   }
 
   private createInitialMock(): Document[] {

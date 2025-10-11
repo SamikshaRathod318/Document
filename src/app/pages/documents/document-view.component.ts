@@ -1,30 +1,31 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-document-view',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <div class="document-view-container">
-      <h2>Document Form View</h2>
+      <h2>{{ 'Documents' | translate }}</h2>
       
       <div class="form-container">
         <form class="document-form">
           <div class="form-group">
-            <label for="title">Document Title</label>
-            <input type="text" id="title" class="form-control" placeholder="Enter document title">
+            <label for="title">{{ 'Document Title' | translate }}</label>
+            <input type="text" id="title" class="form-control" placeholder="{{ 'Enter document title' | translate }}">
           </div>
           
           <div class="form-group">
-            <label for="description">Description</label>
-            <textarea id="description" class="form-control" rows="4" placeholder="Enter description"></textarea>
+            <label for="description">{{ 'Description' | translate }}</label>
+            <textarea id="description" class="form-control" rows="4" placeholder="{{ 'Enter description' | translate }}"></textarea>
           </div>
           
           <div class="form-group">
-            <label for="department">Department</label>
+            <label for="department">{{ 'Department' | translate }}</label>
             <select id="department" class="form-control">
-              <option value="">Select Department</option>
+              <option value="">{{ 'Select Department' | translate }}</option>
               <option value="admin">Administration</option>
               <option value="water">Water</option>
               <option value="account">Account</option>
@@ -33,13 +34,13 @@ import { CommonModule } from '@angular/common';
           </div>
           
           <div class="form-group">
-            <label for="file">Upload Document</label>
+            <label for="file">{{ 'Upload Document' | translate }}</label>
             <input type="file" id="file" class="form-control">
           </div>
           
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Document</button>
-            <button type="button" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">{{ 'Save Document' | translate }}</button>
+            <button type="button" class="btn btn-secondary">{{ 'Cancel' | translate }}</button>
           </div>
         </form>
       </div>

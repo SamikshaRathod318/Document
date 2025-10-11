@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-accountant-dashboard',
+  standalone: true,
   template: `
     <div class="dashboard-container">
       <h2>Accountant Dashboard</h2>

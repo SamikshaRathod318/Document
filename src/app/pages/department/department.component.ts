@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 export interface Category {
   id: string;
@@ -13,7 +14,7 @@ export interface Category {
 @Component({
   selector: 'app-department',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './department.component.html',
   styleUrls: ['./department-attractive.css', './modal-styles.css']
 })

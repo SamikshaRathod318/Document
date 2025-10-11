@@ -27,13 +27,82 @@ export class DatabaseService {
   async getUsers() {
     const { data, error } = await this.supabase.getClient()
       .from('users')
-      .select('*');
+      .select(`
+        user_id,
+        full_name,
+        email,
+        role_id,
+        roles(role_name)
+      `);
     
     if (error) {
       console.error('Failed to get users:', error);
       return [];
     }
+    console.log('Users with roles:', data);
     return data || [];
+  }
+
+  async getAllUsersWithRoles() {
+    try {
+      const { data, error } = await this.supabase.getClient()
+        .from('users')
+        .select(`
+          user_id,
+          full_name,
+          email,
+          role_id,
+          roles(
+            role_id,
+            role_name
+          )
+        `);
+      
+      if (error) {
+        console.error('Error fetching users with roles:', error);
+        return [];
+      }
+      
+      console.log('=== Users and Their Roles ===');
+      data?.forEach(user => {
+        console.log(`User: ${user.full_name} (${user.email})`);
+        console.log(`Role: ${(user as any).roles?.role_name || 'No Role Assigned'}`);
+        console.log('---');
+      });
+      
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      return [];
+    }
+  }
+
+  async showUsersAndRoles() {
+    const users = await this.getAllUsersWithRoles();
+    return users.map(user => ({
+      userId: user.user_id,
+      name: user.full_name,
+      email: user.email,
+      roleId: user.role_id,
+      roleName: (user as any).roles?.role_name || 'No Role'
+    }));
+  }
+
+  async getUserRoles(userId: string) {
+    const { data, error } = await this.supabase.getClient()
+      .from('users')
+      .select(`
+        role_id,
+        roles(role_name)
+      `)
+      .eq('user_id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Failed to get user roles:', error);
+      return null;
+    }
+    return data;
   }
 
   async authenticateUser(email: string, password: string) {
@@ -41,13 +110,18 @@ export class DatabaseService {
       console.log('Querying users table for:', email);
       const { data, error } = await this.supabase.getClient()
         .from('users')
-        .select('user_id, full_name, email, role_id')
+        .select(`
+          user_id, 
+          full_name, 
+          email, 
+          role_id,
+          roles(role_name)
+        `)
         .eq('email', email.trim().toLowerCase())
         .eq('password', password.trim());
       
       if (error) {
         console.error('Database query error:', error);
-        // Fallback to hardcoded users if database fails
         return this.getHardcodedUser(email, password);
       }
       
@@ -69,10 +143,10 @@ export class DatabaseService {
     if (email && password) {
       console.log('Backend: User logged in with email:', email);
       
-      // Insert user into users table
-      await this.insertUserToTable(email, password);
+      // Insert user into users table and get the created user
+      const createdUser = await this.insertUserToTable(email, password);
       
-      return {
+      return createdUser || {
         user_id: 1,
         full_name: 'Test User',
         email: email,
@@ -99,16 +173,24 @@ export class DatabaseService {
           password: password,
           role_id: randomRoleId
         })
-        .select();
+        .select(`
+          user_id,
+          full_name,
+          email,
+          role_id,
+          roles(role_name)
+        `);
       
       if (error) {
         console.error('Failed to insert user:', error);
-        console.error('Error details:', error.message, error.code);
+        return null;
       } else {
         console.log('User successfully inserted:', data);
+        return data?.[0] || null;
       }
     } catch (error) {
       console.error('Error inserting user:', error);
+      return null;
     }
   }
 

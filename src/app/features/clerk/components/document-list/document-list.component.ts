@@ -14,7 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Document } from '../../models/document.model';
 import { DocumentStoreService } from '../../services/document-store.service';
@@ -129,6 +129,7 @@ export class DocumentListComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
+    private route: ActivatedRoute,
     private store: DocumentStoreService,
     private fb: FormBuilder
   ) {
@@ -141,9 +142,13 @@ export class DocumentListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Clear and add fresh mock data
-    this.store.documents.length = 0;
-    this.mockDocuments.forEach(doc => this.store.add(doc));
+    // Add class to documents that don't have it
+    this.store.documents.forEach((doc, index) => {
+      if (!doc.class) {
+        const classes = ['A', 'B', 'C', 'D'];
+        doc.class = classes[index % 4];
+      }
+    });
     
     // Subscribe to documents from the store
     this.store.documents$.subscribe(docs => {
@@ -318,5 +323,9 @@ export class DocumentListComponent implements OnInit {
 
   onPageChange(event: PageEvent): void {
     this.pageSize = event.pageSize;
+  }
+
+  navigateToUpload(): void {
+    this.router.navigate(['/upload']);
   }
 }

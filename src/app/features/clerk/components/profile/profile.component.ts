@@ -16,7 +16,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   user: User | any = {
     name: 'John Doe',
     email: 'john.doe@example.com',
-    roles: ['clerk'],
+    roles: ['admin'],
     createdAt: new Date('2023-01-15')
   };
   
@@ -41,6 +41,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       };
       this.form.patchValue({ name: this.user.name, email: this.user.email });
     }
+    // Refresh user roles from backend
+    this.auth.refreshUserRoles();
     // Subscribe to changes
     this.sub = this.auth.currentUser$.subscribe(u => {
       if (u) {
@@ -70,57 +72,25 @@ export class ProfileComponent implements OnInit, OnDestroy {
       : 'January 2023';
   }
 
-  // Friendly roles for display in UI; maps any internal '*clerk' to 'Clerk'
+  // Friendly roles for display in UI
   get displayRoles(): string {
     const roles: string[] = this.user?.roles || [];
     if (!roles.length) return 'Clerk';
-    const mapped = roles.map(r => r?.toLowerCase().includes('clerk') ? 'Clerk' : r);
-    // Deduplicate and join
+    const mapped = roles.map(r => {
+      const role = r?.toLowerCase();
+      if (role === 'admin') return 'Admin';
+      if (role === 'hod') return 'HOD';
+      if (role === 'accountant') return 'Accountant';
+      if (role === 'clerk') return 'Clerk';
+      return r;
+    });
     return Array.from(new Set(mapped)).join(', ');
   }
 
-  // Primary role to display (single role only)
+  // Primary role to display (exact same as backend)
   get displayPrimaryRole(): string {
-    const roles: string[] = (this.user?.roles || []).map((r: string) => r?.toLowerCase());
-    if (!roles.length) return 'Clerk';
-
-    // 1) If user has an explicit activeRole (chosen at login), prefer that
-    const ar = this.user?.activeRole?.toLowerCase();
-    if (ar) {
-      if (ar === 'adm_hod' || ar === 'hod') return 'HOD';
-      if (ar === 'accountant') return 'Accountant';
-      if (ar === 'adm_sr_clerk' || ar === 'senior_clerk') return 'Senior Clerk';
-      if (ar === 'adm_clerk' || ar === 'clerk') return 'Clerk';
-    }
-
-    // Prefer role by current route/section if available
-    const url = this.router.url || '';
-    if (url.startsWith('/hod') && (roles.includes('adm_hod') || roles.includes('hod'))) {
-      return 'HOD';
-    }
-    if (url.startsWith('/accountant') && roles.includes('accountant')) {
-      return 'Accountant';
-    }
-    if (url.startsWith('/clerk')) {
-      if (roles.includes('adm_sr_clerk') || roles.includes('senior_clerk')) return 'Senior Clerk';
-      if (roles.includes('adm_clerk') || roles.includes('clerk')) return 'Clerk';
-    }
-
-    // Priority order
-    const priority: { match: (r: string) => boolean; label: string }[] = [
-      { match: r => r === 'adm_hod' || r === 'hod', label: 'HOD' },
-      { match: r => r === 'accountant', label: 'Accountant' },
-      { match: r => r === 'adm_sr_clerk' || r === 'senior_clerk', label: 'Senior Clerk' },
-      { match: r => r === 'adm_clerk' || r === 'clerk', label: 'Clerk' }
-    ];
-
-    for (const p of priority) {
-      if (roles.some(p.match)) {
-        return p.label;
-      }
-    }
-    // Fallback to first role if none matched (unlikely)
-    return roles[0]?.replace(/_/g, ' ')?.replace(/^adm\s*/i, '') || 'Clerk';
+    // Show exact role from backend
+    return this.user?.activeRole || 'No Role Assigned';
   }
 
   onEdit(): void {
