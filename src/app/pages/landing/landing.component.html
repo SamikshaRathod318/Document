@@ -1,4 +1,13 @@
 <div class="landing-container">
+  <!-- Top Banner -->
+  <section class="top-banner">
+    <div class="banner-content">
+      <span class="banner-icon">🎉</span>
+      <span class="banner-text">New Feature: AI-Powered Document Search Now Available!</span>
+      <button class="banner-btn">Try Now</button>
+    </div>
+  </section>
+
   <section class="hero">
     <div class="hero-content">
       <h1>{{ 'Welcome to DocManager' | translate }}</h1>
@@ -7,6 +16,15 @@
         <a routerLink="/login" class="btn btn-primary">{{ 'Login' | translate }}</a>
         <a href="#features" class="btn btn-secondary">{{ 'Learn More' | translate }}</a>
       </div>
+    </div>
+  </section>
+
+  <!-- Advertisement Banner -->
+  <section class="ad-banner">
+    <div class="ad-content">
+      <h3>🚀 Upgrade to DocManager Pro</h3>
+      <p>Get unlimited storage, advanced security, and priority support</p>
+      <button class="ad-btn">Learn More</button>
     </div>
   </section>
 
@@ -34,32 +52,57 @@
   <section class="case-studies">
     <h2>Case Studies</h2>
     <div class="case-study-grid">
-      <div class="case-study-card">
-        <h3>Government Office</h3>
-        <p>Streamlined document processing by 60% with our digital solution.</p>
-      </div>
-      <div class="case-study-card">
-        <h3>Corporate Enterprise</h3>
-        <p>Reduced document retrieval time from hours to minutes.</p>
-      </div>
-      <div class="case-study-card">
-        <h3>Healthcare System</h3>
-        <p>Improved patient record management and compliance by 75%.</p>
-      </div>
-      <div class="case-study-card">
-        <h3>Educational Institute</h3>
-        <p>Digitized student records and reduced paperwork by 80%.</p>
-      </div>
-      <div class="case-study-card">
-        <h3>Financial Services</h3>
-        <p>Enhanced security and audit trails for sensitive documents.</p>
-      </div>
-      <div class="case-study-card">
-        <h3>Manufacturing Company</h3>
-        <p>Centralized quality control documents and improved efficiency.</p>
+      <div class="case-study-card" *ngFor="let caseStudy of caseStudies" (click)="showCaseStudyDetails(caseStudy)">
+        <h3>{{ caseStudy.title }}</h3>
+        <p>{{ caseStudy.summary }}</p>
+        <button class="view-details-btn">View Details →</button>
       </div>
     </div>
   </section>
+
+  <!-- Case Study Modal -->
+  <div class="modal-overlay" *ngIf="selectedCaseStudy" (click)="closeCaseStudyModal()">
+    <div class="case-study-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ selectedCaseStudy.title }}</h2>
+        <button class="close-btn" (click)="closeCaseStudyModal()">×</button>
+      </div>
+      <div class="modal-content">
+        <div class="case-info">
+          <div class="info-item">
+            <strong>Client:</strong> {{ selectedCaseStudy.details.client }}
+          </div>
+          <div class="info-item">
+            <strong>Duration:</strong> {{ selectedCaseStudy.details.duration }}
+          </div>
+        </div>
+        
+        <div class="challenge-section">
+          <h3>Challenge</h3>
+          <p>{{ selectedCaseStudy.details.challenge }}</p>
+        </div>
+        
+        <div class="solution-section">
+          <h3>Solution</h3>
+          <p>{{ selectedCaseStudy.details.solution }}</p>
+        </div>
+        
+        <div class="results-section">
+          <h3>Results</h3>
+          <ul>
+            <li *ngFor="let result of selectedCaseStudy.details.results">{{ result }}</li>
+          </ul>
+        </div>
+        
+        <div class="tech-section">
+          <h3>Technologies Used</h3>
+          <div class="tech-tags">
+            <span class="tech-tag" *ngFor="let tech of selectedCaseStudy.details.technologies">{{ tech }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <section class="service-delivery">
     <div class="service-content">
@@ -79,6 +122,20 @@
           <span>Customizable workflows</span>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Side Advertisement -->
+  <section class="side-ads">
+    <div class="ad-card">
+      <h4>📊 Analytics Dashboard</h4>
+      <p>Track document usage and performance metrics</p>
+      <span class="ad-price">Starting at ₹999/month</span>
+    </div>
+    <div class="ad-card">
+      <h4>🔒 Enterprise Security</h4>
+      <p>Advanced encryption and compliance features</p>
+      <span class="ad-price">Contact Sales</span>
     </div>
   </section>
 
@@ -150,6 +207,17 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Bottom Advertisement -->
+  <section class="bottom-ad">
+    <div class="ad-container">
+      <div class="ad-text">
+        <h3>🎯 Special Offer: 30% Off First Year</h3>
+        <p>Join thousands of organizations already using DocManager</p>
+      </div>
+      <button class="cta-ad-btn">Get Started Today</button>
     </div>
   </section>
 </div>
