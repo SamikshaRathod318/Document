@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -46,7 +46,7 @@ import { DocumentStoreService } from '../../services/document-store.service';
     DatePipe
   ]
 })
-export class DocumentListComponent implements OnInit {
+export class DocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -60,7 +60,7 @@ export class DocumentListComponent implements OnInit {
   
   // Backing list from store (unfiltered)
   private baseDocuments: Document[] = [];
-  private filteredDocuments: Document[] = [];
+  filteredDocuments: Document[] = [];
 
   // Status options for filter
   statusOptions = [
@@ -142,16 +142,11 @@ export class DocumentListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Add class to documents that don't have it
-    this.store.documents.forEach((doc, index) => {
-      if (!doc.class) {
-        const classes = ['A', 'B', 'C', 'D'];
-        doc.class = classes[index % 4];
-      }
-    });
+    console.log('DocumentListComponent initialized');
     
     // Subscribe to documents from the store
     this.store.documents$.subscribe(docs => {
+      console.log('Documents received:', docs.length);
       this.baseDocuments = docs;
       this.applyFilter();
     });
@@ -172,7 +167,12 @@ export class DocumentListComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
   }
 
   loadDocuments(): void {

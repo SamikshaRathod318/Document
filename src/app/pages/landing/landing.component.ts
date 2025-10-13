@@ -14,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class LandingComponent implements OnInit {
   openFaq: number | null = null;
   selectedCaseStudy: any = null;
+  currentSlideIndex = 1;
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -107,5 +108,33 @@ export class LandingComponent implements OnInit {
 
   closeCaseStudyModal() {
     this.selectedCaseStudy = null;
+  }
+
+  currentSlide(n: number) {
+    this.showSlide(this.currentSlideIndex = n);
+  }
+
+  showSlide(n: number) {
+    const slides = document.getElementsByClassName('hero-img') as HTMLCollectionOf<HTMLElement>;
+    const dots = document.getElementsByClassName('dot') as HTMLCollectionOf<HTMLElement>;
+    
+    if (n > slides.length) { this.currentSlideIndex = 1; }
+    if (n < 1) { this.currentSlideIndex = slides.length; }
+    
+    for (let i = 0; i < slides.length; i++) {
+      slides[i].classList.remove('active');
+    }
+    
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].classList.remove('active');
+    }
+    
+    if (slides[this.currentSlideIndex - 1]) {
+      slides[this.currentSlideIndex - 1].classList.add('active');
+    }
+    
+    if (dots[this.currentSlideIndex - 1]) {
+      dots[this.currentSlideIndex - 1].classList.add('active');
+    }
   }
 }

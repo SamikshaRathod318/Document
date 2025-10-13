@@ -5,16 +5,34 @@
       <span class="banner-icon">🎉</span>
       <span class="banner-text">New Feature: AI-Powered Document Search Now Available!</span>
       <button class="banner-btn">Try Now</button>
+      <div class="banner-stickers">
+        <span class="banner-sticker">🌟</span>
+        <span class="banner-sticker">💫</span>
+      </div>
     </div>
   </section>
 
   <section class="hero">
     <div class="hero-content">
-      <h1>{{ 'Welcome to DocManager' | translate }}</h1>
-      <p class="subtitle">{{ 'Your one-stop solution for document management' | translate }}</p>
-      <div class="cta-buttons">
-        <a routerLink="/login" class="btn btn-primary">{{ 'Login' | translate }}</a>
-        <a href="#features" class="btn btn-secondary">{{ 'Learn More' | translate }}</a>
+      <div class="hero-text">
+        <h1>{{ 'Welcome to DocManager' | translate }} <span class="title-sticker">🏆</span></h1>
+        <p class="subtitle">{{ 'Your one-stop solution for document management' | translate }} <span class="subtitle-sticker">💼</span></p>
+        <div class="cta-buttons">
+          <a routerLink="/login" class="btn btn-primary">{{ 'Login' | translate }} <span class="btn-sticker">🔑</span></a>
+          <a href="#features" class="btn btn-secondary">{{ 'Learn More' | translate }} <span class="btn-sticker">📚</span></a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="image-carousel">
+          <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Document Management" class="hero-img active">
+          <img src="https://images.unsplash.com/photo-1568667256549-094345857637?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Document Organization" class="hero-img">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Digital Documents" class="hero-img">
+        </div>
+        <div class="carousel-dots">
+          <span class="dot active" (click)="currentSlide(1)"></span>
+          <span class="dot" (click)="currentSlide(2)"></span>
+          <span class="dot" (click)="currentSlide(3)"></span>
+        </div>
       </div>
     </div>
   </section>
@@ -29,22 +47,26 @@
   </section>
 
   <section id="features" class="features">
-    <h2>{{ 'What we offer' | translate }}</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">📄</div>
-        <h3>{{ 'Document Management' | translate }}</h3>
-        <p>{{ 'Easily organize and manage all your documents in one place.' | translate }}</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📁</div>
-        <h3>{{ 'Category System' | translate }}</h3>
-        <p>{{ 'Categorize your documents for better organization.' | translate }}</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔍</div>
-        <h3>{{ 'Smart Search' | translate }}</h3>
-        <p>{{ 'Quickly find what you\'re looking for with our powerful search.' | translate }}</p>
+    <div class="features-content">
+      <div class="features-text">
+        <h2>{{ 'What we offer' | translate }} <span class="section-sticker">🎁</span></h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📄</div>
+            <h3>{{ 'Document Management' | translate }}</h3>
+            <p>{{ 'Easily organize and manage all your documents in one place.' | translate }}</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📁</div>
+            <h3>{{ 'Category System' | translate }}</h3>
+            <p>{{ 'Categorize your documents for better organization.' | translate }}</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>{{ 'Smart Search' | translate }}</h3>
+            <p>{{ 'Quickly find what you\'re looking for with our powerful search.' | translate }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -142,8 +164,8 @@
   <section class="questions">
     <div class="questions-content">
       <div class="questions-header">
-        <h2>FAQs?</h2>
-        <button class="view-all-btn">View all FAQs ↗</button>
+        <h2>FAQs? <span class="faq-sticker">🤔</span></h2>
+        <button class="view-all-btn">View all FAQs ↗ <span class="arrow-sticker">🎪</span></button>
       </div>
       
       <div class="faq-list">

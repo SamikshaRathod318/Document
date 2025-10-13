@@ -66,17 +66,17 @@ export class DocumentStoreService {
 
   private createInitialMock(): Document[] {
     return [
-      { id: 1, title: 'Annual Report 2023', type: 'PDF', uploadedDate: new Date('2023-01-15'), status: 'Pending', uploadedBy: 'John Doe', department: 'Finance', documentType: 'Annual Report' },
-      { id: 2, title: 'Meeting Minutes', type: 'DOCX', uploadedDate: new Date('2023-01-10'), status: 'Approved', uploadedBy: 'Jane Smith', department: 'HR', documentType: 'Minutes' },
-      { id: 3, title: 'Budget Q1', type: 'XLSX', uploadedDate: new Date('2023-01-05'), status: 'Rejected', uploadedBy: 'Mike Johnson', department: 'Finance', documentType: 'Budget' },
-      { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy' },
-      { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide' },
-      { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast' },
-      { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist' },
-      { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan' },
-      { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory' },
-      { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief' },
-      { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings' }
+      { id: 1, title: 'Annual Report 2023', type: 'PDF', uploadedDate: new Date('2023-01-15'), status: 'Pending', uploadedBy: 'John Doe', department: 'Finance', documentType: 'Annual Report', class: 'A' },
+      { id: 2, title: 'Meeting Minutes', type: 'DOCX', uploadedDate: new Date('2023-01-10'), status: 'Approved', uploadedBy: 'Jane Smith', department: 'HR', documentType: 'Minutes', class: 'B' },
+      { id: 3, title: 'Budget Q1', type: 'XLSX', uploadedDate: new Date('2023-01-05'), status: 'Rejected', uploadedBy: 'Mike Johnson', department: 'Finance', documentType: 'Budget', class: 'C' },
+      { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy', class: 'D' },
+      { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide', class: 'A' },
+      { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast', class: 'B' },
+      { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist', class: 'C' },
+      { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan', class: 'D' },
+      { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory', class: 'A' },
+      { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief', class: 'B' },
+      { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings', class: 'C' }
     ];
   }
 }

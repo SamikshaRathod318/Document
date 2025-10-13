@@ -85,7 +85,7 @@ body {
   font-family: var(--font-family-sans);
   line-height: 1.6;
   color: var(--gray-700);
-  background-color: var(--gray-50);
+  background-color: #ffffff !important;
 }
 
 /* Modern Button Styles */

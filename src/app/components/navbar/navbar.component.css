@@ -7,7 +7,7 @@
 }
 
 .navbar {
-    background: linear-gradient(135deg, #2e2d30 0%, #615a67 100%);
+    background: #2563eb;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
@@ -17,7 +17,7 @@
 
 .navbar.scrolled {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    background-color: rgba(255, 255, 255, 0.98);
+    background-color: rgba(37, 99, 235, 0.98);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
@@ -49,6 +49,7 @@
     transition: transform 0.3s ease;
     border-radius: 4px;
 }
+
 
 /* Hover effect */
 

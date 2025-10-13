@@ -34,8 +34,8 @@ export const routes: Routes = [
   // Documents route - direct to document list
   {
     path: 'documents',
-    loadComponent: () => import('./features/clerk/components/document-list/document-list.component')
-      .then(m => m.DocumentListComponent),
+    loadComponent: () => import('./pages/documents/documents-page.component')
+      .then(m => m.DocumentsPageComponent),
     title: 'Documents - Document Management System'
   },
   // Upload route
