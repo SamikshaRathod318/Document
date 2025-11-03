@@ -152,7 +152,11 @@ export class DocumentUploadComponent implements OnInit {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/plain'
+      'text/plain',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif'
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -264,23 +268,25 @@ export class DocumentUploadComponent implements OnInit {
           this.store.update(updatedDoc);
         }
       } else {
-        // Create new document
-        const newDoc: Document = {
-          id: 0, // will be assigned by store
-          title: formValue.title,
-          description: formValue.description || '',
-          type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
-          size: this.selectedFile?.size,
-          uploadedDate: new Date(),
-          status: 'Pending',
-          uploadedBy: 'Current User',
-          department: 'General',
-          documentType: formValue.documentType,
-          class: formValue.class,
-          isConfidential: !!formValue.isConfidential,
-          fileUrl: undefined
-        };
-        this.store.add(newDoc);
+        // Create new document with file URL
+        this.convertFileToBase64(this.selectedFile!).then(fileUrl => {
+          const newDoc: Document = {
+            id: 0, // will be assigned by store
+            title: formValue.title,
+            description: formValue.description || '',
+            type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
+            size: this.selectedFile?.size,
+            uploadedDate: new Date(),
+            status: 'Pending',
+            uploadedBy: 'Current User',
+            department: 'General',
+            documentType: formValue.documentType,
+            class: formValue.class,
+            isConfidential: !!formValue.isConfidential,
+            fileUrl: fileUrl
+          };
+          this.store.add(newDoc);
+        });
       }
 
       // Reset the form after successful upload
@@ -309,6 +315,11 @@ export class DocumentUploadComponent implements OnInit {
         return 'table_chart';
       case 'txt':
         return 'text_snippet';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return 'image';
       default:
         return 'insert_drive_file';
     }
@@ -327,8 +338,24 @@ export class DocumentUploadComponent implements OnInit {
         return 'XLSX';
       case 'txt':
         return 'TXT';
+      case 'jpg':
+      case 'jpeg':
+        return 'JPEG';
+      case 'png':
+        return 'PNG';
+      case 'gif':
+        return 'GIF';
       default:
         return 'OTHER';
     }
+  }
+
+  private convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
   }
 }

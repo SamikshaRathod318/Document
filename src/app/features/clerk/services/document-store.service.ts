@@ -39,15 +39,29 @@ export class DocumentStoreService {
     this.saveToStorage(docs);
   }
 
+  resetToFreshData(): void {
+    localStorage.removeItem(this.STORAGE_KEY);
+    const freshData = this.createInitialMock();
+    this._documents$.next(freshData);
+    this.saveToStorage(freshData);
+  }
+
   private loadFromStorage(): Document[] {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        // Check if stored data has fileUrl - if not, reset to fresh data
+        const hasFileUrls = parsed.some((doc: any) => doc.fileUrl);
+        if (!hasFileUrls) {
+          localStorage.removeItem(this.STORAGE_KEY);
+          return this.createInitialMock();
+        }
         // Convert date strings back to Date objects
         return parsed.map((doc: any) => ({
           ...doc,
-          uploadedDate: new Date(doc.uploadedDate)
+          uploadedDate: new Date(doc.uploadedDate),
+          reviewedDate: doc.reviewedDate ? new Date(doc.reviewedDate) : undefined
         }));
       }
     } catch (error) {
@@ -66,17 +80,160 @@ export class DocumentStoreService {
 
   private createInitialMock(): Document[] {
     return [
-      { id: 1, title: 'Annual Report 2023', type: 'PDF', uploadedDate: new Date('2023-01-15'), status: 'Pending', uploadedBy: 'John Doe', department: 'Finance', documentType: 'Annual Report', class: 'A' },
-      { id: 2, title: 'Meeting Minutes', type: 'DOCX', uploadedDate: new Date('2023-01-10'), status: 'Approved', uploadedBy: 'Jane Smith', department: 'HR', documentType: 'Minutes', class: 'B' },
-      { id: 3, title: 'Budget Q1', type: 'XLSX', uploadedDate: new Date('2023-01-05'), status: 'Rejected', uploadedBy: 'Mike Johnson', department: 'Finance', documentType: 'Budget', class: 'C' },
-      { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy', class: 'D' },
-      { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide', class: 'A' },
-      { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast', class: 'B' },
-      { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist', class: 'C' },
-      { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan', class: 'D' },
-      { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory', class: 'A' },
-      { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief', class: 'B' },
-      { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings', class: 'C' }
+      { 
+        id: 1, 
+        title: 'Annual Report 2023', 
+        type: 'PDF', 
+        uploadedDate: new Date('2023-01-15'), 
+        status: 'Pending', 
+        uploadedBy: 'John Doe', 
+        department: 'Finance', 
+        documentType: 'Annual Report', 
+        class: 'A',
+        size: 2048576,
+        description: 'Comprehensive annual financial report for the year 2023',
+        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+      },
+      { 
+        id: 2, 
+        title: 'Meeting Minutes', 
+        type: 'DOCX', 
+        uploadedDate: new Date('2023-01-10'), 
+        status: 'Approved', 
+        uploadedBy: 'Jane Smith', 
+        department: 'HR', 
+        documentType: 'Minutes', 
+        class: 'B',
+        size: 524288,
+        description: 'Minutes from the monthly HR team meeting',
+        fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_DOC_100kB.doc'
+      },
+      { 
+        id: 3, 
+        title: 'Budget Q1', 
+        type: 'XLSX', 
+        uploadedDate: new Date('2023-01-05'), 
+        status: 'Rejected', 
+        uploadedBy: 'Mike Johnson', 
+        department: 'Finance', 
+        documentType: 'Budget', 
+        class: 'C',
+        size: 1048576,
+        description: 'First quarter budget allocation and expenses',
+        fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_XLSX_10.xlsx'
+      },
+      { 
+        id: 4, 
+        title: 'Policy Update', 
+        type: 'PDF', 
+        uploadedDate: new Date('2023-02-02'), 
+        status: 'Approved', 
+        uploadedBy: 'Anna Lee', 
+        department: 'Legal', 
+        documentType: 'Policy', 
+        class: 'D',
+        size: 1572864,
+        description: 'Updated company policies and procedures',
+        fileUrl: 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf'
+      },
+      { 
+        id: 5, 
+        title: 'Company Logo', 
+        type: 'PNG', 
+        uploadedDate: new Date('2023-02-10'), 
+        status: 'Pending', 
+        uploadedBy: 'Chris Green', 
+        department: 'Marketing', 
+        documentType: 'Image', 
+        class: 'A',
+        size: 256000,
+        description: 'Official company logo in PNG format',
+fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDA2NmNjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNvbXBhbnkgTG9nbzwvdGV4dD48L3N2Zz4='
+      },
+      { 
+        id: 6, 
+        title: 'Sales Forecast', 
+        type: 'XLSX', 
+        uploadedDate: new Date('2023-02-15'), 
+        status: 'In Review', 
+        uploadedBy: 'Sam Patel', 
+        department: 'Sales', 
+        documentType: 'Forecast', 
+        class: 'B',
+        size: 786432,
+        description: 'Sales projections for the next quarter',
+        fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_XLSX_50.xlsx'
+      },
+      { 
+        id: 7, 
+        title: 'Compliance Checklist', 
+        type: 'PDF', 
+        uploadedDate: new Date('2023-03-01'), 
+        status: 'Approved', 
+        uploadedBy: 'Mary Adams', 
+        department: 'Compliance', 
+        documentType: 'Checklist', 
+        class: 'C',
+        size: 1310720,
+        description: 'Regulatory compliance checklist and guidelines',
+        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+      },
+      { 
+        id: 8, 
+        title: 'Training Plan', 
+        type: 'DOCX', 
+        uploadedDate: new Date('2023-03-05'), 
+        status: 'Pending', 
+        uploadedBy: 'Tom Brown', 
+        department: 'L&D', 
+        documentType: 'Plan', 
+        class: 'D',
+        size: 655360,
+        description: 'Employee training and development plan',
+        fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_DOC_500kB.doc'
+      },
+      { 
+        id: 9, 
+        title: 'IT Inventory', 
+        type: 'XLSX', 
+        uploadedDate: new Date('2023-03-12'), 
+        status: 'Rejected', 
+        uploadedBy: 'Ivy Chen', 
+        department: 'IT', 
+        documentType: 'Inventory', 
+        class: 'A',
+        size: 2097152,
+        description: 'Complete inventory of IT assets and equipment',
+        fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_XLSX_100.xlsx'
+      },
+      { 
+        id: 10, 
+        title: 'Marketing Brief', 
+        type: 'PDF', 
+        uploadedDate: new Date('2023-03-18'), 
+        status: 'In Review', 
+        uploadedBy: 'Leo Garcia', 
+        department: 'Marketing', 
+        documentType: 'Brief', 
+        class: 'B',
+        size: 1835008,
+        description: 'Marketing campaign brief and strategy document',
+        fileUrl: 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf'
+      },
+      { 
+        id: 11, 
+        title: 'Audit Findings', 
+        type: 'PDF', 
+        uploadedDate: new Date('2023-03-25'), 
+        status: 'Pending', 
+        uploadedBy: 'Nina Shah', 
+        department: 'Audit', 
+        documentType: 'Findings', 
+        class: 'C',
+        size: 3145728,
+        description: 'Internal audit findings and recommendations',
+        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+      }
     ];
   }
 }

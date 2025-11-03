@@ -16,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Document } from '../../models/document.model';
 import { DocumentStoreService } from '../../services/document-store.service';
 
@@ -53,16 +54,13 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['title', 'type', 'class', 'uploadedDate', 'status', 'actions'];
   dataSource = new MatTableDataSource<Document>();
   
-  // Paginator state
   pageSize = 5;
-  currentPage = 4;
-  totalPages = 8;
+  currentPage = 1;
+  totalPages = 1;
   
-  // Backing list from store (unfiltered)
   private baseDocuments: Document[] = [];
   filteredDocuments: Document[] = [];
 
-  // Status options for filter
   statusOptions = [
     { value: 'all', viewValue: 'All Documents' },
     { value: 'Pending', viewValue: 'Pending' },
@@ -71,7 +69,6 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     { value: 'Rejected', viewValue: 'Rejected' }
   ];
 
-  // Search filter
   searchText = '';
   selectedStatus = 'all';
   isLoading = false;
@@ -79,51 +76,6 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   selectedDocument: Document | null = null;
   showEditForm = false;
   editForm: FormGroup;
-  
-  // Mock data (legacy) - replaced by DocumentStoreService; kept for fallback
-  mockDocuments: Document[] = [
-    { 
-      id: 1, 
-      title: 'Annual Report 2023', 
-      type: 'PDF', 
-      uploadedDate: new Date('2023-01-15'), 
-      status: 'Pending',
-      uploadedBy: 'John Doe',
-      department: 'Finance',
-      documentType: 'Annual Report',
-      class: 'A'
-    },
-    { 
-      id: 2, 
-      title: 'Meeting Minutes', 
-      type: 'DOCX', 
-      uploadedDate: new Date('2023-01-10'), 
-      status: 'Approved',
-      uploadedBy: 'Jane Smith',
-      department: 'HR',
-      documentType: 'Minutes',
-      class: 'B'
-    },
-    { 
-      id: 3, 
-      title: 'Budget Q1', 
-      type: 'XLSX', 
-      uploadedDate: new Date('2023-01-05'), 
-      status: 'Rejected',
-      uploadedBy: 'Mike Johnson',
-      department: 'Finance',
-      documentType: 'Budget',
-      class: 'C'
-    },
-    { id: 4, title: 'Policy Update', type: 'PDF', uploadedDate: new Date('2023-02-02'), status: 'Approved', uploadedBy: 'Anna Lee', department: 'Legal', documentType: 'Policy', class: 'D' },
-    { id: 5, title: 'Onboarding Guide', type: 'DOCX', uploadedDate: new Date('2023-02-10'), status: 'Pending', uploadedBy: 'Chris Green', department: 'HR', documentType: 'Guide', class: 'A' },
-    { id: 6, title: 'Sales Forecast', type: 'XLSX', uploadedDate: new Date('2023-02-15'), status: 'In Review', uploadedBy: 'Sam Patel', department: 'Sales', documentType: 'Forecast', class: 'B' },
-    { id: 7, title: 'Compliance Checklist', type: 'PDF', uploadedDate: new Date('2023-03-01'), status: 'Approved', uploadedBy: 'Mary Adams', department: 'Compliance', documentType: 'Checklist', class: 'C' },
-    { id: 8, title: 'Training Plan', type: 'DOCX', uploadedDate: new Date('2023-03-05'), status: 'Pending', uploadedBy: 'Tom Brown', department: 'L&D', documentType: 'Plan', class: 'D' },
-    { id: 9, title: 'IT Inventory', type: 'XLSX', uploadedDate: new Date('2023-03-12'), status: 'Rejected', uploadedBy: 'Ivy Chen', department: 'IT', documentType: 'Inventory', class: 'A' },
-    { id: 10, title: 'Marketing Brief', type: 'PDF', uploadedDate: new Date('2023-03-18'), status: 'In Review', uploadedBy: 'Leo Garcia', department: 'Marketing', documentType: 'Brief', class: 'B' },
-    { id: 11, title: 'Audit Findings', type: 'PDF', uploadedDate: new Date('2023-03-25'), status: 'Pending', uploadedBy: 'Nina Shah', department: 'Audit', documentType: 'Findings', class: 'C' },
-  ];
 
   constructor(
     private dialog: MatDialog,
@@ -131,7 +83,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     private router: Router,
     private route: ActivatedRoute,
     private store: DocumentStoreService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private sanitizer: DomSanitizer
   ) {
     this.editForm = this.fb.group({
       title: ['', Validators.required],
@@ -142,28 +95,10 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.log('DocumentListComponent initialized');
-    
-    // Subscribe to documents from the store
     this.store.documents$.subscribe(docs => {
-      console.log('Documents received:', docs.length);
       this.baseDocuments = docs;
       this.applyFilter();
     });
-    
-    // Check for filter query parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const filterParam = urlParams.get('filter');
-    if (filterParam) {
-      if (filterParam === 'pending') {
-        this.selectedStatus = 'Pending';
-      } else if (filterParam === 'approved') {
-        this.selectedStatus = 'Approved';
-      } else if (filterParam === 'all') {
-        this.selectedStatus = 'all';
-      }
-      this.applyFilter();
-    }
   }
 
   ngAfterViewInit() {
@@ -175,22 +110,13 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadDocuments(): void {
-    // Legacy method: set from store immediately
-    this.isLoading = false;
-    this.baseDocuments = this.store.documents;
-    this.applyFilter();
-  }
-
   applyFilter(): void {
     let filteredData = [...this.baseDocuments];
     
-    // Apply status filter
     if (this.selectedStatus !== 'all') {
       filteredData = filteredData.filter(doc => doc.status === this.selectedStatus);
     }
     
-    // Apply search filter
     if (this.searchText) {
       const searchTextLower = this.searchText.toLowerCase();
       filteredData = filteredData.filter(doc => 
@@ -201,16 +127,12 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
       );
     }
     
-    // Store filtered data
     this.filteredDocuments = filteredData;
-    
-    // Calculate total pages
     this.totalPages = Math.max(1, Math.ceil(filteredData.length / this.pageSize));
     if (this.currentPage > this.totalPages) {
       this.currentPage = 1;
     }
     
-    // Apply pagination
     this.updateDisplayedData();
   }
 
@@ -218,36 +140,25 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     const paginatedData = this.filteredDocuments.slice(startIndex, endIndex);
-    console.log('Pagination:', { currentPage: this.currentPage, totalPages: this.totalPages, filteredCount: this.filteredDocuments.length, displayedCount: paginatedData.length });
     this.dataSource.data = paginatedData;
   }
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'Approved':
-        return 'status-approved';
-      case 'Rejected':
-        return 'status-rejected';
-      case 'In Review':
-        return 'status-in-review';
-      case 'Pending':
-      default:
-        return 'status-pending';
+      case 'Approved': return 'status-approved';
+      case 'Rejected': return 'status-rejected';
+      case 'In Review': return 'status-in-review';
+      default: return 'status-pending';
     }
   }
 
   getClassColor(classValue: string): string {
     switch (classValue?.toUpperCase()) {
-      case 'A':
-        return 'class-a';
-      case 'B':
-        return 'class-b';
-      case 'C':
-        return 'class-c';
-      case 'D':
-        return 'class-d';
-      default:
-        return 'class-default';
+      case 'A': return 'class-a';
+      case 'B': return 'class-b';
+      case 'C': return 'class-c';
+      case 'D': return 'class-d';
+      default: return 'class-default';
     }
   }
 
@@ -292,10 +203,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
   deleteDocument(document: Document): void {
     const confirmed = window.confirm(`Delete "${document.title}"?`);
-    if (!confirmed) {
-      return;
-    }
-    // Delete via store so all subscribers update
+    if (!confirmed) return;
+    
     this.store.delete(document.id);
     this.applyFilter();
     this.snackBar.open('Document deleted', 'Dismiss', { duration: 2000 });
@@ -327,5 +236,47 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
   navigateToUpload(): void {
     this.router.navigate(['/upload']);
+  }
+
+  // Document preview helper methods
+  getSafeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  isImageFile(type: string): boolean {
+    const imageTypes = ['JPG', 'JPEG', 'PNG', 'GIF', 'BMP', 'WEBP'];
+    return imageTypes.includes(type.toUpperCase());
+  }
+
+  isTextFile(type: string): boolean {
+    const textTypes = ['TXT', 'DOC', 'DOCX'];
+    return textTypes.includes(type.toUpperCase());
+  }
+
+  getFileSize(sizeInBytes?: number): string {
+    if (!sizeInBytes) return 'Unknown size';
+    
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = sizeInBytes;
+    let unitIndex = 0;
+    
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+  }
+
+  downloadDocument(document: Document): void {
+    if (document.fileUrl) {
+      const link = window.document.createElement('a');
+      link.href = document.fileUrl;
+      link.download = document.title;
+      link.target = '_blank';
+      window.document.body.appendChild(link);
+      link.click();
+      window.document.body.removeChild(link);
+    }
   }
 }

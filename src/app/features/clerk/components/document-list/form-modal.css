@@ -20,6 +20,11 @@
   overflow-y: auto;
 }
 
+.document-view-modal {
+  max-width: 900px;
+  max-height: 90vh;
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;
@@ -108,4 +113,108 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+
+/* Document Preview Styles */
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.document-info-section {
+  flex: 0 0 auto;
+}
+
+.document-preview-section {
+  flex: 1;
+  min-height: 400px;
+}
+
+.document-preview-section h4 {
+  margin: 0 0 1rem 0;
+  color: #2d3748;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.document-viewer {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.pdf-viewer iframe,
+.text-viewer iframe {
+  border: none;
+  width: 100%;
+  min-height: 500px;
+}
+
+.image-viewer {
+  text-align: center;
+  padding: 1rem;
+}
+
+.document-image {
+  max-width: 100%;
+  max-height: 500px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.download-section {
+  text-align: center;
+  padding: 2rem;
+}
+
+.file-icon-large {
+  margin-bottom: 1rem;
+}
+
+.large-icon {
+  font-size: 4rem !important;
+  color: #718096;
+}
+
+.file-info {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1.5rem 0;
+}
+
+.no-file-message {
+  color: #e53e3e;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+.form-field textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f7fafc;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: inherit;
+}
+
+@media (max-width: 768px) {
+  .document-view-modal {
+    width: 95%;
+    max-width: none;
+    margin: 1rem;
+  }
+  
+  .form-content {
+    padding: 1rem;
+  }
+  
+  .pdf-viewer iframe,
+  .text-viewer iframe {
+    min-height: 300px;
+  }
 }

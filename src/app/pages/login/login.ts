@@ -111,8 +111,8 @@ export class LoginComponent {
           const msgLower = message.toLowerCase();
           if (msgLower.includes('invalid login credentials')) {
             this.error = 'Invalid email or password. Try again or reset your password.';
-            if (!environment.production && environment.devBypass?.enabled) {
-              this.info = `Test login: ${environment.devBypass.email} / ${environment.devBypass.password}`;
+            if (!environment.production && (environment as any).devBypass?.enabled) {
+              this.info = `Test login: ${(environment as any).devBypass.email} / ${(environment as any).devBypass.password}`;
             }
           } else if (msgLower.includes('email not confirmed')) {
             this.error = 'Email not confirmed. Please check your inbox for the confirmation email.';
@@ -123,8 +123,8 @@ export class LoginComponent {
           }
         } else {
           this.error = 'Invalid email or password';
-          if (!environment.production && environment.devBypass?.enabled) {
-            this.info = `Test login: ${environment.devBypass.email} / ${environment.devBypass.password}`;
+          if (!environment.production && (environment as any).devBypass?.enabled) {
+            this.info = `Test login: ${(environment as any).devBypass.email} / ${(environment as any).devBypass.password}`;
           }
         }
         console.error('Login error:', err);

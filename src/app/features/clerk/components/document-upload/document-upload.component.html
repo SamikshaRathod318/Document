@@ -53,7 +53,9 @@
            (dragover)="$event.preventDefault(); isDragging = true"
            (dragleave)="isDragging = false"
            (drop)="onFileDrop($event)">
-        <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
+        <input type="file" #fileInput (change)="onFileSelected($event)" 
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif" 
+               style="display: none;">
         
         <div *ngIf="!selectedFile" class="upload-prompt">
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
@@ -63,7 +65,7 @@
             Browse Files
           </button>
           <p class="file-requirements">
-            Supported formats: PDF, DOCX, XLSX, TXT (Max 10MB)
+            Supported formats: PDF, DOCX, XLSX, TXT, JPG, PNG, GIF (Max 10MB)
           </p>
         </div>
 

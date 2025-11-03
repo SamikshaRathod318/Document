@@ -36,19 +36,22 @@ export const routes: Routes = [
     path: 'documents',
     loadComponent: () => import('./pages/documents/documents-page.component')
       .then(m => m.DocumentsPageComponent),
-    title: 'Documents - Document Management System'
+    title: 'Documents - Document Management System',
+    canActivate: [authGuard]
   },
   // Upload route
   {
     path: 'upload',
     loadComponent: () => import('./features/clerk/components/document-upload/document-upload.component')
       .then(m => m.DocumentUploadComponent),
-    title: 'Upload Document - Document Management System'
+    title: 'Upload Document - Document Management System',
+    canActivate: [authGuard]
   },
   // Clerk routes
   {
     path: 'clerk',
-    loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule)
+    loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule),
+    canActivate: [authGuard]
   },
   // Profile route (protected)
   {
