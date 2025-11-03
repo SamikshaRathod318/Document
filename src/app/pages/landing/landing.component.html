@@ -2,8 +2,8 @@
   <!-- Top Banner -->
   <section class="top-banner">
     <div class="banner-content">
-      <span class="banner-icon">🎉</span>
-      <span class="banner-text">New Feature: AI-Powered Document Search Now Available!</span>
+      <span class="banner-icon">🏛️</span>
+      <span class="banner-text">Digital India Initiative: Paperless Government Office Management!</span>
       <button class="banner-btn">Try Now</button>
       <div class="banner-stickers">
         <span class="banner-sticker">🌟</span>
@@ -15,18 +15,18 @@
   <section class="hero">
     <div class="hero-content">
       <div class="hero-text">
-        <h1>{{ 'Welcome to DocManager' | translate }} <span class="title-sticker">🏆</span></h1>
-        <p class="subtitle">{{ 'Your one-stop solution for document management' | translate }} <span class="subtitle-sticker">💼</span></p>
+        <h1>{{ 'Government Document Management System' | translate }} <span class="title-sticker">🏛️</span></h1>
+        <p class="subtitle">{{ 'Secure, efficient management of official documents and records' | translate }} <span class="subtitle-sticker">📋</span></p>
         <div class="cta-buttons">
           <a routerLink="/login" class="btn btn-primary">{{ 'Login' | translate }} <span class="btn-sticker">🔑</span></a>
-          <a href="#features" class="btn btn-secondary">{{ 'Learn More' | translate }} <span class="btn-sticker">📚</span></a>
+          <button (click)="showDMSInformation()" class="btn btn-secondary">{{ 'Learn More' | translate }} <span class="btn-sticker">📚</span></button>
         </div>
       </div>
       <div class="hero-image">
         <div class="image-carousel">
-          <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Document Management" class="hero-img active">
-          <img src="https://images.unsplash.com/photo-1568667256549-094345857637?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Document Organization" class="hero-img">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Digital Documents" class="hero-img">
+          <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Government Documents" class="hero-img active">
+          <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Official Paperwork" class="hero-img">
+          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Document Filing" class="hero-img">
         </div>
         <div class="carousel-dots">
           <span class="dot active" (click)="currentSlide(1)"></span>
@@ -42,7 +42,7 @@
     <div class="ad-content">
       <h3>🚀 Upgrade to DocManager Pro</h3>
       <p>Get unlimited storage, advanced security, and priority support</p>
-      <button class="ad-btn">Learn More</button>
+      <button class="ad-btn" (click)="showDMSInformation()">Learn More</button>
     </div>
   </section>
 
@@ -52,19 +52,29 @@
         <h2>{{ 'What we offer' | translate }} <span class="section-sticker">🎁</span></h2>
         <div class="feature-grid">
           <div class="feature-card">
-            <div class="feature-icon">📄</div>
-            <h3>{{ 'Document Management' | translate }}</h3>
-            <p>{{ 'Easily organize and manage all your documents in one place.' | translate }}</p>
+            <div class="feature-icon">🏛️</div>
+            <h3>{{ 'Official Records' | translate }}</h3>
+            <p>{{ 'Securely manage government documents, certificates, and official records.' | translate }}</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">📁</div>
-            <h3>{{ 'Category System' | translate }}</h3>
-            <p>{{ 'Categorize your documents for better organization.' | translate }}</p>
+            <div class="feature-icon">📋</div>
+            <h3>{{ 'Department Filing' | translate }}</h3>
+            <p>{{ 'Organize documents by departments and maintain proper filing systems.' | translate }}</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>{{ 'Secure Access' | translate }}</h3>
+            <p>{{ 'Role-based access control ensuring document security and compliance.' | translate }}</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">🔍</div>
             <h3>{{ 'Smart Search' | translate }}</h3>
-            <p>{{ 'Quickly find what you\'re looking for with our powerful search.' | translate }}</p>
+            <p>{{ 'Advanced search capabilities with filters and instant document retrieval.' | translate }}</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>{{ 'Mobile Access' | translate }}</h3>
+            <p>{{ 'Access documents anywhere with our mobile-responsive platform.' | translate }}</p>
           </div>
         </div>
       </div>
@@ -122,6 +132,123 @@
             <span class="tech-tag" *ngFor="let tech of selectedCaseStudy.details.technologies">{{ tech }}</span>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DMS Information Modal -->
+  <div class="modal-overlay dms-modal-overlay" *ngIf="showDMSInfo" (click)="closeDMSInfo()">
+    <div class="dms-info-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📚 Document Management System - Complete Guide</h2>
+        <button class="close-btn" (click)="closeDMSInfo()">×</button>
+      </div>
+      <div class="modal-content dms-content">
+        
+        <!-- Overview Section -->
+        <div class="dms-section">
+          <h3>🏛️ {{ dmsInformation.overview.title }}</h3>
+          <p class="overview-desc">{{ dmsInformation.overview.description }}</p>
+          <div class="benefits-grid">
+            <h4>Key Benefits:</h4>
+            <ul class="benefits-list">
+              <li *ngFor="let benefit of dmsInformation.overview.keyBenefits">✅ {{ benefit }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Core Features Section -->
+        <div class="dms-section">
+          <h3>🔧 Core Features & Capabilities</h3>
+          <div class="features-categories">
+            <div class="feature-category" *ngFor="let category of dmsInformation.coreFeatures">
+              <h4>{{ category.category }}</h4>
+              <ul>
+                <li *ngFor="let feature of category.features">{{ feature }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Implementation Types -->
+        <div class="dms-section">
+          <h3>☁️ Implementation Types</h3>
+          <div class="implementation-grid">
+            <div class="impl-card" *ngFor="let impl of dmsInformation.implementationTypes">
+              <h4>{{ impl.type }}</h4>
+              <p>{{ impl.description }}</p>
+              <div class="advantages">
+                <strong>Advantages:</strong>
+                <ul>
+                  <li *ngFor="let advantage of impl.advantages">{{ advantage }}</li>
+                </ul>
+              </div>
+              <div class="best-for">
+                <strong>Best For:</strong> {{ impl.bestFor }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Industry Applications -->
+        <div class="dms-section">
+          <h3>🏢 Industry Applications</h3>
+          <div class="industry-grid">
+            <div class="industry-card" *ngFor="let industry of dmsInformation.industryApplications">
+              <h4>{{ industry.industry }}</h4>
+              <div class="applications">
+                <strong>Applications:</strong>
+                <ul>
+                  <li *ngFor="let app of industry.applications">{{ app }}</li>
+                </ul>
+              </div>
+              <div class="challenges">
+                <strong>Key Challenges:</strong>
+                <ul>
+                  <li *ngFor="let challenge of industry.challenges">{{ challenge }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="dms-section">
+          <h3>⭐ Best Practices</h3>
+          <div class="practices-grid">
+            <div class="practice-category" *ngFor="let practice of dmsInformation.bestPractices">
+              <h4>{{ practice.category }}</h4>
+              <ul>
+                <li *ngFor="let item of practice.practices">{{ item }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROI Section -->
+        <div class="dms-section roi-section">
+          <h3>💰 {{ dmsInformation.roi.title }}</h3>
+          <div class="roi-metrics">
+            <h4>Expected Benefits:</h4>
+            <ul class="roi-list">
+              <li *ngFor="let metric of dmsInformation.roi.metrics">📈 {{ metric }}</li>
+            </ul>
+            <div class="payback-info">
+              <strong>Typical Payback Period:</strong> {{ dmsInformation.roi.paybackPeriod }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="dms-section cta-section">
+          <h3>🚀 Ready to Get Started?</h3>
+          <p>Transform your organization with our comprehensive Document Management System.</p>
+          <div class="cta-buttons">
+            <button class="btn btn-primary" (click)="closeDMSInfo()" routerLink="/login">Start Free Trial</button>
+            <button class="btn btn-secondary" (click)="closeDMSInfo()">Contact Sales</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -195,51 +322,32 @@
             <span class="faq-icon">{{ openFaq === 2 ? '-' : '+' }}</span>
           </div>
           <div class="faq-answer" [class.open]="openFaq === 2">
-            If you have any questions, want to engage, or require assistance, please reach out to us at <a href="mailto:support@docmanager.com">support@docmanager.com</a>
-          </div>
-        </div>
-        
-        <div class="faq-item">
-          <div class="faq-question" (click)="toggleFaq(3)">
-            <span>WHAT IS USER INTERFACE (UI)? HOW IT IS IMPORTANT?</span>
-            <span class="faq-icon">{{ openFaq === 3 ? '-' : '+' }}</span>
-          </div>
-          <div class="faq-answer" [class.open]="openFaq === 3">
-            User Interface (UI) is the visual design and layout that users interact with. It's important because it determines how easily users can navigate and use the system effectively.
-          </div>
-        </div>
-        
-        <div class="faq-item">
-          <div class="faq-question" (click)="toggleFaq(4)">
-            <span>WHAT IS A DESIGN SYSTEM?</span>
-            <span class="faq-icon">{{ openFaq === 4 ? '-' : '+' }}</span>
-          </div>
-          <div class="faq-answer" [class.open]="openFaq === 4">
-            A design system is a collection of reusable components, guidelines, and standards that ensure consistency across all user interfaces and experiences.
-          </div>
-        </div>
-        
-        <div class="faq-item">
-          <div class="faq-question" (click)="toggleFaq(5)">
-            <span>HOW DO I REGISTER FOR THE SYSTEM?</span>
-            <span class="faq-icon">{{ openFaq === 5 ? '-' : '+' }}</span>
-          </div>
-          <div class="faq-answer" [class.open]="openFaq === 5">
-            Contact your system administrator or HR department to get access credentials. They will provide you with login details and initial setup instructions.
+            If you have any questions, want to engage, or require assistance, please reach out to us at <a href="mailto:support@docmanager.com">support@docmanager.com</a> or call us at +91-1234567890.
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Bottom Advertisement -->
-  <section class="bottom-ad">
-    <div class="ad-container">
-      <div class="ad-text">
-        <h3>🎯 Special Offer: 30% Off First Year</h3>
-        <p>Join thousands of organizations already using DocManager</p>
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>DocManager</h4>
+        <p>Transforming document management for the digital age.</p>
       </div>
-      <button class="cta-ad-btn">Get Started Today</button>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a (click)="showDMSInformation()">Learn More</a></li>
+          <li><a routerLink="/login">Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <p>Email: support@docmanager.com</p>
+        <p>Phone: +91-1234567890</p>
+      </div>
     </div>
-  </section>
+  </footer>
 </div>

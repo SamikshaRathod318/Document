@@ -15,8 +15,153 @@ export class LandingComponent implements OnInit {
   openFaq: number | null = null;
   selectedCaseStudy: any = null;
   currentSlideIndex = 1;
+  showDMSInfo = false;
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  dmsInformation = {
+    overview: {
+      title: 'Document Management System Overview',
+      description: 'A Document Management System (DMS) is a software solution that helps organizations capture, store, manage, and track electronic documents and images of paper-based information.',
+      keyBenefits: [
+        'Centralized document storage and organization',
+        'Enhanced security and access control',
+        'Improved collaboration and workflow efficiency',
+        'Regulatory compliance and audit trails',
+        'Cost reduction and space optimization',
+        'Disaster recovery and backup capabilities'
+      ]
+    },
+    coreFeatures: [
+      {
+        category: 'Document Capture & Storage',
+        features: [
+          'Optical Character Recognition (OCR)',
+          'Batch scanning and indexing',
+          'Multiple file format support',
+          'Cloud and on-premise storage options',
+          'Automated document classification'
+        ]
+      },
+      {
+        category: 'Security & Access Control',
+        features: [
+          'Role-based access permissions',
+          'Document encryption and digital signatures',
+          'Audit trails and activity logging',
+          'Multi-factor authentication',
+          'Data loss prevention (DLP)'
+        ]
+      },
+      {
+        category: 'Search & Retrieval',
+        features: [
+          'Full-text search capabilities',
+          'Advanced filtering and sorting',
+          'Metadata-based search',
+          'AI-powered content discovery',
+          'Quick preview and thumbnail views'
+        ]
+      },
+      {
+        category: 'Workflow & Collaboration',
+        features: [
+          'Automated workflow routing',
+          'Document approval processes',
+          'Real-time collaboration tools',
+          'Version control and check-in/check-out',
+          'Task assignment and notifications'
+        ]
+      }
+    ],
+    implementationTypes: [
+      {
+        type: 'Cloud-Based DMS',
+        description: 'Hosted on cloud infrastructure, offering scalability and remote access',
+        advantages: ['Lower upfront costs', 'Automatic updates', 'Global accessibility', 'Scalable storage'],
+        bestFor: 'Small to medium businesses, remote teams'
+      },
+      {
+        type: 'On-Premise DMS',
+        description: 'Installed and maintained on organization\'s own servers',
+        advantages: ['Complete data control', 'Customization flexibility', 'Enhanced security', 'No internet dependency'],
+        bestFor: 'Large enterprises, highly regulated industries'
+      },
+      {
+        type: 'Hybrid DMS',
+        description: 'Combination of cloud and on-premise solutions',
+        advantages: ['Flexible deployment', 'Cost optimization', 'Risk distribution', 'Gradual migration'],
+        bestFor: 'Organizations transitioning to cloud'
+      }
+    ],
+    industryApplications: [
+      {
+        industry: 'Government & Public Sector',
+        applications: ['Citizen service documents', 'Policy management', 'Regulatory compliance', 'Inter-department collaboration'],
+        challenges: ['High security requirements', 'Transparency needs', 'Large document volumes', 'Multiple stakeholders']
+      },
+      {
+        industry: 'Healthcare',
+        applications: ['Patient records', 'Medical imaging', 'Insurance claims', 'Regulatory documentation'],
+        challenges: ['HIPAA compliance', 'Patient privacy', 'Integration with EMR', 'Mobile access needs']
+      },
+      {
+        industry: 'Financial Services',
+        applications: ['Loan documentation', 'Customer records', 'Compliance reports', 'Audit trails'],
+        challenges: ['Regulatory compliance', 'Data security', 'Real-time processing', 'Risk management']
+      },
+      {
+        industry: 'Legal',
+        applications: ['Case files', 'Contracts', 'Legal research', 'Client communications'],
+        challenges: ['Confidentiality', 'Version control', 'Collaboration', 'Time tracking']
+      },
+      {
+        industry: 'Education',
+        applications: ['Student records', 'Academic documents', 'Research papers', 'Administrative files'],
+        challenges: ['Student privacy', 'Multi-user access', 'Long-term retention', 'Budget constraints']
+      }
+    ],
+    bestPractices: [
+      {
+        category: 'Planning & Strategy',
+        practices: [
+          'Define clear document management policies',
+          'Conduct thorough needs assessment',
+          'Establish document retention schedules',
+          'Plan for user training and adoption'
+        ]
+      },
+      {
+        category: 'Implementation',
+        practices: [
+          'Start with pilot projects',
+          'Ensure proper data migration',
+          'Implement robust backup strategies',
+          'Test disaster recovery procedures'
+        ]
+      },
+      {
+        category: 'Ongoing Management',
+        practices: [
+          'Regular system maintenance and updates',
+          'Monitor user adoption and feedback',
+          'Conduct periodic security audits',
+          'Optimize storage and performance'
+        ]
+      }
+    ],
+    roi: {
+      title: 'Return on Investment (ROI)',
+      metrics: [
+        'Time savings: 30-50% reduction in document retrieval time',
+        'Cost reduction: 25-40% decrease in paper and storage costs',
+        'Productivity: 20-35% improvement in workflow efficiency',
+        'Compliance: 90%+ improvement in audit readiness',
+        'Security: 95%+ reduction in document loss incidents'
+      ],
+      paybackPeriod: '6-18 months depending on organization size and complexity'
+    }
+  };
 
   caseStudies = [
     {
@@ -108,6 +253,14 @@ export class LandingComponent implements OnInit {
 
   closeCaseStudyModal() {
     this.selectedCaseStudy = null;
+  }
+
+  showDMSInformation() {
+    this.showDMSInfo = true;
+  }
+
+  closeDMSInfo() {
+    this.showDMSInfo = false;
   }
 
   currentSlide(n: number) {

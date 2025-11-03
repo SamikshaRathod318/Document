@@ -135,7 +135,10 @@ export class TranslationService {
       'Enter document title': 'Enter document title',
       'Enter description': 'Enter description',
       'Select Department': 'Select Department',
-      'Save Document': 'Save Document'
+      'Save Document': 'Save Document',
+      'Advanced search capabilities with filters and instant document retrieval.': 'Advanced search capabilities with filters and instant document retrieval.',
+      'Mobile Access': 'Mobile Access',
+      'Access documents anywhere with our mobile-responsive platform.': 'Access documents anywhere with our mobile-responsive platform.'
     },
     'मराठी': {
       'Home': 'मुख्यपृष्ठ',
@@ -263,7 +266,10 @@ export class TranslationService {
       'Enter document title': 'कागदपत्राचे शीर्षक टाका',
       'Enter description': 'वर्णन टाका',
       'Select Department': 'विभाग निवडा',
-      'Save Document': 'कागदपत्र जतन करा'
+      'Save Document': 'कागदपत्र जतन करा',
+      'Advanced search capabilities with filters and instant document retrieval.': 'फिल्टर आणि तत्काल कागदपत्र पुनर्प्राप्तीसह प्रगत शोध क्षमता.',
+      'Mobile Access': 'मोबाइल प्रवेश',
+      'Access documents anywhere with our mobile-responsive platform.': 'आमच्या मोबाइल-रिस्पॉन्सिव्ह प्लॅटफॉर्मसह कुठेही कागदपत्रांमध्ये प्रवेश करा.'
     }
   };
 
