@@ -114,11 +114,11 @@
   </div>
 
   <mat-paginator
-    [length]="filteredDocuments.length || 0"
+    [length]="filteredDocuments.length"
     [pageSize]="pageSize"
-    [pageSizeOptions]="[5, 10, 20]"
-    (page)="onPageChange($event)"
+    [pageSizeOptions]="[5, 10, 20, 50]"
     showFirstLastButtons
+    aria-label="Select page of documents"
   ></mat-paginator>
 </div>
 

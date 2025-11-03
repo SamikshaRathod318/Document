@@ -56,7 +56,6 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   
   pageSize = 5;
   currentPage = 1;
-  totalPages = 1;
   
   private baseDocuments: Document[] = [];
   filteredDocuments: Document[] = [];
@@ -99,6 +98,14 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
       this.baseDocuments = docs;
       this.applyFilter();
     });
+
+    // Handle query parameters for status filter
+    this.route.queryParams.subscribe(params => {
+      if (params['status']) {
+        this.selectedStatus = params['status'];
+        this.applyFilter();
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -107,6 +114,10 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
     if (this.paginator) {
       this.dataSource.paginator = this.paginator;
+      // Listen to paginator events
+      this.paginator.page.subscribe((event: PageEvent) => {
+        this.onPageChange(event);
+      });
     }
   }
 
@@ -128,20 +139,15 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
     
     this.filteredDocuments = filteredData;
-    this.totalPages = Math.max(1, Math.ceil(filteredData.length / this.pageSize));
-    if (this.currentPage > this.totalPages) {
-      this.currentPage = 1;
-    }
+    this.dataSource.data = filteredData;
     
-    this.updateDisplayedData();
+    // Reset paginator to first page when filtering
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
   }
 
-  private updateDisplayedData(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    const paginatedData = this.filteredDocuments.slice(startIndex, endIndex);
-    this.dataSource.data = paginatedData;
-  }
+
 
   getStatusClass(status: string): string {
     switch (status) {
@@ -210,28 +216,11 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     this.snackBar.open('Document deleted', 'Dismiss', { duration: 2000 });
   }
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updateDisplayedData();
-    }
-  }
 
-  getVisiblePages(): number[] {
-    const pages: number[] = [];
-    const start = Math.max(2, this.currentPage - 1);
-    const end = Math.min(this.totalPages - 1, this.currentPage + 1);
-    
-    for (let i = start; i <= end; i++) {
-      if (i !== 1 && i !== this.totalPages) {
-        pages.push(i);
-      }
-    }
-    return pages;
-  }
 
   onPageChange(event: PageEvent): void {
     this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex + 1;
   }
 
   navigateToUpload(): void {

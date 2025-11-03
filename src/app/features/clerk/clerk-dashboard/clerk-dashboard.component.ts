@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../../core/services/auth.service';
+import { DocumentStoreService } from '../services/document-store.service';
 import { filter, Subscription } from 'rxjs';
 
 interface User {
@@ -39,12 +40,17 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
   user: User | null = null;
   showDocuments = false;
   currentFilter = 'all';
+  totalDocuments = 0;
+  approvedDocuments = 0;
+  pendingDocuments = 0;
   private userSubscription: Subscription | undefined;
   private routerEventsSubscription: Subscription;
+  private documentsSubscription: Subscription | undefined;
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private documentStore = inject(DocumentStoreService);
 
   constructor() {
     // Handle router events to ensure proper navigation
@@ -68,11 +74,15 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
           role: this.mapRole(user.roles?.[0]) || 'clerk',
           department: user.department || 'Clerk Department'
         };
-        
-
       } else {
         this.router.navigate(['/login']);
       }
+    });
+
+    this.documentsSubscription = this.documentStore.documents$.subscribe(docs => {
+      this.totalDocuments = docs.length;
+      this.approvedDocuments = docs.filter(doc => doc.status === 'Approved').length;
+      this.pendingDocuments = docs.filter(doc => doc.status === 'Pending').length;
     });
   }
 
@@ -82,6 +92,9 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
     }
     if (this.routerEventsSubscription) {
       this.routerEventsSubscription.unsubscribe();
+    }
+    if (this.documentsSubscription) {
+      this.documentsSubscription.unsubscribe();
     }
   }
 
@@ -106,6 +119,10 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
       case 'all': return 'All Documents';
       default: return 'Documents';
     }
+  }
+
+  navigateToDocuments(filter: string): void {
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: filter } });
   }
 
   // Normalize internal role keys to a friendly display label for the UI
