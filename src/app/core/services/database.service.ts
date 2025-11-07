@@ -24,6 +24,50 @@ export class DatabaseService {
     }
   }
 
+  async fetchUsers() {
+    const { data, error } = await this.supabase.getClient()
+      .from('users')
+     .select(`
+        id, 
+        full_name, 
+        email, 
+        phone, 
+        role_id,
+        created_at,
+        roles(role_id, role_name)
+      `);
+    
+    if (error) throw error;
+    return data || [];
+  }
+
+  async fetchUserByEmail(email: string) {
+    const { data, error } = await this.supabase.getClient()
+      .from('users')
+      .select('id, full_name, email, password, phone, role, role_id, created_at')
+      .eq('email', email)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async createTestUser() {
+    const { data, error } = await this.supabase.getClient()
+      .from('users')
+      .insert({
+        full_name: 'Test',
+        email: 'test@test.com',
+        password: '123',
+        role: 'user'
+      })
+      .select();
+    
+    if (error) console.error('Error creating test user:', error);
+    else console.log('Test user created:', data);
+    return data;
+  }
+
   async getUsers() {
     const { data, error } = await this.supabase.getClient()
       .from('users')
@@ -107,34 +151,50 @@ export class DatabaseService {
 
   async authenticateUser(email: string, password: string) {
     try {
-      console.log('Querying users table for:', email);
-      const { data, error } = await this.supabase.getClient()
-        .from('users')
-        .select(`
-          user_id, 
-          full_name, 
-          email, 
-          role_id,
-          roles(role_name)
-        `)
-        .eq('email', email.trim().toLowerCase())
-        .eq('password', password.trim());
-      
-      if (error) {
-        console.error('Database query error:', error);
-        return this.getHardcodedUser(email, password);
+      const user = await this.fetchUserByEmail(email);
+      if (user && user.password === password) {
+        // Update name if it's still 'Test User'
+        if (user.full_name === 'Test User') {
+          await this.updateUserName(email);
+          return await this.fetchUserByEmail(email);
+        }
+        return user;
       }
-      
-      if (data && data.length > 0) {
-        console.log('User found in database:', data[0]);
-        return data[0];
-      }
-      
-      console.log('No user found in database, checking test user');
-      return await this.getHardcodedUser(email, password);
     } catch (error) {
-      console.error('Authentication error:', error);
-      return await this.getHardcodedUser(email, password);
+      console.log('User not found, creating new user');
+      await this.insertUserIfNotExists(email, password);
+      return await this.fetchUserByEmail(email);
+    }
+    return null;
+  }
+
+  private async updateUserName(email: string) {
+    const emailPrefix = email.split('@')[0];
+    const userName = emailPrefix.replace(/[0-9]/g, '').replace(/[^a-zA-Z]/g, ' ').trim().replace(/\b\w/g, l => l.toUpperCase());
+    const finalName = userName || emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    await this.supabase.getClient()
+      .from('users')
+      .update({ full_name: finalName })
+      .eq('email', email);
+  }
+
+  private async insertUserIfNotExists(email: string, password: string) {
+    try {
+      const randomRoleId = Math.floor(Math.random() * 4) + 1;
+      const emailPrefix = email.split('@')[0];
+      const userName = emailPrefix.replace(/[0-9]/g, '').replace(/[^a-zA-Z]/g, ' ').trim().replace(/\b\w/g, l => l.toUpperCase());
+      const finalName = userName || emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+      
+      await this.supabase.getClient()
+        .from('users')
+        .insert({
+          full_name: userName,
+          email: email,
+          password: password,
+          role_id: randomRoleId
+        });
+    } catch (error) {
+      console.log('User might already exist or DB error:', error);
     }
   }
 
@@ -146,9 +206,10 @@ export class DatabaseService {
       // Insert user into users table and get the created user
       const createdUser = await this.insertUserToTable(email, password);
       
+      const userName = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       return createdUser || {
         user_id: 1,
-        full_name: 'Test User',
+        full_name: userName,
         email: email,
         role_id: 1
       };
@@ -164,11 +225,12 @@ export class DatabaseService {
       console.log('Attempting to insert user:', email);
       // Get random role_id (1-4)
       const randomRoleId = Math.floor(Math.random() * 4) + 1;
+      const userName = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       
       const { data, error } = await this.supabase.getClient()
         .from('users')
         .insert({
-          full_name: 'Test User',
+          full_name: userName,
           email: email,
           password: password,
           role_id: randomRoleId

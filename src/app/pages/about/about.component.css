@@ -3,6 +3,14 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  position: relative;
+}
+
+.theme-toggle-wrapper {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 100;
 }
 
 h1 {

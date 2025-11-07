@@ -61,8 +61,8 @@ export const environment = {
     // facebookAppId: 'your-facebook-app-id'
   },
   supabase: {
-    url: 'https://vnuwevyywuujtskiroyk.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZudXdldnl5d3V1anRza2lyb3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxMjUyOTEsImV4cCI6MjA3NDcwMTI5MX0.9y65fxjzWwA9vvLlKcAFAfHEBUGigqJFCB-CHgmtSJ0'
+    url: 'https://kurzoncygmclqbvvavzm.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1cnpvbmN5Z21jbHFidnZhdnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNjAwOTYsImV4cCI6MjA3NzgzNjA5Nn0.vRvhDVlzs4WsGGmrLNLzwWMZRO2m258Czp2ZRAOE5p4'
   },
   cors: {
     allowedOrigins: ['http://localhost:4200', 'http://localhost:3000']

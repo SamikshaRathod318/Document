@@ -46,6 +46,7 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
   private userSubscription: Subscription | undefined;
   private routerEventsSubscription: Subscription;
   private documentsSubscription: Subscription | undefined;
+  currentTheme = 'light';
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -65,6 +66,9 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Load saved theme
+    this.currentTheme = localStorage.getItem('theme') || 'light';
+    
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.user = {

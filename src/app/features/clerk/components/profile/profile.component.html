@@ -1,13 +1,27 @@
-<div class="profile-container">
+<div class="profile-container" [attr.data-theme]="currentTheme">
   <div class="profile-card">
-    <!-- Profile Header -->
-    <div class="profile-header">
-      <div class="avatar">
-        {{ userInitials }}
-      </div>
-      <h1 class="user-name">{{ user?.name || 'Test User' }}</h1>
-      <p class="user-email">{{ user?.email || 'samiksharathod618@gmail.com' }}</p>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+      <button class="theme-btn" (click)="toggleTheme()" [title]="'Switch to ' + (currentTheme === 'light' ? 'dark' : 'light') + ' theme'">
+        <span class="theme-icon">{{ currentTheme === 'light' ? '🌙' : '☀️' }}</span>
+        {{ currentTheme === 'light' ? 'Dark' : 'Light' }}
+      </button>
     </div>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <p>Loading profile...</p>
+    </div>
+    
+    <!-- Profile Content -->
+    <div *ngIf="!isLoading && user">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="avatar">
+          {{ userInitials }}
+        </div>
+        <h1 class="user-name">{{ user.name }}</h1>
+        <p class="user-email">{{ user.email }}</p>
+      </div>
 
     <!-- Profile Details -->
     <div class="profile-details" *ngIf="!isEditing; else editFormTemplate">
@@ -51,5 +65,11 @@
         </div>
       </form>
     </ng-template>
+    </div>
+    
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !user" class="error-state">
+      <p>Unable to load profile information. Please try logging in again.</p>
+    </div>
   </div>
 </div>

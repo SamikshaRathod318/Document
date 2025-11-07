@@ -1,3 +1,10 @@
+.theme-toggle-wrapper {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 100;
+}
+
 /* Contact Information Cards */
 .contact-info {
   display: grid;

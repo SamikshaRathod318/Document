@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -11,11 +11,12 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.css', './landing-sections.css']
 })
-export class LandingComponent implements OnInit {
+export class LandingComponent implements OnInit, OnDestroy {
   openFaq: number | null = null;
   selectedCaseStudy: any = null;
   currentSlideIndex = 1;
   showDMSInfo = false;
+  private autoScrollInterval: any;
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -241,6 +242,31 @@ export class LandingComponent implements OnInit {
   ngOnInit() {
     // Allow logged-in users to view landing page
     // Remove automatic redirect to dashboard
+    this.startAutoScroll();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoScroll();
+  }
+
+  startAutoScroll() {
+    this.autoScrollInterval = setInterval(() => {
+      this.nextSlide();
+    }, 4000);
+  }
+
+  stopAutoScroll() {
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
+    }
+  }
+
+  nextSlide() {
+    this.currentSlideIndex++;
+    if (this.currentSlideIndex > 3) {
+      this.currentSlideIndex = 1;
+    }
+    this.showSlide(this.currentSlideIndex);
   }
 
   toggleFaq(index: number) {
@@ -264,7 +290,9 @@ export class LandingComponent implements OnInit {
   }
 
   currentSlide(n: number) {
+    this.stopAutoScroll();
     this.showSlide(this.currentSlideIndex = n);
+    this.startAutoScroll();
   }
 
   showSlide(n: number) {

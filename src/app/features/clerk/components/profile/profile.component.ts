@@ -13,63 +13,64 @@ import { Router } from '@angular/router';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  user: User | any = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    roles: ['admin'],
-    createdAt: new Date('2023-01-15')
-  };
+  user: User | any = null;
+  isLoading = true;
   
   isEditing = false;
   form: FormGroup;
   private sub?: Subscription;
+  currentTheme = 'light';
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.form = this.fb.group({
-      name: [this.user.name, [Validators.required, Validators.minLength(2)]],
-      email: [this.user.email, [Validators.required, Validators.email]]
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]]
     });
   }
   
   ngOnInit(): void {
+    // Load saved theme
+    this.currentTheme = localStorage.getItem('theme') || 'light';
+    
     // Set initial user from auth if available
     const current = this.auth.currentUserValue;
     if (current) {
-      this.user = {
-        ...this.user,
-        ...current
-      };
+      this.user = current;
       this.form.patchValue({ name: this.user.name, email: this.user.email });
+      this.isLoading = false;
     }
     // Refresh user roles from backend
     this.auth.refreshUserRoles();
     // Subscribe to changes
     this.sub = this.auth.currentUser$.subscribe(u => {
       if (u) {
-        this.user = { ...this.user, ...u };
+        this.user = u;
+        this.isLoading = false;
         if (!this.isEditing) {
           this.form.patchValue({ name: this.user.name, email: this.user.email });
         }
+      } else {
+        this.isLoading = false;
       }
     });
   }
   
   get userInitials(): string {
-    return this.user?.name
-      ?.split(' ')
+    if (!this.user?.name) return 'U';
+    return this.user.name
+      .split(' ')
       .map((n: string) => n[0])
       .join('')
-      .toUpperCase() || 'JD';
+      .toUpperCase();
   }
   
   get formattedJoinDate(): string {
-    return this.user?.createdAt 
-      ? new Date(this.user.createdAt).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })
-      : 'January 2023';
+    if (!this.user?.createdAt) return 'Not available';
+    return new Date(this.user.createdAt).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   }
 
   // Friendly roles for display in UI
@@ -118,6 +119,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
       email
     };
     this.isEditing = false;
+  }
+
+  toggleTheme(): void {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', this.currentTheme);
   }
 
   ngOnDestroy(): void {

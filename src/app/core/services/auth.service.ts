@@ -57,12 +57,12 @@ export class AuthService {
             console.log('Backend authentication successful:', user);
             const roleName = (user as any).roles?.role_name || 'Clerk';
             const userData: User = {
-              id: user.user_id.toString(),
+              id: user.id.toString(),
               email: user.email,
               name: user.full_name,
-              roles: [roleName.toLowerCase().replace(' ', '_')],
+              roles: [user.role.toLowerCase().replace(' ', '_')],
               department: 'Administration',
-              activeRole: roleName
+              activeRole: user.role
             };
             
             localStorage.setItem(this.TOKEN_KEY, 'backend-auth-token');
