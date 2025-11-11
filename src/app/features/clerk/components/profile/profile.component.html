@@ -1,75 +1,161 @@
 <div class="profile-container" [attr.data-theme]="currentTheme">
-  <div class="profile-card">
-    <!-- Theme Toggle -->
-    <div class="theme-toggle">
-      <button class="theme-btn" (click)="toggleTheme()" [title]="'Switch to ' + (currentTheme === 'light' ? 'dark' : 'light') + ' theme'">
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="header-content">
+      <h1 class="page-title">My Profile</h1>
+      <button class="theme-btn" (click)="toggleTheme()">
         <span class="theme-icon">{{ currentTheme === 'light' ? '🌙' : '☀️' }}</span>
-        {{ currentTheme === 'light' ? 'Dark' : 'Light' }}
       </button>
     </div>
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-state">
-      <p>Loading profile...</p>
-    </div>
-    
-    <!-- Profile Content -->
-    <div *ngIf="!isLoading && user">
-      <!-- Profile Header -->
-      <div class="profile-header">
-        <div class="avatar">
-          {{ userInitials }}
-        </div>
-        <h1 class="user-name">{{ user.name }}</h1>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Loading profile...</p>
+  </div>
+  
+  <!-- Profile Content -->
+  <div *ngIf="!isLoading && user" class="profile-content">
+    <!-- User Info Card -->
+    <div class="user-card">
+      <div class="avatar">
+        {{ userInitials }}
+      </div>
+      <div class="user-info">
+        <h2 class="user-name">{{ user.name }}</h2>
         <p class="user-email">{{ user.email }}</p>
+        <p class="user-role">{{ displayPrimaryRole }}</p>
+        <div class="status-badge">
+          <span class="online-indicator">● Online</span>
+        </div>
+      </div>
+      <button class="edit-btn" *ngIf="!isEditing" (click)="onEdit()">
+        Edit Profile
+      </button>
+    </div>
+
+    <!-- Profile Details Grid -->
+    <div class="details-grid" *ngIf="!isEditing; else editFormTemplate">
+      <!-- Personal Info -->
+      <div class="info-card">
+        <h3>Personal Information</h3>
+        <div class="info-item">
+          <label>Phone</label>
+          <span>{{ user.phone || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Date of Birth</label>
+          <span>{{ user.dateOfBirth ? (user.dateOfBirth | date:'mediumDate') : 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Gender</label>
+          <span>{{ user.gender || 'Not specified' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Address</label>
+          <span>{{ user.address || 'Not provided' }}</span>
+        </div>
       </div>
 
-    <!-- Profile Details -->
-    <div class="profile-details" *ngIf="!isEditing; else editFormTemplate">
-      <div class="detail-row">
-        <span class="detail-label">Role:</span>
-        <span class="detail-value">{{ displayPrimaryRole }}</span>
+      <!-- Emergency Contact -->
+      <div class="info-card">
+        <h3>Emergency Contact</h3>
+        <div class="info-item">
+          <label>Contact Name</label>
+          <span>{{ user.emergencyContact || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Contact Phone</label>
+          <span>{{ user.emergencyPhone || 'Not provided' }}</span>
+        </div>
       </div>
-      <div class="detail-row">
-        <span class="detail-label">Member Since:</span>
-        <span class="detail-value">{{ formattedJoinDate }}</span>
+
+      <!-- Account Info -->
+      <div class="info-card">
+        <h3>Account Information</h3>
+        <div class="info-item">
+          <label>Member Since</label>
+          <span>{{ formattedJoinDate }}</span>
+        </div>
+        <div class="info-item">
+          <label>Current Login</label>
+          <span class="highlight">{{ formattedCurrentLogin }}</span>
+        </div>
+        <div class="info-item">
+          <label>Last Login</label>
+          <span>{{ formattedLastLogin }}</span>
+        </div>
       </div>
     </div>
 
-    <!-- Edit Button -->
-    <button class="edit-profile-btn" *ngIf="!isEditing" (click)="onEdit()">
-      Edit Profile
-    </button>
+
 
     <!-- Edit Form -->
     <ng-template #editFormTemplate>
-      <form [formGroup]="form" (ngSubmit)="onSave()" class="edit-form">
-        <div class="form-group">
-          <label for="name">Full Name</label>
-          <input id="name" type="text" formControlName="name" placeholder="Enter full name" />
-          <div class="error" *ngIf="form.controls['name'].touched && form.controls['name'].invalid">
-            <span *ngIf="form.controls['name'].errors?.['required']">Name is required.</span>
-            <span *ngIf="form.controls['name'].errors?.['minlength']">Name must be at least 2 characters.</span>
+      <div class="edit-form-container">
+        <form [formGroup]="form" (ngSubmit)="onSave()" class="edit-form">
+          <div class="form-grid">
+            <div class="form-card">
+              <h3>Basic Information</h3>
+              <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" formControlName="name" placeholder="Enter full name" />
+                <div class="error" *ngIf="form.controls['name'].touched && form.controls['name'].invalid">
+                  <span *ngIf="form.controls['name'].errors?.['required']">Name is required</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Email *</label>
+                <input type="email" formControlName="email" placeholder="Enter email" />
+                <div class="error" *ngIf="form.controls['email'].touched && form.controls['email'].invalid">
+                  <span *ngIf="form.controls['email'].errors?.['required']">Email is required</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" formControlName="phone" placeholder="10-digit phone number" />
+              </div>
+              <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" formControlName="dateOfBirth" />
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select formControlName="gender">
+                  <option value="">Select Gender</option>
+                  <option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <textarea formControlName="address" placeholder="Enter your address" rows="3"></textarea>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <h3>Emergency Contact</h3>
+              <div class="form-group">
+                <label>Contact Name</label>
+                <input type="text" formControlName="emergencyContact" placeholder="Emergency contact name" />
+              </div>
+              <div class="form-group">
+                <label>Contact Phone</label>
+                <input type="tel" formControlName="emergencyPhone" placeholder="Emergency contact phone" />
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" type="email" formControlName="email" placeholder="Enter email" />
-          <div class="error" *ngIf="form.controls['email'].touched && form.controls['email'].invalid">
-            <span *ngIf="form.controls['email'].errors?.['required']">Email is required.</span>
-            <span *ngIf="form.controls['email'].errors?.['email']">Please enter a valid email.</span>
+          
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="btn-save" [disabled]="form.invalid">Save Changes</button>
           </div>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
-          <button type="submit" class="btn-save" [disabled]="form.invalid">Save Changes</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </ng-template>
-    </div>
-    
-    <!-- Error State -->
-    <div *ngIf="!isLoading && !user" class="error-state">
-      <p>Unable to load profile information. Please try logging in again.</p>
-    </div>
+  </div>
+  
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !user" class="error-state">
+    <p>Unable to load profile information. Please try logging in again.</p>
   </div>
 </div>

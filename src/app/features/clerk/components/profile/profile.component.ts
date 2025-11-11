@@ -2,13 +2,31 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService, User } from '../../../../core/services/auth.service';
+import { ProfileService } from '../../../../core/services/profile.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatDatepickerModule, 
+    MatInputModule, 
+    MatFormFieldModule, 
+    MatNativeDateModule,
+    MatSelectModule,
+    MatIconModule,
+    MatSnackBarModule
+  ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -20,11 +38,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
   form: FormGroup;
   private sub?: Subscription;
   currentTheme = 'light';
+  lastLoginTime: string = '';
+  currentLoginTime: string = '';
+  
+  genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder, 
+    private auth: AuthService, 
+    private router: Router,
+    private profileService: ProfileService,
+    private snackBar: MatSnackBar
+  ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
+      dateOfBirth: [''],
+      gender: [''],
+      address: [''],
+      emergencyContact: [''],
+      emergencyPhone: ['', [Validators.pattern(/^[0-9]{10}$/)]]
     });
   }
   
@@ -32,11 +66,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
     // Load saved theme
     this.currentTheme = localStorage.getItem('theme') || 'light';
     
+    // Set current login time
+    this.currentLoginTime = new Date().toLocaleString();
+    
+    // Get login times from profile service
+    const loginTimes = this.profileService.getLoginTimes();
+    this.currentLoginTime = loginTimes.current;
+    this.lastLoginTime = loginTimes.last;
+    
     // Set initial user from auth if available
     const current = this.auth.currentUserValue;
     if (current) {
-      this.user = current;
-      this.form.patchValue({ name: this.user.name, email: this.user.email });
+      this.user = { ...current, ...this.getStoredProfileData() };
+      this.patchFormWithUserData();
       this.isLoading = false;
     }
     // Refresh user roles from backend
@@ -44,10 +86,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     // Subscribe to changes
     this.sub = this.auth.currentUser$.subscribe(u => {
       if (u) {
-        this.user = u;
+        this.user = { ...u, ...this.getStoredProfileData() };
         this.isLoading = false;
         if (!this.isEditing) {
-          this.form.patchValue({ name: this.user.name, email: this.user.email });
+          this.patchFormWithUserData();
         }
       } else {
         this.isLoading = false;
@@ -96,34 +138,64 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   onEdit(): void {
     this.isEditing = true;
-    this.form.patchValue({
-      name: this.user?.name || '',
-      email: this.user?.email || ''
-    });
+    this.patchFormWithUserData();
   }
 
   onCancel(): void {
     this.isEditing = false;
-    this.form.reset({
-      name: this.user?.name || '',
-      email: this.user?.email || ''
-    });
+    this.patchFormWithUserData();
   }
 
   onSave(): void {
     if (this.form.invalid) return;
-    const { name, email } = this.form.value;
+    const formData = this.form.value;
     this.user = {
       ...this.user,
-      name,
-      email
+      ...formData
     };
+    this.saveProfileData(formData);
     this.isEditing = false;
+    
+    // Show success message
+    this.snackBar.open('Profile updated successfully!', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
   }
 
   toggleTheme(): void {
     this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
     localStorage.setItem('theme', this.currentTheme);
+  }
+
+  private getStoredProfileData(): any {
+    return this.profileService.getProfileData();
+  }
+  
+  private saveProfileData(data: any): void {
+    this.profileService.saveProfileData(data);
+  }
+  
+  private patchFormWithUserData(): void {
+    this.form.patchValue({
+      name: this.user?.name || '',
+      email: this.user?.email || '',
+      phone: this.user?.phone || '',
+      dateOfBirth: this.user?.dateOfBirth || '',
+      gender: this.user?.gender || '',
+      address: this.user?.address || '',
+      emergencyContact: this.user?.emergencyContact || '',
+      emergencyPhone: this.user?.emergencyPhone || ''
+    });
+  }
+  
+  get formattedCurrentLogin(): string {
+    return this.currentLoginTime;
+  }
+  
+  get formattedLastLogin(): string {
+    return this.lastLoginTime;
   }
 
   ngOnDestroy(): void {

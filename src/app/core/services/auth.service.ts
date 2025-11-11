@@ -14,6 +14,13 @@ export interface User {
   department?: string;
   activeRole?: string;
   roleId?: number;
+  phone?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  createdAt?: string;
 }
 
 @Injectable({
@@ -71,6 +78,12 @@ export class AuthService {
               roleId: user.role_id
             };
             
+            // Track login time
+            const currentTime = new Date().toLocaleString();
+            const lastLoginTime = localStorage.getItem('currentLoginTime') || 'First time login';
+            localStorage.setItem('lastLoginTime', lastLoginTime);
+            localStorage.setItem('currentLoginTime', currentTime);
+            
             localStorage.setItem(this.TOKEN_KEY, 'backend-auth-token');
             localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
             this.isAuthenticatedSubject.next(true);
@@ -97,6 +110,7 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    // Keep login times for next session
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
