@@ -56,16 +56,18 @@ export class AuthService {
           
           if (user) {
             console.log('Backend authentication successful:', user);
-            const roleName = (user as any).roles?.role_name || 'Clerk';
             // Get role name from database
             const roleInfo = await this.dbService.getRoleById(user.role_id);
+            const roleName = roleInfo?.role_name || 'Clerk';
+            const roleKey = roleName.toLowerCase().replace(' ', '_');
+            
             const userData: User = {
               id: user.id.toString(),
               email: user.email,
               name: user.full_name,
-              roles: [user.role?.toLowerCase().replace(' ', '_') || 'clerk'],
+              roles: [roleKey],
               department: 'Administration',
-              activeRole: roleInfo?.role_name || user.role || 'Clerk',
+              activeRole: roleName,
               roleId: user.role_id
             };
             

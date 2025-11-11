@@ -91,10 +91,26 @@
         </a>
       </li>
       
-      <!-- Clerk Navigation -->
-      <ng-container *ngIf="(isLoggedIn$ | async) && (isClerkRoute() || currentRole)">
-        <!-- Dashboard Link -->
-        <li class="nav-item" role="none">
+      <!-- Role-based Navigation -->
+      <ng-container *ngIf="(isLoggedIn$ | async)">
+        <!-- Admin Dashboard -->
+        <li class="nav-item" role="none" *ngIf="currentRole === 'admin'">
+          <a [routerLink]="['/admin/dashboard']" 
+             routerLinkActive="active" 
+             class="nav-link"
+             role="menuitem"
+             (click)="closeMenu(); $event.stopPropagation()">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Admin Dashboard</span>
+          </a>
+        </li>
+        
+        <!-- Clerk Dashboard -->
+        <li class="nav-item" role="none" *ngIf="isClerkRoute() || currentRole === 'adm_clerk' || currentRole === 'adm_sr_clerk'">
           <a [routerLink]="['/clerk/dashboard']" 
              routerLinkActive="active" 
              class="nav-link"
@@ -107,7 +123,6 @@
             <span>{{ 'Dashboard' | translate }}</span>
           </a>
         </li>
-        
       </ng-container>
       
       <!-- Documents Link -->

@@ -1,0 +1,77 @@
+<div class="admin-container">
+  <h2>Admin Dashboard</h2>
+  
+  <button (click)="showCreateForm = !showCreateForm" class="btn-primary">
+    {{showCreateForm ? 'Cancel' : 'Create New User'}}
+  </button>
+  
+  <div *ngIf="showCreateForm" class="create-form">
+    <h3>Add New User</h3>
+    <input [(ngModel)]="newUser.fullName" placeholder="Full Name" required>
+    <input [(ngModel)]="newUser.email" placeholder="Email Address" type="email" required>
+    <input [(ngModel)]="newUser.password" placeholder="Password" type="password" required>
+    <select [(ngModel)]="newUser.roleId" required>
+      <option value="">Select Role</option>
+      <option *ngFor="let role of roles" [value]="role.roleId">{{role.roleName}}</option>
+    </select>
+    <select [(ngModel)]="newUser.departmentId">
+      <option value="">Select Department (Optional)</option>
+      <option *ngFor="let dept of departments" [value]="dept.departmentId">{{dept.departmentName}}</option>
+    </select>
+    <label style="color: #333; font-weight: 600; margin: 15px 0; display: block;">
+      <input type="checkbox" [(ngModel)]="newUser.isActive" style="margin-right: 10px;"> Active User
+    </label>
+    <div style="text-align: center; margin-top: 25px;">
+      <button (click)="createUser()" class="btn-success">Create User</button>
+      <button (click)="resetForm()" class="btn-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="users-table">
+    <div *ngIf="loading" class="loading-message">
+      <h3>Loading users...</h3>
+    </div>
+    
+    <div *ngIf="error && !loading" class="error-message">
+      <h3>Error</h3>
+      <p>{{error}}</p>
+    </div>
+    
+    <div *ngIf="!loading && !error && users?.length === 0" class="no-data-message">
+      <h3>No Users Found</h3>
+      <p>Create your first user using the form above.</p>
+    </div>
+    
+    <table *ngIf="!loading && !error && users && users.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td><strong>{{user.fullName}}</strong></td>
+          <td>{{user.email}}</td>
+          <td>{{user.roleName || 'N/A'}}</td>
+          <td>{{user.departmentName || 'N/A'}}</td>
+          <td>
+            <span [class]="user.isActive ? 'status-active' : 'status-inactive'">
+              {{user.isActive ? 'Active' : 'Inactive'}}
+            </span>
+          </td>
+          <td>
+            <button (click)="toggleStatus(user)" [class]="user.isActive ? 'btn-warning' : 'btn-success'">
+              {{user.isActive ? 'Deactivate' : 'Activate'}}
+            </button>
+            <button (click)="deleteUser(user.userId)" class="btn-danger">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

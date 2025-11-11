@@ -1,11 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { MockUserService } from './mock-user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DatabaseService {
   private supabase = inject(SupabaseService);
+  private mockService = inject(MockUserService);
+  private useOfflineMode = true; // Set to true for offline testing
 
   async insertUsers() {
     throw new Error('Direct user insertion disabled. Use proper user registration flow.');
@@ -102,7 +105,7 @@ export class DatabaseService {
         full_name: 'Test',
         email: 'test@test.com',
         password: '123',
-        role: 'user'
+        role_id: 1  // Clerk role
       })
       .select();
     
@@ -193,6 +196,10 @@ export class DatabaseService {
   }
 
   async authenticateUser(email: string, password: string) {
+    if (this.useOfflineMode) {
+      return await this.mockService.authenticateUser(email, password);
+    }
+    
     try {
       const user = await this.fetchUserByEmail(email);
       if (user && user.password === password) {
@@ -321,6 +328,10 @@ export class DatabaseService {
   }
 
   async getRoleById(roleId: number) {
+    if (this.useOfflineMode) {
+      return await this.mockService.getRoleById(roleId);
+    }
+    
     try {
       const { data, error } = await this.supabase.getClient()
         .from('roles')
