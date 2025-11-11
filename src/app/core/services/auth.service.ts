@@ -13,6 +13,7 @@ export interface User {
   roles: string[];
   department?: string;
   activeRole?: string;
+  roleId?: number;
 }
 
 @Injectable({
@@ -56,13 +57,16 @@ export class AuthService {
           if (user) {
             console.log('Backend authentication successful:', user);
             const roleName = (user as any).roles?.role_name || 'Clerk';
+            // Get role name from database
+            const roleInfo = await this.dbService.getRoleById(user.role_id);
             const userData: User = {
               id: user.id.toString(),
               email: user.email,
               name: user.full_name,
-              roles: [user.role.toLowerCase().replace(' ', '_')],
+              roles: [user.role?.toLowerCase().replace(' ', '_') || 'clerk'],
               department: 'Administration',
-              activeRole: user.role
+              activeRole: roleInfo?.role_name || user.role || 'Clerk',
+              roleId: user.role_id
             };
             
             localStorage.setItem(this.TOKEN_KEY, 'backend-auth-token');

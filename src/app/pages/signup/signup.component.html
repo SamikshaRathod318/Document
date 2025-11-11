@@ -11,10 +11,25 @@
         </svg>
       </div>
       <h1>{{ 'Document Management System' | translate }}</h1>
-      <p>{{ 'Sign in to your account' | translate }}</p>
+      <p>{{ 'Create your account' | translate }}</p>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="login-form">
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate class="login-form">
+      <div class="form-group">
+        <label for="fullName">{{ 'Full Name' | translate }}</label>
+        <input 
+          type="text" 
+          id="fullName" 
+          formControlName="fullName" 
+          placeholder="{{ 'Enter your full name' | translate }}"
+          [class.is-invalid]="fullName?.invalid && (fullName?.dirty || fullName?.touched)"
+          required>
+        <div class="error-message" *ngIf="fullName?.invalid && (fullName?.dirty || fullName?.touched)">
+          <span *ngIf="fullName?.errors?.['required']">Full name is required</span>
+          <span *ngIf="fullName?.errors?.['minlength']">Full name must be at least 2 characters</span>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="email">{{ 'Email Address' | translate }}</label>
         <input 
@@ -45,37 +60,61 @@
         </div>
       </div>
 
-      <div class="form-actions">
-        <button type="button" class="forgot-password-link" (click)="onForgotPassword()">
-          {{ 'Forgot your password?' | translate }}
-        </button>
+      <div class="form-group">
+        <label for="confirmPassword">{{ 'Confirm Password' | translate }}</label>
+        <input 
+          type="password" 
+          id="confirmPassword" 
+          formControlName="confirmPassword" 
+          placeholder="{{ 'Confirm your password' | translate }}"
+          [class.is-invalid]="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)"
+          required>
+        <div class="error-message" *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
+          <span *ngIf="confirmPassword?.errors?.['required']">Please confirm your password</span>
+          <span *ngIf="confirmPassword?.errors?.['passwordMismatch']">Passwords do not match</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="role">{{ 'Role' | translate }}</label>
+        <select 
+          id="role" 
+          formControlName="role" 
+          [class.is-invalid]="role?.invalid && (role?.dirty || role?.touched)"
+          required>
+          <option value="">{{ 'Select your role' | translate }}</option>
+          <option *ngFor="let roleOption of roles" [value]="roleOption.id">
+            {{ roleOption.name }}
+          </option>
+        </select>
+        <div class="error-message" *ngIf="role?.invalid && (role?.dirty || role?.touched)">
+          <span *ngIf="role?.errors?.['required']">Please select a role</span>
+        </div>
       </div>
 
       <div class="error-message" *ngIf="error">
         {{ error }}
       </div>
-      <div class="info-message" *ngIf="info">
-        {{ info }}
+      <div class="success-message" *ngIf="success">
+        {{ success }}
       </div>
 
-      <button type="submit" class="login-button" [disabled]="isLoading || loginForm.invalid">
-        <span *ngIf="!isLoading">{{ 'Login' | translate }}</span>
+      <button type="submit" class="login-button" [disabled]="isLoading || signupForm.invalid">
+        <span *ngIf="!isLoading">{{ 'Create Account' | translate }}</span>
         <span *ngIf="isLoading" class="loading-text">
           <svg class="spinner" width="16" height="16" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
             <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"/>
           </svg>
-          {{ 'Logging in...' | translate }}
+          {{ 'Creating account...' | translate }}
         </span>
       </button>
 
-      <div class="signup-link">
-        <span>Don't have an account? </span>
-        <button type="button" class="forgot-password-link" (click)="onSignupRedirect()">
-          {{ 'Sign up here' | translate }}
+      <div class="form-actions">
+        <button type="button" class="forgot-password-link" (click)="onLoginRedirect()">
+          {{ 'Already have an account? Login' | translate }}
         </button>
       </div>
-
     </form>
   </div>
 </div>

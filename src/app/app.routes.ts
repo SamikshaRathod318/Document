@@ -20,6 +20,11 @@ export const routes: Routes = [
     title: 'Login - Document Management System'
   },
   {
+    path: 'signup',
+    loadComponent: () => import('./pages/signup/signup.component').then(m => m.SignupComponent),
+    title: 'Sign Up - Document Management System'
+  },
+  {
     path: '',
     component: LandingComponent,
     title: 'Home - Document Management System'

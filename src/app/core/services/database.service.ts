@@ -52,6 +52,49 @@ export class DatabaseService {
     return data;
   }
 
+  async createUser(userData: { full_name: string; email: string; password: string; role_id: number }) {
+    try {
+      console.log('=== BACKEND USER CREATION ===');
+      console.log('User Data:', userData);
+      console.log('Role ID being inserted:', userData.role_id);
+      
+      // Get role name for the role_id
+      const { data: roleData } = await this.supabase.getClient()
+        .from('roles')
+        .select('role_name')
+        .eq('role_id', userData.role_id)
+        .single();
+      
+      console.log('Role Name for ID', userData.role_id, ':', roleData?.role_name);
+      
+      const { data, error } = await this.supabase.getClient()
+        .from('users')
+        .insert({
+          full_name: userData.full_name,
+          email: userData.email,
+          password: userData.password,
+          role_id: userData.role_id
+        })
+        .select();
+      
+      if (error) {
+        console.error('Supabase error creating user:', error);
+        throw new Error(error.message || 'Database error');
+      }
+      
+      console.log('User created successfully with role:', roleData?.role_name);
+      console.log('Created user data:', data);
+      
+      // Show all users after creation
+      await this.showAllUsersWithRoles();
+      
+      return data?.[0] || null;
+    } catch (error: any) {
+      console.error('Failed to create user:', error);
+      throw new Error(error.message || 'Unknown database error');
+    }
+  }
+
   async createTestUser() {
     const { data, error } = await this.supabase.getClient()
       .from('users')
@@ -274,6 +317,54 @@ export class DatabaseService {
       console.log('All roles ensured in database');
     } catch (error) {
       console.error('Error ensuring roles:', error);
+    }
+  }
+
+  async getRoleById(roleId: number) {
+    try {
+      const { data, error } = await this.supabase.getClient()
+        .from('roles')
+        .select('role_name')
+        .eq('role_id', roleId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching role:', error);
+        return null;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Failed to get role:', error);
+      return null;
+    }
+  }
+
+  async showAllUsersWithRoles() {
+    try {
+      const { data, error } = await this.supabase.getClient()
+        .from('users')
+        .select(`
+          *,
+          roles(role_id, role_name)
+        `);
+      
+      if (error) {
+        console.error('Error fetching users:', error);
+        return;
+      }
+      
+      console.log('=== ALL USERS IN DATABASE ===');
+      data?.forEach((user: any) => {
+        console.log(`User: ${user.full_name} (${user.email})`);
+        console.log(`Role ID: ${user.role_id}`);
+        console.log(`Role Name: ${user.roles?.role_name || 'No Role'}`);
+        console.log('---');
+      });
+      console.log('=============================');
+      
+    } catch (error) {
+      console.error('Failed to show users:', error);
     }
   }
 

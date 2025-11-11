@@ -136,6 +136,10 @@ export class LoginComponent {
     this.router.navigate(['/reset-password']);
   }
 
+  onSignupRedirect() {
+    this.router.navigate(['/signup']);
+  }
+
   async onCreateTestUsers() {
     this.error = 'Test user creation is disabled for security.';
   }
