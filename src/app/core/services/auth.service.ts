@@ -66,7 +66,11 @@ export class AuthService {
             // Get role name from database
             const roleInfo = await this.dbService.getRoleById(user.role_id);
             const roleName = roleInfo?.role_name || 'Clerk';
-            const roleKey = roleName.toLowerCase().replace(' ', '_');
+            // Map role names to consistent keys
+            let roleKey = roleName.toLowerCase().replace(/\s+/g, '_');
+            if (roleKey === 'admin' || roleName === 'Admin') {
+              roleKey = 'admin';
+            }
             
             const userData: User = {
               id: user.id.toString(),
@@ -95,9 +99,9 @@ export class AuthService {
             console.log('Backend authentication failed - no user found');
             observer.error({ message: 'Invalid email or password', code: 'invalid_credentials' });
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Backend authentication error:', error);
-          observer.error({ message: 'Authentication failed', code: 'auth_error' });
+          observer.error({ message: error?.message || 'Authentication failed', code: 'auth_error' });
         }
       };
       
@@ -184,15 +188,8 @@ export class AuthService {
     if (!currentUser) return;
 
     try {
-      const userRoles = await this.dbService.getUserRoles(currentUser.id);
-      if (userRoles) {
-        const updatedUser: User = {
-          ...currentUser,
-          activeRole: (userRoles as any).roles?.role_name || currentUser.activeRole
-        };
-        localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
-        this.currentUserSubject.next(updatedUser);
-      }
+      // Skip role refresh in offline mode as roles are already set
+      console.log('Skipping role refresh - using existing user data');
     } catch (error) {
       console.error('Failed to refresh user roles:', error);
     }

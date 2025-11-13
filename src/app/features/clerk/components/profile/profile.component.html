@@ -25,9 +25,6 @@
         <h2 class="user-name">{{ user.name }}</h2>
         <p class="user-email">{{ user.email }}</p>
         <p class="user-role">{{ displayPrimaryRole }}</p>
-        <div class="status-badge">
-          <span class="online-indicator">● Online</span>
-        </div>
       </div>
       <button class="edit-btn" *ngIf="!isEditing" (click)="onEdit()">
         Edit Profile

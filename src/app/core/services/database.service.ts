@@ -47,7 +47,7 @@ export class DatabaseService {
   async fetchUserByEmail(email: string) {
     const { data, error } = await this.supabase.getClient()
       .from('users')
-      .select('id, full_name, email, password, phone, role, role_id, created_at')
+      .select('id, full_name, email, password, phone, role, role_id, created_at, date_of_birth, gender, address, emergency_contact, emergency_phone')
       .eq('email', email)
       .single();
     
@@ -179,6 +179,10 @@ export class DatabaseService {
   }
 
   async getUserRoles(userId: string) {
+    if (this.useOfflineMode) {
+      return await this.mockService.getRoleById(parseInt(userId));
+    }
+    
     const { data, error } = await this.supabase.getClient()
       .from('users')
       .select(`

@@ -40,6 +40,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   currentTheme = 'light';
   lastLoginTime: string = '';
   currentLoginTime: string = '';
+  private activeProfileUserId: string | null = null;
   
   genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
@@ -76,6 +77,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     
     // Set initial user from auth if available
     const current = this.auth.currentUserValue;
+    this.setActiveProfileUser(current?.id ?? null);
     if (current) {
       this.user = { ...current, ...this.getStoredProfileData() };
       this.patchFormWithUserData();
@@ -86,12 +88,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
     // Subscribe to changes
     this.sub = this.auth.currentUser$.subscribe(u => {
       if (u) {
+        this.setActiveProfileUser(u.id);
         this.user = { ...u, ...this.getStoredProfileData() };
         this.isLoading = false;
         if (!this.isEditing) {
           this.patchFormWithUserData();
         }
       } else {
+        this.setActiveProfileUser(null);
+        this.user = null;
         this.isLoading = false;
       }
     });
@@ -175,6 +180,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
   
   private saveProfileData(data: any): void {
     this.profileService.saveProfileData(data);
+  }
+
+  private setActiveProfileUser(userId: string | null): void {
+    if (this.activeProfileUserId === userId) {
+      return;
+    }
+    this.activeProfileUserId = userId;
+    this.profileService.setActiveUser(userId);
   }
   
   private patchFormWithUserData(): void {

@@ -114,6 +114,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.router.url.startsWith('/clerk') || this.currentRole === 'clerk' || this.currentRole === 'adm_clerk' || this.currentRole === 'adm_sr_clerk';
   }
 
+  // Get appropriate dashboard route based on user role
+  getDashboardRoute(): string {
+    if (this.currentRole === 'admin') {
+      return '/admin/dashboard';
+    } else if (this.currentRole === 'adm_hod') {
+      return '/hod/dashboard';
+    } else if (this.currentRole === 'accountant') {
+      return '/accountant/dashboard';
+    } else {
+      return '/clerk/dashboard';
+    }
+  }
+
 
 
   toggleCategories(event: Event, navigate: boolean = false) {

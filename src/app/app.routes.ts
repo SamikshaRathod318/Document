@@ -98,6 +98,12 @@ export const routes: Routes = [
     component: AboutComponent,
     title: 'About - Document Management System'
   },
+  // Debug route
+  {
+    path: 'debug-auth',
+    loadComponent: () => import('./debug-auth.component').then(m => m.DebugAuthComponent),
+    title: 'Debug Authentication'
+  },
   // Fallback route
   {
     path: '**',

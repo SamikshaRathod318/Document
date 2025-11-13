@@ -15,6 +15,7 @@ export interface ProfileData {
 })
 export class ProfileService {
   private readonly PROFILE_KEY = 'userProfileData';
+  private activeStorageKey = this.PROFILE_KEY;
   private profileDataSubject = new BehaviorSubject<ProfileData>({});
   
   public profileData$ = this.profileDataSubject.asObservable();
@@ -23,21 +24,35 @@ export class ProfileService {
     this.loadProfileData();
   }
 
+  setActiveUser(userId: string | null): void {
+    const nextKey = userId ? `${this.PROFILE_KEY}_${userId}` : this.PROFILE_KEY;
+    if (nextKey === this.activeStorageKey) {
+      return;
+    }
+    this.activeStorageKey = nextKey;
+    this.loadProfileData();
+  }
+
   private loadProfileData(): void {
-    const stored = localStorage.getItem(this.PROFILE_KEY);
+    const stored = localStorage.getItem(this.activeStorageKey);
+    if (!stored) {
+      this.profileDataSubject.next({});
+      return;
+    }
     if (stored) {
       try {
         const data = JSON.parse(stored);
         this.profileDataSubject.next(data);
       } catch (error) {
         console.error('Error loading profile data:', error);
+        this.profileDataSubject.next({});
       }
     }
   }
 
   saveProfileData(data: ProfileData): void {
     try {
-      localStorage.setItem(this.PROFILE_KEY, JSON.stringify(data));
+      localStorage.setItem(this.activeStorageKey, JSON.stringify(data));
       this.profileDataSubject.next(data);
     } catch (error) {
       console.error('Error saving profile data:', error);
@@ -55,7 +70,7 @@ export class ProfileService {
   }
 
   clearProfileData(): void {
-    localStorage.removeItem(this.PROFILE_KEY);
+    localStorage.removeItem(this.activeStorageKey);
     this.profileDataSubject.next({});
   }
 

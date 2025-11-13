@@ -37,6 +37,8 @@ export class AdminDashboardComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    console.log('AdminDashboardComponent: Component initialized');
+    console.log('AdminDashboardComponent: Loading data...');
     this.loadUsers();
     this.loadRoles();
     this.loadDepartments();

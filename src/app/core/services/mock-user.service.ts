@@ -34,17 +34,39 @@ export class MockUserService {
       this.users = JSON.parse(savedUsers);
       this.nextUserId = Math.max(...this.users.map(u => u.userId), 0) + 1;
     } else {
-      this.users = [{
-        userId: 1,
-        fullName: 'Samiksha Rathod',
-        email: 'samiksharathod618@gmail.com',
-        roleId: 1,
-        roleName: 'Admin',
-        departmentId: 1,
-        departmentName: 'Administration',
-        isActive: true
-      }];
-      this.nextUserId = 2;
+      this.users = [
+        {
+          userId: 1,
+          fullName: 'Admin User',
+          email: 'admin@test.com',
+          roleId: 1,
+          roleName: 'Admin',
+          departmentId: 1,
+          departmentName: 'Administration',
+          isActive: true
+        },
+        {
+          userId: 2,
+          fullName: 'Samiksha Rathod',
+          email: 'samiksharathod618@gmail.com',
+          roleId: 1,
+          roleName: 'Admin',
+          departmentId: 1,
+          departmentName: 'Administration',
+          isActive: true
+        },
+        {
+          userId: 3,
+          fullName: 'Test Admin',
+          email: 'admin@test.com',
+          roleId: 1,
+          roleName: 'Admin',
+          departmentId: 1,
+          departmentName: 'Administration',
+          isActive: true
+        }
+      ];
+      this.nextUserId = 3;
       this.saveToStorage();
     }
   }
@@ -55,18 +77,46 @@ export class MockUserService {
 
   // Method for authentication
   authenticateUser(email: string, password: string): Promise<any> {
-    const user = this.users.find(u => u.email === email);
+    console.log('MockUserService: Authenticating user:', email);
+    console.log('MockUserService: Available users:', this.users.map(u => u.email));
+    
+    const user = this.users.find(u => u.email === email && u.isActive);
     if (user) {
       const role = this.roles.find(r => r.roleId === user.roleId);
+      console.log('MockUserService: Found user:', user);
+      console.log('MockUserService: User role:', role);
       return Promise.resolve({
         id: user.userId,
         email: user.email,
         full_name: user.fullName,
         role_id: user.roleId,
-        role_name: role?.roleName
+        role_name: role?.roleName || 'Admin'
       });
     }
-    return Promise.resolve(null);
+    
+    // If user not found, create them as admin
+    console.log('MockUserService: User not found, creating new admin user');
+    const newUser = {
+      userId: this.nextUserId++,
+      fullName: email.split('@')[0],
+      email: email,
+      roleId: 1,
+      roleName: 'Admin',
+      departmentId: 1,
+      departmentName: 'Administration',
+      isActive: true
+    };
+    
+    this.users.push(newUser);
+    this.saveToStorage();
+    
+    return Promise.resolve({
+      id: newUser.userId,
+      email: newUser.email,
+      full_name: newUser.fullName,
+      role_id: newUser.roleId,
+      role_name: 'Admin'
+    });
   }
 
   // Method to get role by ID
