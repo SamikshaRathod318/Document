@@ -51,7 +51,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['title', 'type', 'class', 'uploadedDate', 'status', 'actions'];
+  displayedColumns: string[] = ['title', 'type', 'class', 'uploadedDate', 'status', 'pendingWith', 'actions'];
   dataSource = new MatTableDataSource<Document>();
   
   pageSize = 5;
@@ -119,6 +119,66 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         this.onPageChange(event);
       });
     }
+  }
+
+  /**
+   * Derive who currently owns the document in the workflow.
+   * Flow: Clerk -> Senior Clerk -> Accountant -> HOD
+   */
+  getPendingWith(doc: Document): string {
+    if (!doc) return '-';
+    if (doc.status === 'Approved' || doc.status === 'Rejected') return '-';
+
+    const reviewedByLower = (doc.reviewedBy || '').toLowerCase();
+
+    // Explicit Pending -> Senior Clerk
+    if (doc.status === 'Pending') {
+      return 'Senior Clerk';
+    }
+
+    // In Review flow
+    if (doc.status === 'In Review') {
+      // If reviewed by Accountant already -> next is HOD
+      if (reviewedByLower.includes('account')) {
+        return 'HOD';
+      }
+      // If reviewed by Senior Clerk or reviewer missing -> next is Accountant
+      return 'Accountant';
+    }
+
+    return '-';
+  }
+
+  /**
+   * Navigate to the dashboard of the role who currently owns the document.
+   * Passes query params to help pre-filter/focus on the document.
+   */
+  navigateToPendingOwner(doc: Document): void {
+    const owner = this.getPendingWith(doc);
+    if (owner === '-' ) return;
+
+    let route: string[] = [];
+    switch (owner) {
+      case 'Senior Clerk':
+        route = ['/clerk', 'senior-dashboard'];
+        break;
+      case 'Accountant':
+        route = ['/accountant', 'dashboard'];
+        break;
+      case 'HOD':
+        route = ['/hod', 'dashboard'];
+        break;
+      default:
+        route = ['/clerk', 'dashboard'];
+    }
+
+    this.router.navigate(route, {
+      queryParams: {
+        focusDoc: doc.id,
+        status: doc.status,
+        pendingWith: owner
+      }
+    });
   }
 
   applyFilter(): void {

@@ -1,9 +1,5 @@
 <div class="admin-container">
   <h2>Admin Dashboard</h2>
-  <div style="background: #d4edda; padding: 15px; margin: 10px 0; border-radius: 5px; border: 1px solid #c3e6cb;">
-    <p><strong>✅ Admin Dashboard Loaded Successfully!</strong></p>
-    <p>Loading: {{loading}} | Error: {{error}} | Users Count: {{users.length || 0}}</p>
-  </div>
   
   <button (click)="showCreateForm = !showCreateForm" class="btn-primary">
     {{showCreateForm ? 'Cancel' : 'Create New User'}}

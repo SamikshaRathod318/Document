@@ -18,6 +18,10 @@
         <mat-icon>description</mat-icon>
         <span>Documents</span>
       </a>
+      <a mat-list-item routerLink="/clerk/senior-dashboard" routerLinkActive="active">
+        <mat-icon>assignment_ind</mat-icon>
+        <span>Senior Clerk</span>
+      </a>
       <a mat-list-item routerLink="/clerk/upload" routerLinkActive="active">
         <mat-icon>cloud_upload</mat-icon>
         <span>Upload Document</span>
@@ -48,6 +52,7 @@
           <p>{{ approvedDocuments }}</p>
         </div>
       </div>
+
     </div>
     <router-outlet></router-outlet>
   </mat-sidenav-content>

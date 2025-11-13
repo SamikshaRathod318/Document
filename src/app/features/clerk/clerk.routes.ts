@@ -1,12 +1,18 @@
 import { Routes } from '@angular/router';
 import { ClerkDashboardComponent } from './clerk-dashboard/clerk-dashboard.component';
 import { clerkGuard } from './guards/clerk.guard';
+import { SeniorClerkDashboardComponent } from './senior-clerk-dashboard/senior-clerk-dashboard.component';
 
 export const CLERK_ROUTES: Routes = [
   {
     path: 'dashboard',
     component: ClerkDashboardComponent,
     data: { title: 'Dashboard' }
+  },
+  {
+    path: 'senior-dashboard',
+    component: SeniorClerkDashboardComponent,
+    data: { title: 'Senior Clerk Dashboard' }
   },
   {
     path: 'documents', 
