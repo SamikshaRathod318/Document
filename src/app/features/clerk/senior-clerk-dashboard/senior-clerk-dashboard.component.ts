@@ -1,16 +1,17 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DocumentStoreService } from '../services/document-store.service';
+import { Document } from '../models/document.model';
 
 @Component({
   selector: 'app-senior-clerk-dashboard',
@@ -22,8 +23,8 @@ import { DocumentStoreService } from '../services/document-store.service';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
     MatTableModule,
-    MatPaginatorModule,
     MatSortModule
   ],
   templateUrl: './senior-clerk-dashboard.component.html',
@@ -32,12 +33,12 @@ import { DocumentStoreService } from '../services/document-store.service';
 export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
   private store = inject(DocumentStoreService);
   private sub?: Subscription;
+  private router = inject(Router);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   displayedColumns: string[] = ['title', 'uploadedBy', 'uploadedDate', 'actions'];
-  dataSource = new MatTableDataSource<{ id: number; title: string; uploadedBy: string; uploadedDate: Date }>([]);
+  dataSource = new MatTableDataSource<Document>([]);
 
   searchText = '';
   totalPending = 0;
@@ -46,15 +47,12 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.store.documents$.subscribe(docs => {
-      const queue = docs
+      const queueMap = new Map<number, Document>();
+      docs
         .filter(d => d.status === 'Pending')
-        .map(d => ({
-          id: d.id,
-          title: d.title,
-          uploadedBy: d.uploadedBy,
-          uploadedDate: d.uploadedDate
-        }));
-      this.dataSource.data = queue;
+        .forEach(doc => queueMap.set(doc.id, doc));
+      const uniqueQueue = Array.from(queueMap.values());
+      this.dataSource.data = uniqueQueue;
 
       // Stats
       this.totalPending = docs.filter(d => d.status === 'Pending').length;
@@ -68,17 +66,15 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (this.paginator) this.dataSource.paginator = this.paginator;
     if (this.sort) this.dataSource.sort = this.sort;
   }
 
   applyFilter(): void {
     const text = this.searchText.trim().toLowerCase();
-    this.dataSource.filter = text;
     this.dataSource.filterPredicate = (data) =>
       data.title.toLowerCase().includes(text) ||
       data.uploadedBy.toLowerCase().includes(text);
-    if (this.paginator) this.paginator.firstPage();
+    this.dataSource.filter = text;
   }
 
   verifyAndForward(id: number): void {
@@ -90,6 +86,57 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
       reviewedBy: 'Senior Clerk',
       reviewedDate: new Date()
     } as any);
+
+    // Navigate to documents page after verify
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'In Review' } });
+  }
+
+  viewDocument(doc: Document): void {
+    this.openDocumentInNewTab(doc);
+  }
+
+  rejectDocument(id: number): void {
+    const doc = this.store.documents.find(d => d.id === id);
+    if (!doc) return;
+    this.store.update({
+      ...doc,
+      status: 'Rejected',
+      reviewedBy: 'Senior Clerk',
+      reviewedDate: new Date()
+    } as any);
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected' } });
+  }
+
+  private openDocumentInNewTab(doc: Document): void {
+    if (!doc.fileUrl) return;
+
+    let url = doc.fileUrl;
+    let blobUrl: string | undefined;
+
+    if (url.startsWith('data:')) {
+      const blob = this.dataUrlToBlob(url);
+      blobUrl = URL.createObjectURL(blob);
+      url = blobUrl;
+    }
+
+    window.open(url, '_blank');
+
+    if (blobUrl) {
+      setTimeout(() => URL.revokeObjectURL(blobUrl!), 60_000);
+    }
+  }
+
+  private dataUrlToBlob(dataUrl: string): Blob {
+    const [header, base64] = dataUrl.split(',');
+    const mimeMatch = header.match(/data:(.*?);base64/);
+    const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    const binary = atob(base64 ?? '');
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: mime });
   }
 }
 

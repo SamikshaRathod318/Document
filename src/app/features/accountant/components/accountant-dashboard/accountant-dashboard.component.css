@@ -1,11 +1,7 @@
-.sc-container {
+.acc-container {
   padding: 24px;
 }
-.empty-card {
-  margin-top: 16px;
-}
-
-.stats-grid {
+.stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
@@ -23,7 +19,6 @@
   font-size: 22px;
   font-weight: 600;
 }
-
 .filters {
   display: flex;
   align-items: center;
@@ -39,7 +34,6 @@
   outline: none;
   width: 100%;
 }
-
 .table-wrap {
   background: #fff;
   border-radius: 8px;
@@ -52,3 +46,4 @@ table {
 td button + button {
   margin-left: 8px;
 }
+

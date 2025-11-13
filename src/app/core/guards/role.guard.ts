@@ -39,10 +39,9 @@ export const roleGuard: CanActivateFn = (route, state) => {
         }
       }
       
-      // Redirect to unauthorized or home page
-      console.log('Role Guard - Access denied, redirecting to home');
-      alert('Access denied: You do not have permission to access this page.');
-      return router.createUrlTree(['/']);
+      // Redirect to unauthorized page without alert popup
+      console.log('Role Guard - Access denied, redirecting to unauthorized');
+      return router.createUrlTree(['/unauthorized']);
     })
   );
 };

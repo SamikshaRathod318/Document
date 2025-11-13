@@ -13,30 +13,51 @@ export class DocumentStoreService {
   }
 
   add(doc: Document): void {
-    const docs = [...this._documents$.value];
-    // Ensure unique id
-    const nextId = docs.length ? Math.max(...docs.map(d => d.id)) + 1 : 1;
+    const currentDocs = this.dedupeDocuments(this._documents$.value);
+
+    // If the document already exists (by id or fileUrl), update instead of adding a duplicate
+    if (doc.id != null) {
+      const existing = currentDocs.find(d => d.id === doc.id);
+      if (existing) {
+        this.update({ ...existing, ...doc });
+        return;
+      }
+    }
+
+    if (doc.fileUrl) {
+      const existingByFile = currentDocs.find(d => d.fileUrl === doc.fileUrl);
+      if (existingByFile) {
+        this.update({ ...existingByFile, ...doc, id: existingByFile.id });
+        return;
+      }
+    }
+
+    const nextId = currentDocs.length ? Math.max(...currentDocs.map(d => d.id ?? 0)) + 1 : 1;
     const withId = { ...doc, id: doc.id ?? nextId } as Document;
-    const updatedDocs = [withId, ...docs];
+    const updatedDocs = this.dedupeDocuments([withId, ...currentDocs]);
     this._documents$.next(updatedDocs);
     this.saveToStorage(updatedDocs);
   }
 
   update(updated: Document): void {
-    const docs = this._documents$.value.map(d => d.id === updated.id ? { ...d, ...updated } : d);
-    this._documents$.next(docs);
-    this.saveToStorage(docs);
+    const deduped = this.dedupeDocuments(
+      this._documents$.value.map(d => (d.id === updated.id ? { ...d, ...updated } : d))
+    );
+    this._documents$.next(deduped);
+    this.saveToStorage(deduped);
   }
 
   delete(id: number): void {
     const docs = this._documents$.value.filter(d => d.id !== id);
-    this._documents$.next(docs);
-    this.saveToStorage(docs);
+    const deduped = this.dedupeDocuments(docs);
+    this._documents$.next(deduped);
+    this.saveToStorage(deduped);
   }
 
   setInitial(docs: Document[]): void {
-    this._documents$.next(docs);
-    this.saveToStorage(docs);
+    const deduped = this.dedupeDocuments(docs);
+    this._documents$.next(deduped);
+    this.saveToStorage(deduped);
   }
 
   resetToFreshData(): void {
@@ -58,11 +79,16 @@ export class DocumentStoreService {
           return this.createInitialMock();
         }
         // Convert date strings back to Date objects
-        return parsed.map((doc: any) => ({
+        const hydrated = parsed.map((doc: any) => ({
           ...doc,
           uploadedDate: new Date(doc.uploadedDate),
           reviewedDate: doc.reviewedDate ? new Date(doc.reviewedDate) : undefined
         }));
+        const deduped = this.dedupeDocuments(hydrated);
+        if (deduped.length !== hydrated.length) {
+          this.saveToStorage(deduped);
+        }
+        return deduped;
       }
     } catch (error) {
       console.error('Error loading documents from storage:', error);
@@ -76,6 +102,37 @@ export class DocumentStoreService {
     } catch (error) {
       console.error('Error saving documents to storage:', error);
     }
+  }
+
+  private dedupeDocuments(docs: Document[]): Document[] {
+    const result: Document[] = [];
+    const seen = new Map<string, Document>();
+
+    for (const doc of docs) {
+      if (!doc) continue;
+      const key = this.getDocumentKey(doc);
+      const existing = seen.get(key);
+      if (existing) {
+        Object.assign(existing, doc);
+      } else {
+        const clone = { ...doc };
+        seen.set(key, clone);
+        result.push(clone);
+      }
+    }
+
+    return result;
+  }
+
+  private getDocumentKey(doc: Document): string {
+    if (doc.id != null) {
+      return `id:${doc.id}`;
+    }
+    // Treat documents without an id as unique entries
+    const unique = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()}`;
+    return `unique:${unique}`;
   }
 
   private createInitialMock(): Document[] {

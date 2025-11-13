@@ -1,23 +1,13 @@
-<div class="sc-container">
-  <h1>Senior Clerk Dashboard</h1>
+<div class="acc-container">
+  <h1>Accountant Dashboard</h1>
 
-  <!-- Stats -->
-  <div class="stats-grid">
+  <div class="stats">
     <mat-card class="stat-card">
-      <div class="stat-label">Pending</div>
-      <div class="stat-value">{{ totalPending }}</div>
-    </mat-card>
-    <mat-card class="stat-card">
-      <div class="stat-label">In Review</div>
-      <div class="stat-value">{{ totalInReview }}</div>
-    </mat-card>
-    <mat-card class="stat-card">
-      <div class="stat-label">Approved</div>
-      <div class="stat-value">{{ totalApproved }}</div>
+      <div class="stat-label">In Queue</div>
+      <div class="stat-value">{{ totalInQueue }}</div>
     </mat-card>
   </div>
 
-  <!-- Filters -->
   <div class="filters">
     <mat-icon>search</mat-icon>
     <input
@@ -52,7 +42,7 @@
             <mat-icon>visibility</mat-icon>
             View
           </button>
-          <button mat-raised-button color="primary" (click)="verifyAndForward(d.id)" matTooltip="Verify & forward to Accountant">
+          <button mat-raised-button color="primary" (click)="forwardToHod(d.id)" matTooltip="Verify & forward to HOD">
             <mat-icon>send</mat-icon>
             Verify
           </button>
@@ -66,10 +56,11 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5,10,20]" showFirstLastButtons></mat-paginator>
   </div>
 
   <ng-template #noItems>
-    <mat-card class="empty-card">No documents pending for Senior Clerk.</mat-card>
+    <mat-card class="empty-card">No documents pending for Accountant.</mat-card>
   </ng-template>
 </div>
 

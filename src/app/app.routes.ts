@@ -76,8 +76,7 @@ export const routes: Routes = [
   {
     path: 'accountant',
     loadChildren: () => import('./features/accountant/accountant.module').then(m => m.AccountantModule),
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['accountant'] }
+    canActivate: [authGuard]
   },
   // HOD routes
   {

@@ -251,6 +251,7 @@ export class DocumentUploadComponent implements OnInit {
         // Update existing document
         const existingDoc = this.store.documents.find(doc => doc.id === this.editingDocumentId);
         if (existingDoc) {
+          const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : existingDoc.uploadedDate;
           const updatedDoc: Document = {
             ...existingDoc,
             title: formValue.title,
@@ -259,6 +260,7 @@ export class DocumentUploadComponent implements OnInit {
             documentType: formValue.documentType,
             class: formValue.class,
             isConfidential: !!formValue.isConfidential,
+            uploadedDate: effectiveDate,
             // Only update file info if new file was selected
             ...(this.selectedFile && {
               type: this.getDocTypeFromFile(this.selectedFile.name),
@@ -270,13 +272,14 @@ export class DocumentUploadComponent implements OnInit {
       } else {
         // Create new document with file URL
         this.convertFileToBase64(this.selectedFile!).then(fileUrl => {
+          const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : new Date();
           const newDoc: Document = {
             id: 0, // will be assigned by store
             title: formValue.title,
             description: formValue.description || '',
             type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
             size: this.selectedFile?.size,
-            uploadedDate: new Date(),
+            uploadedDate: effectiveDate,
             status: 'Pending',
             uploadedBy: 'Current User',
             department: 'General',
