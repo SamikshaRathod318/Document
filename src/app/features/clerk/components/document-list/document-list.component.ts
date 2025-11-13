@@ -51,7 +51,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['title', 'type', 'class', 'uploadedDate', 'status', 'pendingWith', 'actions'];
+  displayedColumns: string[] = ['title', 'type', 'documentType', 'class', 'uploadedDate', 'status', 'pendingWith', 'actions'];
   dataSource = new MatTableDataSource<Document>();
   
   pageSize = 5;
@@ -215,6 +215,59 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
       case 'Rejected': return 'status-rejected';
       case 'In Review': return 'status-in-review';
       default: return 'status-pending';
+    }
+  }
+
+  getDisplayType(doc: Document): string {
+    if (doc.type && doc.type !== 'UNKNOWN' && doc.type !== 'OTHER') {
+      return doc.type;
+    }
+
+    if (doc.fileUrl?.startsWith('data:')) {
+      const mimeMatch = doc.fileUrl.match(/^data:(.*?);/);
+      if (mimeMatch?.[1]) {
+        return this.mapMimeToType(mimeMatch[1]);
+      }
+    }
+
+    if (doc.fileUrl) {
+      const urlWithoutParams = doc.fileUrl.split('?')[0];
+      const ext = urlWithoutParams.split('.').pop()?.toUpperCase();
+      if (ext) {
+        return ext;
+      }
+    }
+
+    return 'UNKNOWN';
+  }
+
+  private mapMimeToType(mime: string): string {
+    if (!mime) return 'UNKNOWN';
+    const lower = mime.toLowerCase();
+    if (lower === 'application/pdf') return 'PDF';
+    if (lower.includes('msword') || lower.includes('wordprocessingml')) return 'DOCX';
+    if (lower.includes('spreadsheet') || lower.includes('ms-excel')) return 'XLSX';
+    if (lower === 'text/plain') return 'TXT';
+    if (lower.startsWith('image/')) return lower.split('/')[1].toUpperCase();
+    return mime.toUpperCase();
+  }
+
+  getTypeIcon(doc: Document): string {
+    const type = this.getDisplayType(doc);
+    switch (type) {
+      case 'PDF': return 'picture_as_pdf';
+      case 'DOC':
+      case 'DOCX': return 'description';
+      case 'XLS':
+      case 'XLSX': return 'table_chart';
+      case 'TXT': return 'text_snippet';
+      case 'PNG':
+      case 'JPEG':
+      case 'JPG':
+      case 'GIF':
+      case 'BMP':
+      case 'WEBP': return 'image';
+      default: return 'insert_drive_file';
     }
   }
 

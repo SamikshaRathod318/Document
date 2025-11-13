@@ -82,7 +82,7 @@ export class DocumentUploadComponent implements OnInit {
       description: ['', [Validators.maxLength(500)]],
       documentType: ['', Validators.required],
       class: ['', Validators.required],
-
+      type: [''],
       effectiveDate: [new Date(), Validators.required],
       isConfidential: [false],
       file: [null, Validators.required]
@@ -179,7 +179,8 @@ export class DocumentUploadComponent implements OnInit {
 
     this.selectedFile = file;
     this.uploadForm.patchValue({
-      file: file.name
+      file: file.name,
+      type: this.getReadableType(file)
     });
   }
 
@@ -263,7 +264,7 @@ export class DocumentUploadComponent implements OnInit {
             uploadedDate: effectiveDate,
             // Only update file info if new file was selected
             ...(this.selectedFile && {
-              type: this.getDocTypeFromFile(this.selectedFile.name),
+              type: this.getReadableType(this.selectedFile),
               size: this.selectedFile.size
             })
           };
@@ -277,7 +278,7 @@ export class DocumentUploadComponent implements OnInit {
             id: 0, // will be assigned by store
             title: formValue.title,
             description: formValue.description || '',
-            type: this.getDocTypeFromFile(this.selectedFile?.name || ''),
+            type: this.getReadableType(this.selectedFile),
             size: this.selectedFile?.size,
             uploadedDate: effectiveDate,
             status: 'Pending',
@@ -299,8 +300,8 @@ export class DocumentUploadComponent implements OnInit {
       });
       this.selectedFile = null;
 
-      // Navigate back to documents list
-      this.router.navigate(['/documents']);
+      // Navigate back to documents list showing all documents
+      this.router.navigate(['/documents'], { queryParams: { status: 'all' } });
     }, 3000);
   }
 
@@ -328,29 +329,20 @@ export class DocumentUploadComponent implements OnInit {
     }
   }
 
-  private getDocTypeFromFile(fileName: string): string {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf':
-        return 'PDF';
-      case 'doc':
-      case 'docx':
-        return 'DOCX';
-      case 'xls':
-      case 'xlsx':
-        return 'XLSX';
-      case 'txt':
-        return 'TXT';
-      case 'jpg':
-      case 'jpeg':
-        return 'JPEG';
-      case 'png':
-        return 'PNG';
-      case 'gif':
-        return 'GIF';
-      default:
-        return 'OTHER';
+  private getReadableType(file?: File | null): string {
+    if (!file) return 'UNKNOWN';
+
+    const mime = file.type?.toLowerCase();
+    if (mime) {
+      if (mime === 'application/pdf') return 'PDF';
+      if (mime.includes('msword') || mime.includes('officedocument.wordprocessingml')) return 'DOCX';
+      if (mime.includes('spreadsheetml') || mime.includes('ms-excel')) return 'XLSX';
+      if (mime === 'text/plain') return 'TXT';
+      if (mime.startsWith('image/')) return mime.split('/')[1].toUpperCase();
     }
+
+    const ext = file.name.split('.').pop()?.toUpperCase();
+    return ext || 'UNKNOWN';
   }
 
   private convertFileToBase64(file: File): Promise<string> {

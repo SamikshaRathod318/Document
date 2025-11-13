@@ -13,30 +13,32 @@ export class DocumentStoreService {
   }
 
   add(doc: Document): void {
-    const currentDocs = this.dedupeDocuments(this._documents$.value);
+    const currentDocs = [...this._documents$.value];
 
-    // If the document already exists (by id or fileUrl), update instead of adding a duplicate
     if (doc.id != null) {
-      const existing = currentDocs.find(d => d.id === doc.id);
-      if (existing) {
-        this.update({ ...existing, ...doc });
-        return;
+      const index = currentDocs.findIndex(d => d.id === doc.id);
+      if (index !== -1) {
+        currentDocs[index] = { ...currentDocs[index], ...doc };
+      } else {
+        currentDocs.unshift({ ...doc });
       }
+    } else {
+      const nextId = this.generateNextId(currentDocs);
+      currentDocs.unshift({ ...doc, id: nextId });
     }
 
-    if (doc.fileUrl) {
-      const existingByFile = currentDocs.find(d => d.fileUrl === doc.fileUrl);
-      if (existingByFile) {
-        this.update({ ...existingByFile, ...doc, id: existingByFile.id });
-        return;
-      }
-    }
+    const deduped = this.dedupeDocuments(currentDocs);
+    const limited = this.enforceStorageLimit(deduped);
+    this._documents$.next(limited);
+    this.saveToStorage(limited);
+  }
 
-    const nextId = currentDocs.length ? Math.max(...currentDocs.map(d => d.id ?? 0)) + 1 : 1;
-    const withId = { ...doc, id: doc.id ?? nextId } as Document;
-    const updatedDocs = this.dedupeDocuments([withId, ...currentDocs]);
-    this._documents$.next(updatedDocs);
-    this.saveToStorage(updatedDocs);
+  private generateNextId(docs: Document[]): number {
+    let nextId = docs.length ? Math.max(...docs.map(d => d.id ?? 0)) + 1 : 1;
+    while (docs.some(d => d.id === nextId)) {
+      nextId++;
+    }
+    return nextId;
   }
 
   update(updated: Document): void {
@@ -101,6 +103,7 @@ export class DocumentStoreService {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(docs));
     } catch (error) {
       console.error('Error saving documents to storage:', error);
+      this.handleStorageQuotaExceeded(error, docs);
     }
   }
 
@@ -122,6 +125,53 @@ export class DocumentStoreService {
     }
 
     return result;
+  }
+
+  private enforceStorageLimit(docs: Document[]): Document[] {
+    const maxBytes = 4_500_000; // ~4.5MB to stay under 5MB typical limit
+    let serialized = JSON.stringify(docs);
+    if (serialized.length <= maxBytes) {
+      return docs;
+    }
+
+    const sorted = [...docs].sort((a, b) => {
+      const timeA = (a.uploadedDate instanceof Date ? a.uploadedDate.getTime() : new Date(a.uploadedDate ?? 0).getTime());
+      const timeB = (b.uploadedDate instanceof Date ? b.uploadedDate.getTime() : new Date(b.uploadedDate ?? 0).getTime());
+      return timeB - timeA;
+    });
+
+    const pruned: Document[] = [];
+    for (const doc of sorted) {
+      pruned.push(doc);
+      serialized = JSON.stringify(pruned);
+      if (serialized.length > maxBytes) {
+        pruned.pop();
+        break;
+      }
+    }
+
+    pruned.sort((a, b) => {
+      const timeA = (a.uploadedDate instanceof Date ? a.uploadedDate.getTime() : new Date(a.uploadedDate ?? 0).getTime());
+      const timeB = (b.uploadedDate instanceof Date ? b.uploadedDate.getTime() : new Date(b.uploadedDate ?? 0).getTime());
+      return timeA - timeB;
+    });
+
+    return pruned;
+  }
+
+  private handleStorageQuotaExceeded(error: unknown, docs: Document[]): void {
+    if (!(error instanceof DOMException) || error.name !== 'QuotaExceededError') {
+      return;
+    }
+
+    try {
+      console.warn('Storage quota exceeded, pruning oldest documents.');
+      const pruned = this.enforceStorageLimit(docs);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pruned));
+      this._documents$.next(pruned);
+    } catch (secondaryError) {
+      console.error('Failed to recover from storage quota issue:', secondaryError);
+    }
   }
 
   private getDocumentKey(doc: Document): string {

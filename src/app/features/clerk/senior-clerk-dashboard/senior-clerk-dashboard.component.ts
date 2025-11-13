@@ -87,8 +87,8 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
       reviewedDate: new Date()
     } as any);
 
-    // Navigate to documents page after verify
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'In Review' } });
+    // Navigate back to documents list showing all items
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'all', focusDoc: doc.id } });
   }
 
   viewDocument(doc: Document): void {
@@ -104,7 +104,7 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
       reviewedBy: 'Senior Clerk',
       reviewedDate: new Date()
     } as any);
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected' } });
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected', focusDoc: doc.id } });
   }
 
   private openDocumentInNewTab(doc: Document): void {

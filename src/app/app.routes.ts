@@ -82,8 +82,7 @@ export const routes: Routes = [
   {
     path: 'hod',
     loadChildren: () => import('./features/hod/hod.module').then(m => m.HodModule),
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['adm_hod'] }
+    canActivate: [authGuard]
   },
   // Contact route
   {

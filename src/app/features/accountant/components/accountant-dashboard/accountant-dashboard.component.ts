@@ -84,8 +84,8 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
       reviewedBy: 'Accountant',
       reviewedDate: new Date()
     } as any);
-    // After verify, go to documents page
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'In Review' } });
+    // After verify, return to documents page showing all entries
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'all', focusDoc: doc.id } });
   }
 
   viewDocument(doc: Document): void {
@@ -101,7 +101,7 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
       reviewedBy: 'Accountant',
       reviewedDate: new Date()
     } as any);
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected' } });
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected', focusDoc: doc.id } });
   }
 
   private openDocumentInNewTab(doc: Document): void {
