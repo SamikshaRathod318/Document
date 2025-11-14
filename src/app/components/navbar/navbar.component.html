@@ -107,7 +107,7 @@
       </li>
       
       <!-- Documents Link -->
-      <li class="nav-item" role="none">
+      <li class="nav-item" role="none" *ngIf="isLoggedIn$ | async">
         <a [routerLink]="['/documents']" 
            routerLinkActive="active" 
            class="nav-link"
@@ -122,7 +122,7 @@
       </li>
       
       <!-- Department Link -->
-      <li class="nav-item" role="none">
+      <li class="nav-item" role="none" *ngIf="isLoggedIn$ | async">
         <a [routerLink]="['/department']" 
            routerLinkActive="active" 
            class="nav-link"

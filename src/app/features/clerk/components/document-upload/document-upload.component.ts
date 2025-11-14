@@ -107,6 +107,7 @@ export class DocumentUploadComponent implements OnInit {
         title: document.title,
         description: document.description || '',
         documentType: document.documentType,
+        type: document.type || 'UNKNOWN',
         department: document.department,
         effectiveDate: document.uploadedDate,
         isConfidential: document.isConfidential || false
@@ -241,11 +242,6 @@ export class DocumentUploadComponent implements OnInit {
         'Document updated successfully!' : 
         'Document uploaded successfully!';
       
-      this.snackBar.open(successMessage, 'Close', {
-        duration: 5000,
-        panelClass: 'success-snackbar'
-      });
-      
       const formValue = this.uploadForm.value;
       
       if (this.isEditMode && this.editingDocumentId) {
@@ -268,7 +264,12 @@ export class DocumentUploadComponent implements OnInit {
               size: this.selectedFile.size
             })
           };
-          this.store.update(updatedDoc);
+          try {
+            this.store.update(updatedDoc);
+            this.onSaveSuccess(successMessage);
+          } catch (error) {
+            this.handleStoreError(error);
+          }
         }
       } else {
         // Create new document with file URL
@@ -289,19 +290,20 @@ export class DocumentUploadComponent implements OnInit {
             isConfidential: !!formValue.isConfidential,
             fileUrl: fileUrl
           };
-          this.store.add(newDoc);
+          try {
+            this.store.add(newDoc);
+            this.onSaveSuccess(successMessage);
+          } catch (error) {
+            this.handleStoreError(error);
+          }
+        }).catch(err => {
+          console.error('Error converting file:', err);
+          this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
+            duration: 5000,
+            panelClass: 'error-snackbar'
+          });
         });
       }
-
-      // Reset the form after successful upload
-      this.uploadForm.reset({
-        effectiveDate: new Date(),
-        isConfidential: false
-      });
-      this.selectedFile = null;
-
-      // Navigate back to documents list showing all documents
-      this.router.navigate(['/documents'], { queryParams: { status: 'all' } });
     }, 3000);
   }
 
@@ -343,6 +345,35 @@ export class DocumentUploadComponent implements OnInit {
 
     const ext = file.name.split('.').pop()?.toUpperCase();
     return ext || 'UNKNOWN';
+  }
+
+  private onSaveSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: 'success-snackbar'
+    });
+
+    this.uploadForm.reset({
+      effectiveDate: new Date(),
+      isConfidential: false
+    });
+    this.selectedFile = null;
+
+    this.router.navigate(['/documents'], { queryParams: { status: 'all' } });
+  }
+
+  private handleStoreError(error: unknown): void {
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      this.snackBar.open('Storage is full. Please delete older documents before uploading new ones.', 'Close', {
+        duration: 5000,
+        panelClass: 'error-snackbar'
+      });
+    } else {
+      this.snackBar.open('Failed to save the document. Please try again.', 'Close', {
+        duration: 5000,
+        panelClass: 'error-snackbar'
+      });
+    }
   }
 
   private convertFileToBase64(file: File): Promise<string> {

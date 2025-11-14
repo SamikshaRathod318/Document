@@ -13,7 +13,8 @@ export class DocumentStoreService {
   }
 
   add(doc: Document): void {
-    const currentDocs = [...this._documents$.value];
+    const previous = [...this._documents$.value];
+    const currentDocs = [...previous];
 
     if (doc.id != null) {
       const index = currentDocs.findIndex(d => d.id === doc.id);
@@ -28,9 +29,7 @@ export class DocumentStoreService {
     }
 
     const deduped = this.dedupeDocuments(currentDocs);
-    const limited = this.enforceStorageLimit(deduped);
-    this._documents$.next(limited);
-    this.saveToStorage(limited);
+    this.persistWithFallback(deduped, previous);
   }
 
   private generateNextId(docs: Document[]): number {
@@ -42,24 +41,22 @@ export class DocumentStoreService {
   }
 
   update(updated: Document): void {
-    const deduped = this.dedupeDocuments(
-      this._documents$.value.map(d => (d.id === updated.id ? { ...d, ...updated } : d))
-    );
-    this._documents$.next(deduped);
-    this.saveToStorage(deduped);
+    const previous = [...this._documents$.value];
+    const nextDocs = this._documents$.value.map(d => (d.id === updated.id ? { ...d, ...updated } : d));
+    const deduped = this.dedupeDocuments(nextDocs);
+    this.persistWithFallback(deduped, previous);
   }
 
   delete(id: number): void {
+    const previous = [...this._documents$.value];
     const docs = this._documents$.value.filter(d => d.id !== id);
     const deduped = this.dedupeDocuments(docs);
-    this._documents$.next(deduped);
-    this.saveToStorage(deduped);
+    this.persistWithFallback(deduped, previous);
   }
 
   setInitial(docs: Document[]): void {
     const deduped = this.dedupeDocuments(docs);
-    this._documents$.next(deduped);
-    this.saveToStorage(deduped);
+    this.persistWithFallback(deduped, this._documents$.value);
   }
 
   resetToFreshData(): void {
@@ -99,12 +96,7 @@ export class DocumentStoreService {
   }
 
   private saveToStorage(docs: Document[]): void {
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(docs));
-    } catch (error) {
-      console.error('Error saving documents to storage:', error);
-      this.handleStorageQuotaExceeded(error, docs);
-    }
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(docs));
   }
 
   private dedupeDocuments(docs: Document[]): Document[] {
@@ -127,50 +119,14 @@ export class DocumentStoreService {
     return result;
   }
 
-  private enforceStorageLimit(docs: Document[]): Document[] {
-    const maxBytes = 4_500_000; // ~4.5MB to stay under 5MB typical limit
-    let serialized = JSON.stringify(docs);
-    if (serialized.length <= maxBytes) {
-      return docs;
-    }
-
-    const sorted = [...docs].sort((a, b) => {
-      const timeA = (a.uploadedDate instanceof Date ? a.uploadedDate.getTime() : new Date(a.uploadedDate ?? 0).getTime());
-      const timeB = (b.uploadedDate instanceof Date ? b.uploadedDate.getTime() : new Date(b.uploadedDate ?? 0).getTime());
-      return timeB - timeA;
-    });
-
-    const pruned: Document[] = [];
-    for (const doc of sorted) {
-      pruned.push(doc);
-      serialized = JSON.stringify(pruned);
-      if (serialized.length > maxBytes) {
-        pruned.pop();
-        break;
-      }
-    }
-
-    pruned.sort((a, b) => {
-      const timeA = (a.uploadedDate instanceof Date ? a.uploadedDate.getTime() : new Date(a.uploadedDate ?? 0).getTime());
-      const timeB = (b.uploadedDate instanceof Date ? b.uploadedDate.getTime() : new Date(b.uploadedDate ?? 0).getTime());
-      return timeA - timeB;
-    });
-
-    return pruned;
-  }
-
-  private handleStorageQuotaExceeded(error: unknown, docs: Document[]): void {
-    if (!(error instanceof DOMException) || error.name !== 'QuotaExceededError') {
-      return;
-    }
-
+  private persistWithFallback(next: Document[], fallback: Document[]): void {
     try {
-      console.warn('Storage quota exceeded, pruning oldest documents.');
-      const pruned = this.enforceStorageLimit(docs);
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pruned));
-      this._documents$.next(pruned);
-    } catch (secondaryError) {
-      console.error('Failed to recover from storage quota issue:', secondaryError);
+      this._documents$.next(next);
+      this.saveToStorage(next);
+    } catch (error) {
+      console.error('Failed to persist documents:', error);
+      this._documents$.next(fallback);
+      throw error;
     }
   }
 

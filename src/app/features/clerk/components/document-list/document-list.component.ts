@@ -51,7 +51,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['title', 'type', 'documentType', 'class', 'uploadedDate', 'status', 'pendingWith', 'actions'];
+  displayedColumns: string[] = ['title', 'type', 'documentType', 'class', 'uploadedDate', 'status', 'actions'];
   dataSource = new MatTableDataSource<Document>();
   
   pageSize = 5;

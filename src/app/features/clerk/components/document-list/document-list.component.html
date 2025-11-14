@@ -96,18 +96,6 @@
         </td>
       </ng-container>
 
-      <!-- Pending With Column -->
-      <ng-container matColumnDef="pendingWith">
-        <th mat-header-cell *matHeaderCellDef>Pending With</th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-button color="primary" class="link-like" (click)="navigateToPendingOwner(element)"
-                  [disabled]="getPendingWith(element) === '-'"
-                  matTooltip="Open {{ getPendingWith(element) }} dashboard to continue">
-            {{ getPendingWith(element) }}
-          </button>
-        </td>
-      </ng-container>
-
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
@@ -117,6 +105,16 @@
           </button>
           <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit">
             <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button
+                  color="primary"
+                  (click)="navigateToPendingOwner(element)"
+                  [disabled]="getPendingWith(element) === '-'"
+                  matTooltip="Pending with {{ getPendingWith(element) }}">
+            <mat-icon>forward_to_inbox</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document">
+            <mat-icon>cloud_upload</mat-icon>
           </button>
           <button mat-icon-button color="warn" (click)="deleteDocument(element)" matTooltip="Delete">
             <mat-icon>delete</mat-icon>
