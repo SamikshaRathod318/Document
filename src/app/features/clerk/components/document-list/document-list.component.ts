@@ -371,14 +371,14 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   }
 
   downloadDocument(document: Document): void {
-    if (document.fileUrl) {
-      const link = window.document.createElement('a');
-      link.href = document.fileUrl;
-      link.download = document.title;
-      link.target = '_blank';
-      window.document.body.appendChild(link);
-      link.click();
-      window.document.body.removeChild(link);
-    }
-  }
-}
+     if (document.fileUrl) {
+       const link = window.document.createElement('a');
+       link.href = document.fileUrl;
+       link.download = document.title;
+       link.target = '_blank';
+       window.document.body.appendChild(link);
+       link.click();
+       window.document.body.removeChild(link);
+     }
+   }
+ }

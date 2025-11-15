@@ -107,12 +107,12 @@
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button
-                  color="primary"
-                  (click)="navigateToPendingOwner(element)"
-                  [disabled]="getPendingWith(element) === '-'"
-                  matTooltip="Pending with {{ getPendingWith(element) }}">
-            <mat-icon>forward_to_inbox</mat-icon>
+          color="primary"
+          (click)="navigateToPendingOwner(element)"
+          matTooltip="Pending with {{ getPendingWith(element) }}">
+          <mat-icon>hourglass_empty</mat-icon>
           </button>
+
           <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document">
             <mat-icon>cloud_upload</mat-icon>
           </button>

@@ -119,18 +119,19 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    this.handleFileSelection(file);
+    const file = event.target.files?.[0];
+    if (file) {
+      this.handleFileSelection(file);
+    }
   }
 
   onFileDrop(event: DragEvent): void {
     event.preventDefault();
-    this.isDragging = false;
-    
     const file = event.dataTransfer?.files?.[0];
     if (file) {
       this.handleFileSelection(file);
     }
+    this.isDragging = false;
   }
 
   onDragOver(event: DragEvent): void {
@@ -144,9 +145,6 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   private handleFileSelection(file: File): void {
-    if (!file) return;
-    
-    // Basic file type validation
     const allowedTypes = [
       'application/pdf',
       'application/msword',
@@ -155,7 +153,6 @@ export class DocumentUploadComponent implements OnInit {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/plain',
       'image/jpeg',
-      'image/jpg',
       'image/png',
       'image/gif'
     ];
@@ -275,6 +272,8 @@ export class DocumentUploadComponent implements OnInit {
         // Create new document with file URL
         this.convertFileToBase64(this.selectedFile!).then(fileUrl => {
           const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : new Date();
+          const currentUserName = 'Current User';
+          const currentUserDept = formValue.department;
           const newDoc: Document = {
             id: 0, // will be assigned by store
             title: formValue.title,
@@ -283,8 +282,8 @@ export class DocumentUploadComponent implements OnInit {
             size: this.selectedFile?.size,
             uploadedDate: effectiveDate,
             status: 'Pending',
-            uploadedBy: 'Current User',
-            department: 'General',
+            uploadedBy: currentUserName,
+            department: currentUserDept,
             documentType: formValue.documentType,
             class: formValue.class,
             isConfidential: !!formValue.isConfidential,
