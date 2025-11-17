@@ -94,14 +94,28 @@ export class MockUserService {
       });
     }
     
-    // If user not found, create them as admin
-    console.log('MockUserService: User not found, creating new admin user');
+    // If user not found, create them with a role inferred from email
+    console.log('MockUserService: User not found, creating new user with inferred role');
+    const emailLower = email.toLowerCase();
+    let inferredRoleId = 2; // Default Clerk
+    let inferredRoleName = 'Clerk';
+
+    if (emailLower.includes('admin')) {
+      inferredRoleId = 1; inferredRoleName = 'Admin';
+    } else if (emailLower.includes('account') || emailLower.includes('acct')) {
+      inferredRoleId = 5; inferredRoleName = 'Accountant';
+    } else if (emailLower.includes('senior') || emailLower.includes('sr')) {
+      inferredRoleId = 3; inferredRoleName = 'Senior Clerk';
+    } else if (emailLower.includes('hod')) {
+      inferredRoleId = 6; inferredRoleName = 'HOD';
+    }
+
     const newUser = {
       userId: this.nextUserId++,
       fullName: email.split('@')[0],
       email: email,
-      roleId: 1,
-      roleName: 'Admin',
+      roleId: inferredRoleId,
+      roleName: inferredRoleName,
       departmentId: 1,
       departmentName: 'Administration',
       isActive: true
@@ -115,7 +129,7 @@ export class MockUserService {
       email: newUser.email,
       full_name: newUser.fullName,
       role_id: newUser.roleId,
-      role_name: 'Admin'
+      role_name: newUser.roleName
     });
   }
 
