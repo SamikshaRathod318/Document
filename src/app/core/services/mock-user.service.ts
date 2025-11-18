@@ -20,7 +20,10 @@ export class MockUserService {
   private departments: Department[] = [
     { departmentId: 1, departmentName: 'Administration' },
     { departmentId: 2, departmentName: 'Water' },
-    { departmentId: 3, departmentName: 'Account' }
+    { departmentId: 3, departmentName: 'Account' },
+    { departmentId: 4, departmentName: 'Education' },
+    { departmentId: 5, departmentName: 'Finance' },
+    { departmentId: 6, departmentName: 'Transportation' }
   ];
   private nextUserId = 1;
 
