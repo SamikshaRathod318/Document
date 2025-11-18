@@ -56,7 +56,8 @@ export const routes: Routes = [
   {
     path: 'clerk',
     loadChildren: () => import('./features/clerk/clerk.module').then(m => m.ClerkModule),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['clerk', 'senior_clerk', 'adm_clerk', 'adm_sr_clerk'] }
   },
   // Profile route (protected)
   {
@@ -76,13 +77,15 @@ export const routes: Routes = [
   {
     path: 'accountant',
     loadChildren: () => import('./features/accountant/accountant.module').then(m => m.AccountantModule),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['accountant'] }
   },
   // HOD routes
   {
     path: 'hod',
     loadChildren: () => import('./features/hod/hod.module').then(m => m.HodModule),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['hod', 'adm_hod'] }
   },
   // Contact route
   {

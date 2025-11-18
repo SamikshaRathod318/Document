@@ -33,7 +33,9 @@ export class SignupComponent {
     { id: 2, name: 'Admin' },
     { id: 3, name: 'Clerk' },
     { id: 4, name: 'Senior Clerk' },
-    { id: 5, name: 'Accountant' }
+    { id: 5, name: 'Accountant' },
+    { id: 6, name: 'HOD' }
+
   ];
 
   constructor() {
@@ -80,6 +82,7 @@ export class SignupComponent {
         case 'accountant':
           this.router.navigate(['/accountant/dashboard']);
           break;
+        case 'hod':
         case 'adm_hod':
           this.router.navigate(['/hod/dashboard']);
           break;
@@ -111,11 +114,16 @@ export class SignupComponent {
     console.log('========================');
     
     try {
+      // Ensure the role exists in DB and get its actual role_id
+      const resolvedRoleId = selectedRole?.name
+        ? await this.dbService.getOrCreateRoleIdByName(selectedRole.name)
+        : parseInt(role);
+
       const newUser = await this.dbService.createUser({
         full_name: fullName,
         email: email,
         password: password,
-        role_id: parseInt(role)
+        role_id: resolvedRoleId
       });
 
       if (newUser) {

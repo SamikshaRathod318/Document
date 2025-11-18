@@ -54,11 +54,13 @@ export class UserService {
     console.log('Creating user:', userData);
     
     // Just insert into users table directly
+    const normalizedEmail = (userData.email || '').trim().toLowerCase();
     const { data, error } = await this.supabase.getClient()
       .from('users')
       .insert({
         full_name: userData.fullName,
-        email: userData.email,
+        email: normalizedEmail,
+        password: userData.password,
         role_id: userData.roleId || null,
         department_id: userData.departmentId || null,
         is_active: true
@@ -106,7 +108,7 @@ export class UserService {
     if (error) throw error;
 
     return (data || []).map(role => ({
-      roleId: role.id,
+      roleId: role.role_id,
       roleName: role.role_name,
       description: role.description
     }));

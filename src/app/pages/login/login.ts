@@ -65,6 +65,7 @@ export class LoginComponent {
         case 'accountant':
           this.router.navigate(['/accountant/dashboard']);
           break;
+        case 'hod':
         case 'adm_hod':
           this.router.navigate(['/hod/dashboard']);
           break;

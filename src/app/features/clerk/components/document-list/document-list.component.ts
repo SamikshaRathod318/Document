@@ -19,6 +19,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Document } from '../../models/document.model';
 import { DocumentStoreService } from '../../services/document-store.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-document-list',
@@ -83,7 +84,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private store: DocumentStoreService,
     private fb: FormBuilder,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private auth: AuthService
   ) {
     this.editForm = this.fb.group({
       title: ['', Validators.required],
@@ -381,4 +383,21 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
        window.document.body.removeChild(link);
      }
    }
+
+  get isAccountant(): boolean {
+    return this.auth.hasRole('accountant');
+  }
+
+  rejectDocument(document: Document): void {
+    const confirmReject = window.confirm(`Reject "${document.title}"?`);
+    if (!confirmReject) return;
+
+    const updatedDoc: Document = {
+      ...document,
+      status: 'Rejected'
+    };
+    this.store.update(updatedDoc);
+    this.applyFilter();
+    this.snackBar.open('Document rejected', 'Dismiss', { duration: 2000 });
+  }
  }

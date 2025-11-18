@@ -100,25 +100,34 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button color="primary" (click)="viewDocument(element)" matTooltip="View">
-            <mat-icon>visibility</mat-icon>
-          </button>
-          <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button
-          color="primary"
-          (click)="navigateToPendingOwner(element)"
-          matTooltip="Pending with {{ getPendingWith(element) }}">
-          <mat-icon>hourglass_empty</mat-icon>
-          </button>
-
-          <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document">
-            <mat-icon>cloud_upload</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deleteDocument(element)" matTooltip="Delete">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <ng-container *ngIf="isAccountant; else nonAccountantActions">
+            <button mat-icon-button color="primary" (click)="viewDocument(element)" matTooltip="View">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="rejectDocument(element)" matTooltip="Reject">
+              <mat-icon>thumb_down</mat-icon>
+            </button>
+          </ng-container>
+          <ng-template #nonAccountantActions>
+            <button mat-icon-button color="primary" (click)="viewDocument(element)" matTooltip="View">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button
+              color="primary"
+              (click)="navigateToPendingOwner(element)"
+              matTooltip="Pending with {{ getPendingWith(element) }}">
+              <mat-icon>hourglass_empty</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document">
+              <mat-icon>cloud_upload</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteDocument(element)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-template>
         </td>
       </ng-container>
 

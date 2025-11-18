@@ -8,7 +8,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   
   // Get the required roles from the route data
-  const requiredRoles = route.data?.['roles'] as string[];
+  const requiredRoles = (route.data?.['roles'] as string[] | undefined)?.map(r => r?.toString().trim().toLowerCase()) as string[];
   
   if (!requiredRoles || requiredRoles.length === 0) {
     return true; // No role requirement, allow access
@@ -25,10 +25,10 @@ export const roleGuard: CanActivateFn = (route, state) => {
       
       if (user) {
         // Check both roles array and activeRole
+        const userRolesNormalized = (user.roles || []).map(r => r?.toString().trim().toLowerCase());
+        const activeRoleNorm = user.activeRole?.toString().trim().toLowerCase();
         const hasRequiredRole = requiredRoles.some(role => {
-          const roleMatch = user.roles?.includes(role) || 
-                          user.roles?.includes(role.toLowerCase()) ||
-                          user.activeRole?.toLowerCase() === role.toLowerCase();
+          const roleMatch = userRolesNormalized.includes(role) || activeRoleNorm === role;
           console.log(`Checking role '${role}': ${roleMatch}`);
           return roleMatch;
         });

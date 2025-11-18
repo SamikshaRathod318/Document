@@ -118,7 +118,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   getDashboardRoute(): string {
     if (this.currentRole === 'admin') {
       return '/admin/dashboard';
-    } else if (this.currentRole === 'adm_hod') {
+    } else if (this.currentRole === 'hod' || this.currentRole === 'adm_hod') {
       return '/hod/dashboard';
     } else if (this.currentRole === 'accountant') {
       return '/accountant/dashboard';

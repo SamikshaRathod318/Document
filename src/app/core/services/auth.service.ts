@@ -66,14 +66,22 @@ export class AuthService {
             // Get role name from database
             const roleInfo = await this.dbService.getRoleById(user.role_id);
             const roleName = roleInfo?.role_name || 'Clerk';
-            // Map role names to consistent keys
-            let roleKey = roleName.toLowerCase().replace(/\s+/g, '_');
-            if (roleKey === 'admin' || roleName === 'Admin') {
-              roleKey = 'admin';
-            }
+            // Map role names to consistent keys with aliases
+            const rawKey = roleName.toLowerCase().replace(/\s+/g, '_');
+            const roleAliases: Record<string, string> = {
+              admin: 'admin',
+              accountant: 'accountant',
+              clerk: 'clerk',
+              senior_clerk: 'senior_clerk',
+              hod: 'hod',
+              head_of_department: 'hod',
+              'head_of_dept': 'hod',
+            };
+            let roleKey = roleAliases[rawKey] || rawKey;
             
+            const resolvedId = (user as any)?.id ?? (user as any)?.user_id;
             const userData: User = {
-              id: user.id.toString(),
+              id: resolvedId != null ? String(resolvedId) : '',
               email: user.email,
               name: user.full_name,
               roles: [roleKey],
@@ -168,6 +176,7 @@ export class AuthService {
         console.log('Navigating to accountant dashboard');
         this.router.navigate(['/accountant/dashboard']);
         break;
+      case 'hod':
       case 'adm_hod':
         console.log('Navigating to HOD dashboard');
         this.router.navigate(['/hod/dashboard']);
