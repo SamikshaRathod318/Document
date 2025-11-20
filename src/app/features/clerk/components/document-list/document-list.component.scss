@@ -28,6 +28,21 @@
             align-items: center;
             gap: 8px;
         }
+        .upload-btn {
+            border-radius: 9999px;
+            padding: 8px 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            text-transform: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            .mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+        }
     }
     .filter-section {
         display: flex;
@@ -138,7 +153,6 @@
         }
     }
 }
-
 
 .no-documents {
     text-align: center;
