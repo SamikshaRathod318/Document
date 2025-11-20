@@ -112,16 +112,30 @@
             <button mat-icon-button color="primary" (click)="viewDocument(element)" matTooltip="View">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit">
+            <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit" *ngIf="element.status !== 'Pending' && element.status !== 'Approved'">
               <mat-icon>edit</mat-icon>
+            </button>
+            <!-- Re-upload allowed when Rejected -->
+            <button mat-icon-button color="primary"
+                    *ngIf="canReupload(element)"
+                    (click)="navigateToReupload(element)"
+                    matTooltip="Re-upload">
+              <mat-icon>cloud_upload</mat-icon>
+            </button>
+            <!-- Send for Approval visible when Rejected -->
+            <button mat-icon-button color="primary"
+                    *ngIf="element.status === 'Rejected'"
+                    (click)="sendForApproval(element)"
+                    matTooltip="Send for Approval">
+              <mat-icon>send</mat-icon>
             </button>
             <button mat-icon-button
               color="primary"
               (click)="navigateToPendingOwner(element)"
-              matTooltip="Pending with {{ getPendingWith(element) }}">
+              matTooltip="Pending with {{ getPendingWith(element) }}" *ngIf="element.status === 'Pending'">
               <mat-icon>hourglass_empty</mat-icon>
             </button>
-            <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document">
+            <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document" *ngIf="element.status !== 'Rejected' && element.status !== 'Pending' && element.status !== 'Approved'">
               <mat-icon>cloud_upload</mat-icon>
             </button>
             <button mat-icon-button color="warn" (click)="deleteDocument(element)" matTooltip="Delete">

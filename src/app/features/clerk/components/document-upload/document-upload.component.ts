@@ -245,27 +245,49 @@ export class DocumentUploadComponent implements OnInit {
         // Update existing document
         const existingDoc = this.store.documents.find(doc => doc.id === this.editingDocumentId);
         if (existingDoc) {
+          // Allow unlimited re-uploads for rejected documents
+
           const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : existingDoc.uploadedDate;
-          const updatedDoc: Document = {
-            ...existingDoc,
-            title: formValue.title,
-            description: formValue.description || '',
-            department: formValue.department,
-            documentType: formValue.documentType,
-            class: formValue.class,
-            isConfidential: !!formValue.isConfidential,
-            uploadedDate: effectiveDate,
-            // Only update file info if new file was selected
-            ...(this.selectedFile && {
-              type: this.getReadableType(this.selectedFile),
-              size: this.selectedFile.size
-            })
+
+          const finalizeUpdate = (maybeFileUrl?: string) => {
+            const updatedDoc: Document = {
+              ...existingDoc,
+              title: formValue.title,
+              description: formValue.description || '',
+              department: formValue.department,
+              documentType: formValue.documentType,
+              class: formValue.class,
+              isConfidential: !!formValue.isConfidential,
+              uploadedDate: effectiveDate,
+              ...(this.selectedFile && {
+                type: this.getReadableType(this.selectedFile),
+                size: this.selectedFile.size,
+                fileUrl: maybeFileUrl ?? existingDoc.fileUrl
+              }),
+              // Keep edit count if present but do not enforce any limit
+              ...(existingDoc.status === 'Rejected' && existingDoc.rejectedEditCount !== undefined && {
+                rejectedEditCount: (existingDoc.rejectedEditCount ?? 0) + 1
+              })
+            };
+            try {
+              this.store.update(updatedDoc);
+              this.onSaveSuccess(successMessage);
+            } catch (error) {
+              this.handleStoreError(error);
+            }
           };
-          try {
-            this.store.update(updatedDoc);
-            this.onSaveSuccess(successMessage);
-          } catch (error) {
-            this.handleStoreError(error);
+
+          if (this.selectedFile) {
+            // Convert to base64 and update fileUrl
+            this.convertFileToBase64(this.selectedFile).then(url => finalizeUpdate(url)).catch(err => {
+              console.error('Error converting file:', err);
+              this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
+                duration: 5000,
+                panelClass: 'error-snackbar'
+              });
+            });
+          } else {
+            finalizeUpdate();
           }
         }
       } else {

@@ -394,10 +394,37 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
     const updatedDoc: Document = {
       ...document,
-      status: 'Rejected'
+      status: 'Rejected',
+      rejectedEditCount: 0
     };
     this.store.update(updatedDoc);
     this.applyFilter();
     this.snackBar.open('Document rejected', 'Dismiss', { duration: 2000 });
   }
- }
+
+  canReupload(document: Document): boolean {
+    if (!document) return false;
+    if (document.status !== 'Rejected') return false;
+    return true;
+  }
+
+  navigateToReupload(document: Document): void {
+    if (!document) return;
+    this.router.navigate(['/upload'], { queryParams: { id: document.id } });
+  }
+
+  sendForApproval(document: Document): void {
+    if (!document) return;
+    const updatedDoc: Document = {
+      ...document,
+      status: 'Pending',
+      reviewedBy: undefined,
+      reviewedDate: undefined
+    };
+    this.store.update(updatedDoc);
+    this.applyFilter();
+    this.snackBar.open('Sent for approval', 'Dismiss', { duration: 2000 });
+    // Redirect to documents view filtered by Pending
+    this.router.navigate(['/documents'], { queryParams: { status: 'Pending' } });
+  }
+}

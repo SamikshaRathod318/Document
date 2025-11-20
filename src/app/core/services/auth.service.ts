@@ -181,10 +181,13 @@ export class AuthService {
         console.log('Navigating to HOD dashboard');
         this.router.navigate(['/hod/dashboard']);
         break;
+      case 'senior_clerk':
+        console.log('Navigating to senior clerk dashboard');
+        this.router.navigate(['/clerk/senior-dashboard']);
+        break;
       case 'adm_clerk':
       case 'adm_sr_clerk':
       case 'clerk':
-      case 'senior_clerk':
       default:
         console.log('Navigating to clerk dashboard');
         this.router.navigate(['/clerk/dashboard']);

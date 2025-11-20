@@ -244,37 +244,12 @@ export class DatabaseService {
     try {
       const normalizedEmail = (email || '').trim().toLowerCase();
       const normalizedPassword = (password || '').trim();
-      let user = await this.fetchUserByEmail(normalizedEmail);
-
-      // If user does not exist, create one (dev-friendly behavior)
-      if (!user) {
-        await this.insertUserIfNotExists(normalizedEmail, normalizedPassword);
-        user = await this.fetchUserByEmail(normalizedEmail);
-      }
-
+      const user = await this.fetchUserByEmail(normalizedEmail);
       if (user && user.password === normalizedPassword) {
-        // Update name if it's still 'Test User'
-        if (user.full_name === 'Test User') {
-          await this.updateUserName(normalizedEmail);
-          return await this.fetchUserByEmail(normalizedEmail);
-        }
         return user;
       }
-
-      // Dev-friendly: if user exists but password mismatch, update password to provided one
-      if (user && user.password !== normalizedPassword) {
-        await this.supabase.getClient()
-          .from('users')
-          .update({ password: normalizedPassword })
-          .eq('email', normalizedEmail);
-        return await this.fetchUserByEmail(normalizedEmail);
-      }
     } catch (error) {
-      console.log('User not found, creating new user');
-      const normalizedEmail = (email || '').trim().toLowerCase();
-      const normalizedPassword = (password || '').trim();
-      await this.insertUserIfNotExists(normalizedEmail, normalizedPassword);
-      return await this.fetchUserByEmail(normalizedEmail);
+      console.error('authenticateUser error:', error);
     }
     return null;
   }
@@ -411,6 +386,31 @@ export class DatabaseService {
     } catch (error) {
       console.error('Failed to get role:', error);
       return null;
+    }
+  }
+
+  async getRoles(): Promise<Array<{ role_id: number; role_name: string }>> {
+    try {
+      const { data, error } = await this.supabase.getClient()
+        .from('roles')
+        .select('role_id, role_name')
+        .order('role_name', { ascending: true });
+      if (error) {
+        console.error('Failed to fetch roles:', error);
+        return [];
+      }
+      // Ensure unique by name in case of DB duplicates
+      const seen = new Set<string>();
+      const unique = (data || []).filter(r => {
+        const key = (r.role_name || '').toLowerCase().trim();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      return unique as Array<{ role_id: number; role_name: string }>;
+    } catch (err) {
+      console.error('Error getting roles:', err);
+      return [];
     }
   }
 

@@ -15,4 +15,5 @@ export interface Document {
   reviewerComments?: string;
   reviewedBy?: string;
   reviewedDate?: Date;
+  rejectedEditCount?: number;
 }

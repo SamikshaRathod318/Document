@@ -97,7 +97,8 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
       ...doc,
       status: 'Rejected',
       reviewedBy: 'HOD',
-      reviewedDate: new Date()
+      reviewedDate: new Date(),
+      rejectedEditCount: 0
     } as any);
     this.router.navigate(['/documents'], { queryParams: { status: 'Rejected', focusDoc: id } });
   }

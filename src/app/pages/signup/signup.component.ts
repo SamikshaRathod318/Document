@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,7 +17,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -28,15 +28,7 @@ export class SignupComponent {
   error: string | null = null;
   success: string | null = null;
   
-  roles = [
-    { id: 1, name: 'HR' },
-    { id: 2, name: 'Admin' },
-    { id: 3, name: 'Clerk' },
-    { id: 4, name: 'Senior Clerk' },
-    { id: 5, name: 'Accountant' },
-    { id: 6, name: 'HOD' }
-
-  ];
+  roles: Array<{ id: number; name: string }> = [];
 
   constructor() {
     this.signupForm = this.fb.group({
@@ -49,6 +41,16 @@ export class SignupComponent {
 
     if (this.authService.isAuthenticated()) {
       this.redirectToDashboard();
+    }
+  }
+
+  async ngOnInit() {
+    try {
+      const dbRoles = await this.dbService.getRoles();
+      this.roles = (dbRoles || []).map(r => ({ id: r.role_id, name: r.role_name }));
+    } catch (err) {
+      console.error('Failed to load roles:', err);
+      this.roles = [];
     }
   }
 
@@ -86,6 +88,9 @@ export class SignupComponent {
         case 'adm_hod':
           this.router.navigate(['/hod/dashboard']);
           break;
+        case 'senior_clerk':
+          this.router.navigate(['/clerk/senior-dashboard']);
+          break;
         default:
           this.router.navigate(['/clerk/dashboard']);
           break;
@@ -114,10 +119,13 @@ export class SignupComponent {
     console.log('========================');
     
     try {
-      // Ensure the role exists in DB and get its actual role_id
-      const resolvedRoleId = selectedRole?.name
-        ? await this.dbService.getOrCreateRoleIdByName(selectedRole.name)
-        : parseInt(role);
+      // Ensure the role exists in DB (do not create new roles)
+      const resolvedRoleId = parseInt(role);
+      const roleRecord = await this.dbService.getRoleById(resolvedRoleId);
+      if (!roleRecord) {
+        this.error = 'Selected role does not exist. Please choose a valid role.';
+        return;
+      }
 
       const newUser = await this.dbService.createUser({
         full_name: fullName,

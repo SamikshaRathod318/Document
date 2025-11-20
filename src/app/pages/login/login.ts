@@ -69,10 +69,12 @@ export class LoginComponent {
         case 'adm_hod':
           this.router.navigate(['/hod/dashboard']);
           break;
+        case 'senior_clerk':
+          this.router.navigate(['/clerk/senior-dashboard']);
+          break;
         case 'adm_clerk':
         case 'adm_sr_clerk':
         case 'clerk':
-        case 'senior_clerk':
         default:
           this.router.navigate(['/clerk/dashboard']);
           break;
