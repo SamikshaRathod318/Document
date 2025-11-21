@@ -183,7 +183,7 @@ export class AuthService {
         break;
       case 'senior_clerk':
         console.log('Navigating to senior clerk dashboard');
-        this.router.navigate(['/clerk/senior-dashboard']);
+        this.router.navigate(['/senior-clerk/senior-dashboard']);
         break;
       case 'adm_clerk':
       case 'adm_sr_clerk':
