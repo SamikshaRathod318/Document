@@ -124,17 +124,17 @@
                 border-radius: 12px;
                 font-size: 12px;
                 font-weight: bold;
-                color: white;
-                &.class-A {
+                color: #fff;
+                &.class-general {
                     background-color: #4CAF50;
                 }
-                &.class-B {
+                &.class-confidential {
                     background-color: #F44336;
                 }
-                &.class-C {
-                    background-color: #2196F3;
+                &.class-urgent {
+                    background-color: #FF9800;
                 }
-                &.class-D {
+                &.class-others {
                     background-color: #9E9E9E;
                 }
                 &.class-default {

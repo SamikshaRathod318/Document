@@ -24,7 +24,7 @@ export class DocumentStoreService {
         currentDocs.unshift({ ...doc });
       }
     } else {
-      const nextId = this.generateNextId(currentDocs);
+      const nextId = this.generateNextId();
       currentDocs.unshift({ ...doc, id: nextId });
     }
 
@@ -32,12 +32,11 @@ export class DocumentStoreService {
     this.persistWithFallback(deduped, previous);
   }
 
-  private generateNextId(docs: Document[]): number {
-    let nextId = docs.length ? Math.max(...docs.map(d => d.id ?? 0)) + 1 : 1;
-    while (docs.some(d => d.id === nextId)) {
-      nextId++;
+  private generateNextId(): string {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
     }
-    return nextId;
+    return `${Date.now()}-${Math.random()}`;
   }
 
   update(updated: Document): void {
@@ -47,7 +46,7 @@ export class DocumentStoreService {
     this.persistWithFallback(deduped, previous);
   }
 
-  delete(id: number): void {
+  delete(id: string | number): void {
     const previous = [...this._documents$.value];
     const docs = this._documents$.value.filter(d => d.id !== id);
     const deduped = this.dedupeDocuments(docs);
@@ -144,7 +143,7 @@ export class DocumentStoreService {
   private createInitialMock(): Document[] {
     return [
       { 
-        id: 1, 
+        id: '1', 
         title: 'Annual Report 2023', 
         type: 'PDF', 
         uploadedDate: new Date('2023-01-15'), 
@@ -158,7 +157,7 @@ export class DocumentStoreService {
         fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
       },
       { 
-        id: 2, 
+        id: '2', 
         title: 'Meeting Minutes', 
         type: 'DOCX', 
         uploadedDate: new Date('2023-01-10'), 
@@ -172,7 +171,7 @@ export class DocumentStoreService {
         fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_DOC_100kB.doc'
       },
       { 
-        id: 3, 
+        id: '3', 
         title: 'Budget Q1', 
         type: 'XLSX', 
         uploadedDate: new Date('2023-01-05'), 
@@ -186,7 +185,7 @@ export class DocumentStoreService {
         fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_XLSX_10.xlsx'
       },
       { 
-        id: 4, 
+        id: '4', 
         title: 'Policy Update', 
         type: 'PDF', 
         uploadedDate: new Date('2023-02-02'), 
@@ -200,7 +199,7 @@ export class DocumentStoreService {
         fileUrl: 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf'
       },
       { 
-        id: 5, 
+        id: '5', 
         title: 'Company Logo', 
         type: 'PNG', 
         uploadedDate: new Date('2023-02-10'), 
@@ -214,7 +213,7 @@ export class DocumentStoreService {
 fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDA2NmNjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNvbXBhbnkgTG9nbzwvdGV4dD48L3N2Zz4='
       },
       { 
-        id: 6, 
+        id: '6', 
         title: 'Sales Forecast', 
         type: 'XLSX', 
         uploadedDate: new Date('2023-02-15'), 
@@ -228,7 +227,7 @@ fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1s
         fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_XLSX_50.xlsx'
       },
       { 
-        id: 7, 
+        id: '7', 
         title: 'Compliance Checklist', 
         type: 'PDF', 
         uploadedDate: new Date('2023-03-01'), 
@@ -242,7 +241,7 @@ fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1s
         fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
       },
       { 
-        id: 8, 
+        id: '8', 
         title: 'Training Plan', 
         type: 'DOCX', 
         uploadedDate: new Date('2023-03-05'), 
@@ -256,7 +255,7 @@ fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1s
         fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_DOC_500kB.doc'
       },
       { 
-        id: 9, 
+        id: '9', 
         title: 'IT Inventory', 
         type: 'XLSX', 
         uploadedDate: new Date('2023-03-12'), 
@@ -270,7 +269,7 @@ fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1s
         fileUrl: 'https://file-examples.com/storage/fe68c8c7c66afe9b1a9c7e3/2017/10/file_example_XLSX_100.xlsx'
       },
       { 
-        id: 10, 
+        id: '10', 
         title: 'Marketing Brief', 
         type: 'PDF', 
         uploadedDate: new Date('2023-03-18'), 
@@ -284,7 +283,7 @@ fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1s
         fileUrl: 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf'
       },
       { 
-        id: 11, 
+        id: '11', 
         title: 'Audit Findings', 
         type: 'PDF', 
         uploadedDate: new Date('2023-03-25'), 

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -17,9 +17,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Document } from '../../models/document.model';
-import { DocumentStoreService } from '../../services/document-store.service';
+import { DocumentService } from '../../../../core/services/document.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { DocumentStoreService } from '../../services/document-store.service';
 
 @Component({
   selector: 'app-document-list',
@@ -48,7 +51,7 @@ import { AuthService } from '../../../../core/services/auth.service';
     DatePipe
   ]
 })
-export class DocumentListComponent implements OnInit, AfterViewInit {
+export class DocumentListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -63,10 +66,10 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
   statusOptions = [
     { value: 'all', viewValue: 'All Documents' },
-    { value: 'Pending', viewValue: 'Pending' },
-    { value: 'In Review', viewValue: 'In Review' },
-    { value: 'Approved', viewValue: 'Approved' },
-    { value: 'Rejected', viewValue: 'Rejected' }
+    { value: 'pending', viewValue: 'Pending' },
+    { value: 'approved', viewValue: 'Approved' },
+    { value: 'rejected', viewValue: 'Rejected' },
+    { value: 'completed', viewValue: 'Completed' }
   ];
 
   searchText = '';
@@ -76,16 +79,18 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   selectedDocument: Document | null = null;
   showEditForm = false;
   editForm: FormGroup;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
     private route: ActivatedRoute,
-    private store: DocumentStoreService,
+    private documentService: DocumentService,
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
-    private auth: AuthService
+    private auth: AuthService,
+    private documentStore: DocumentStoreService
   ) {
     this.editForm = this.fb.group({
       title: ['', Validators.required],
@@ -95,11 +100,15 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit(): void {
-    this.store.documents$.subscribe(docs => {
-      this.baseDocuments = docs;
-      this.applyFilter();
-    });
+  async ngOnInit(): Promise<void> {
+    this.documentStore.documents$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(docs => {
+        this.baseDocuments = docs ?? [];
+        this.applyFilter();
+      });
+
+    await this.loadDocuments();
 
     // Handle query parameters for status filter
     this.route.queryParams.subscribe(params => {
@@ -108,6 +117,28 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         this.applyFilter();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  async loadDocuments(): Promise<void> {
+    try {
+      this.isLoading = true;
+      this.baseDocuments = await this.documentService.getDocuments();
+      this.documentStore.setInitial(this.baseDocuments);
+      this.applyFilter();
+    } catch (error) {
+      console.error('Error loading documents:', error);
+      this.snackBar.open('Failed to load documents', 'Close', {
+        duration: 5000,
+        panelClass: 'error-snackbar'
+      });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   ngAfterViewInit() {
@@ -129,26 +160,24 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
    */
   getPendingWith(doc: Document): string {
     if (!doc) return '-';
-    if (doc.status === 'Approved' || doc.status === 'Rejected') return '-';
+    if (doc.status === 'approved' || doc.status === 'rejected' || doc.status === 'completed') return '-';
 
-    const reviewedByLower = (doc.reviewedBy || '').toLowerCase();
-
-    // Explicit Pending -> Senior Clerk
-    if (doc.status === 'Pending') {
-      return 'Senior Clerk';
-    }
-
-    // In Review flow
-    if (doc.status === 'In Review') {
-      // If reviewed by Accountant already -> next is HOD
-      if (reviewedByLower.includes('account')) {
+    // Use current_stage to determine who should handle the document
+    const stage = doc.current_stage;
+    switch (stage) {
+      case 'clerk':
+        return 'Clerk';
+      case 'senior_clerk':
+        return 'Senior Clerk';
+      case 'accountant':
+        return 'Accountant';
+      case 'admin':
+        return 'Admin';
+      case 'hod':
         return 'HOD';
-      }
-      // If reviewed by Senior Clerk or reviewer missing -> next is Accountant
-      return 'Accountant';
+      default:
+        return '-';
     }
-
-    return '-';
   }
 
   /**
@@ -187,17 +216,26 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     let filteredData = [...this.baseDocuments];
     
     if (this.selectedStatus !== 'all') {
-      filteredData = filteredData.filter(doc => doc.status === this.selectedStatus);
+      filteredData = filteredData.filter(doc => {
+        // Handle both old and new status formats
+        const docStatus = (doc.status || '').toLowerCase();
+        const selectedStatusLower = this.selectedStatus.toLowerCase();
+        return docStatus === selectedStatusLower;
+      });
     }
     
     if (this.searchText) {
       const searchTextLower = this.searchText.toLowerCase();
-      filteredData = filteredData.filter(doc => 
-        doc.title.toLowerCase().includes(searchTextLower) ||
-        doc.documentType.toLowerCase().includes(searchTextLower) ||
-        doc.uploadedBy.toLowerCase().includes(searchTextLower) ||
-        doc.department.toLowerCase().includes(searchTextLower)
-      );
+      filteredData = filteredData.filter(doc => {
+        const title = (doc.title || '').toLowerCase();
+        const docType = (doc.documentType || '').toLowerCase();
+        const uploadedBy = (doc.uploadedBy || '').toLowerCase();
+        const department = (doc.department || '').toLowerCase();
+        return title.includes(searchTextLower) ||
+               docType.includes(searchTextLower) ||
+               uploadedBy.includes(searchTextLower) ||
+               department.includes(searchTextLower);
+      });
     }
     
     this.filteredDocuments = filteredData;
@@ -212,10 +250,12 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
 
   getStatusClass(status: string): string {
-    switch (status) {
-      case 'Approved': return 'status-approved';
-      case 'Rejected': return 'status-rejected';
-      case 'In Review': return 'status-in-review';
+    const statusLower = (status || '').toLowerCase();
+    switch (statusLower) {
+      case 'approved': return 'status-approved';
+      case 'rejected': return 'status-rejected';
+      case 'completed': return 'status-completed';
+      case 'pending': return 'status-pending';
       default: return 'status-pending';
     }
   }
@@ -273,13 +313,30 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getClassColor(classValue: string): string {
-    switch (classValue?.toUpperCase()) {
-      case 'A': return 'class-a';
-      case 'B': return 'class-b';
-      case 'C': return 'class-c';
-      case 'D': return 'class-d';
+  getClassColor(classValue: string | undefined): string {
+    const normalized = (classValue || '').trim().toLowerCase();
+    switch (normalized) {
+      case 'general': return 'class-general';
+      case 'confidential': return 'class-confidential';
+      case 'urgent': return 'class-urgent';
+      case 'others': return 'class-others';
       default: return 'class-default';
+    }
+  }
+
+  getClassLabel(classValue: string | undefined): string {
+    const normalized = (classValue || '').trim().toLowerCase();
+    switch (normalized) {
+      case 'general':
+        return 'General';
+      case 'confidential':
+        return 'Confidential';
+      case 'urgent':
+        return 'Urgent';
+      case 'others':
+        return 'Others';
+      default:
+        return '-';
     }
   }
 
@@ -310,25 +367,36 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     this.editForm.reset();
   }
 
-  saveDocument(): void {
+  async saveDocument(): Promise<void> {
     if (this.editForm.valid && this.selectedDocument) {
-      const updatedDoc = {
-        ...this.selectedDocument,
-        ...this.editForm.value
-      };
-      this.store.update(updatedDoc);
-      this.snackBar.open('Document updated successfully!', 'Close', { duration: 3000 });
-      this.closeEditForm();
+      try {
+          await this.documentService.updateDocument(String(this.selectedDocument.id), {
+          title: this.editForm.value.title,
+          // Note: type, department, documentType are legacy fields
+          // You may want to store these in a metadata field or separate table
+        });
+        await this.loadDocuments();
+        this.snackBar.open('Document updated successfully!', 'Close', { duration: 3000 });
+        this.closeEditForm();
+      } catch (error) {
+        console.error('Error updating document:', error);
+        this.snackBar.open('Failed to update document', 'Close', { duration: 3000 });
+      }
     }
   }
 
-  deleteDocument(document: Document): void {
+  async deleteDocument(document: Document): Promise<void> {
     const confirmed = window.confirm(`Delete "${document.title}"?`);
     if (!confirmed) return;
     
-    this.store.delete(document.id);
-    this.applyFilter();
-    this.snackBar.open('Document deleted', 'Dismiss', { duration: 2000 });
+    try {
+      await this.documentService.deleteDocument(String(document.id));
+      await this.loadDocuments();
+      this.snackBar.open('Document deleted', 'Dismiss', { duration: 2000 });
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      this.snackBar.open('Failed to delete document', 'Dismiss', { duration: 3000 });
+    }
   }
 
 
@@ -347,12 +415,14 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  isImageFile(type: string): boolean {
+  isImageFile(type?: string): boolean {
+    if (!type) return false;
     const imageTypes = ['JPG', 'JPEG', 'PNG', 'GIF', 'BMP', 'WEBP'];
     return imageTypes.includes(type.toUpperCase());
   }
 
-  isTextFile(type: string): boolean {
+  isTextFile(type?: string): boolean {
+    if (!type) return false;
     const textTypes = ['TXT', 'DOC', 'DOCX'];
     return textTypes.includes(type.toUpperCase());
   }
@@ -373,10 +443,10 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
   }
 
   downloadDocument(document: Document): void {
-     if (document.fileUrl) {
+     if (document.fileUrl || document.file_url) {
        const link = window.document.createElement('a');
-       link.href = document.fileUrl;
-       link.download = document.title;
+       link.href = document.fileUrl || document.file_url || '';
+       link.download = document.title || 'document';
        link.target = '_blank';
        window.document.body.appendChild(link);
        link.click();
@@ -388,43 +458,46 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     return this.auth.hasRole('accountant');
   }
 
-  rejectDocument(document: Document): void {
+  async rejectDocument(document: Document): Promise<void> {
     const confirmReject = window.confirm(`Reject "${document.title}"?`);
     if (!confirmReject) return;
 
-    const updatedDoc: Document = {
-      ...document,
-      status: 'Rejected',
-      rejectedEditCount: 0
-    };
-    this.store.update(updatedDoc);
-    this.applyFilter();
-    this.snackBar.open('Document rejected', 'Dismiss', { duration: 2000 });
+    try {
+      await this.documentService.updateDocument(String(document.id), {
+        status: 'rejected'
+      });
+      await this.loadDocuments();
+      this.snackBar.open('Document rejected', 'Dismiss', { duration: 2000 });
+    } catch (error) {
+      console.error('Error rejecting document:', error);
+      this.snackBar.open('Failed to reject document', 'Dismiss', { duration: 3000 });
+    }
   }
 
   canReupload(document: Document): boolean {
     if (!document) return false;
-    if (document.status !== 'Rejected') return false;
-    return true;
+    const status = (document.status || '').toLowerCase();
+    return status === 'rejected';
   }
 
   navigateToReupload(document: Document): void {
-    if (!document) return;
+    if (!document || !document.id) return;
     this.router.navigate(['/upload'], { queryParams: { id: document.id } });
   }
 
-  sendForApproval(document: Document): void {
+  async sendForApproval(document: Document): Promise<void> {
     if (!document) return;
-    const updatedDoc: Document = {
-      ...document,
-      status: 'Pending',
-      reviewedBy: undefined,
-      reviewedDate: undefined
-    };
-    this.store.update(updatedDoc);
-    this.applyFilter();
-    this.snackBar.open('Sent for approval', 'Dismiss', { duration: 2000 });
-    // Redirect to documents view filtered by Pending
-    this.router.navigate(['/documents'], { queryParams: { status: 'Pending' } });
+    try {
+      await this.documentService.updateDocument(String(document.id), {
+        status: 'pending'
+      });
+      await this.loadDocuments();
+      this.snackBar.open('Sent for approval', 'Dismiss', { duration: 2000 });
+      // Redirect to documents view filtered by pending
+      this.router.navigate(['/documents'], { queryParams: { status: 'pending' } });
+    } catch (error) {
+      console.error('Error sending for approval:', error);
+      this.snackBar.open('Failed to send for approval', 'Dismiss', { duration: 3000 });
+    }
   }
 }

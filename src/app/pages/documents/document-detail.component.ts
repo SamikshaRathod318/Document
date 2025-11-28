@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DocumentService } from '../../core/services/document.service';
-import { Document } from '../../shared/models/document.model';
+import { Document } from '../../features/clerk/models/document.model';
 
 @Component({
   selector: 'app-document-detail',
@@ -29,23 +29,23 @@ import { Document } from '../../shared/models/document.model';
             </div>
             <div class="meta-item">
               <label>Upload Date:</label>
-              <span>{{ document.uploadedAt | date:'short' }}</span>
+              <span>{{ (document.uploadedDate || document.created_at) | date:'short' }}</span>
             </div>
             <div class="meta-item">
               <label>Status:</label>
-              <span class="status" [class]="document.status.toLowerCase()">{{ document.status }}</span>
+              <span class="status" [class]="(document.status || '').toLowerCase()">{{ document.status || 'pending' }}</span>
             </div>
             <div class="meta-item" *ngIf="document.description">
               <label>Description:</label>
               <span>{{ document.description }}</span>
             </div>
-            <div class="meta-item">
+            <div class="meta-item" *ngIf="document.type">
               <label>File Type:</label>
-              <span>{{ document.fileType }}</span>
+              <span>{{ document.type }}</span>
             </div>
-            <div class="meta-item">
+            <div class="meta-item" *ngIf="document.size">
               <label>File Size:</label>
-              <span>{{ document.fileSize | number }} bytes</span>
+              <span>{{ document.size | number }} bytes</span>
             </div>
           </div>
         </div>
@@ -227,18 +227,16 @@ export class DocumentDetailComponent implements OnInit {
     }
   }
 
-  private loadDocument(id: string) {
-    this.documentService.getDocument(id).subscribe({
-      next: (document) => {
-        this.document = document;
-        this.loading = false;
-      },
-      error: (error) => {
-        this.error = 'Failed to load document';
-        this.loading = false;
-        console.error('Error loading document:', error);
-      }
-    });
+  private async loadDocument(id: string) {
+    try {
+      const document = await this.documentService.getDocument(id);
+      this.document = document;
+      this.loading = false;
+    } catch (error) {
+      this.error = 'Failed to load document';
+      this.loading = false;
+      console.error('Error loading document:', error);
+    }
   }
   
   goBack() {
@@ -251,17 +249,15 @@ export class DocumentDetailComponent implements OnInit {
     }
   }
 
-  deleteDocument() {
+  async deleteDocument() {
     if (this.document && confirm('Are you sure you want to delete this document?')) {
-      this.documentService.deleteDocument(this.document.id).subscribe({
-        next: () => {
-          this.router.navigate(['/clerk/dashboard']);
-        },
-        error: (error) => {
-          console.error('Error deleting document:', error);
-          alert('Failed to delete document');
-        }
-      });
+      try {
+        await this.documentService.deleteDocument(String(this.document.id));
+        this.router.navigate(['/clerk/dashboard']);
+      } catch (error) {
+        console.error('Error deleting document:', error);
+        alert('Failed to delete document');
+      }
     }
   }
 }

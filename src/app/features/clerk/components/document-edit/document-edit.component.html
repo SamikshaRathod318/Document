@@ -1,0 +1,72 @@
+<div class="document-edit-page">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button" matTooltip="Back to Documents">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Edit Document</h2>
+  </div>
+
+  <div class="document-edit-container" *ngIf="selectedDocument">
+    <form [formGroup]="editForm" (ngSubmit)="saveDocument()">
+      <div class="form-fields-grid">
+        <div class="form-field">
+          <label>Title:</label>
+          <input type="text" formControlName="title" required>
+          <span class="error-message" *ngIf="editForm.get('title')?.invalid && editForm.get('title')?.touched">
+            Title is required
+          </span>
+        </div>
+        <div class="form-field">
+          <label>Type:</label>
+          <input type="text" formControlName="type" readonly>
+        </div>
+        <div class="form-field">
+          <label>Document Type:</label>
+          <input type="text" formControlName="documentType" required>
+          <span class="error-message" *ngIf="editForm.get('documentType')?.invalid && editForm.get('documentType')?.touched">
+            Document Type is required
+          </span>
+        </div>
+        <div class="form-field">
+          <label>Class:</label>
+          <select formControlName="class">
+            <option value="">Select Class</option>
+            <option value="A">Class A - Public</option>
+            <option value="B">Class B - Confidential</option>
+            <option value="C">Class C - Internal</option>
+            <option value="D">Class D - Restricted</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Department:</label>
+          <select formControlName="department" required>
+            <option value="">Select Department</option>
+            <option value="Finance">Finance</option>
+            <option value="HR">HR</option>
+            <option value="Operations">Operations</option>
+            <option value="Legal">Legal</option>
+            <option value="IT">IT</option>
+            <option value="Marketing">Marketing</option>
+          </select>
+          <span class="error-message" *ngIf="editForm.get('department')?.invalid && editForm.get('department')?.touched">
+            Department is required
+          </span>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+        <button type="submit" class="btn-save" [disabled]="!editForm.valid">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="!selectedDocument" class="no-document">
+    <p>Document not found</p>
+    <button mat-raised-button color="primary" (click)="goBack()">Back to Documents</button>
+  </div>
+</div>
+
+
+
+
+

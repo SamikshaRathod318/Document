@@ -46,9 +46,12 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.store.documents$.subscribe(docs => {
-      const queueMap = new Map<number, Document>();
+      const queueMap = new Map<string | number, Document>();
       docs
-        .filter(d => d.status === 'In Review' && (!d.reviewedBy || d.reviewedBy.toLowerCase().includes('senior')))
+        .filter(d => {
+          const status = (d.status || '').toLowerCase();
+          return status === 'pending' && (!d.reviewedBy || d.reviewedBy.toLowerCase().includes('senior'));
+        })
         .forEach(doc => queueMap.set(doc.id, doc));
 
       const uniqueQueue = Array.from(queueMap.values());
@@ -69,18 +72,18 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
   applyFilter(): void {
     const text = this.searchText.trim().toLowerCase();
     this.dataSource.filterPredicate = (data) =>
-      data.title.toLowerCase().includes(text) ||
-      data.uploadedBy.toLowerCase().includes(text);
+      (data.title || '').toLowerCase().includes(text) ||
+      (data.uploadedBy || '').toLowerCase().includes(text);
     this.dataSource.filter = text;
     if (this.paginator) this.paginator.firstPage();
   }
 
-  forwardToHod(id: number): void {
+  forwardToHod(id: string | number): void {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
     this.store.update({
       ...doc,
-      status: 'In Review',
+      status: 'pending',
       reviewedBy: 'Accountant',
       reviewedDate: new Date()
     } as any);
@@ -92,16 +95,16 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
     this.openDocumentInNewTab(doc);
   }
 
-  rejectDocument(id: number): void {
+  rejectDocument(id: string | number): void {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
     this.store.update({
       ...doc,
-      status: 'Rejected',
+      status: 'rejected',
       reviewedBy: 'Accountant',
       reviewedDate: new Date()
     } as any);
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected', focusDoc: doc.id } });
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'rejected', focusDoc: doc.id } });
   }
 
   private openDocumentInNewTab(doc: Document): void {

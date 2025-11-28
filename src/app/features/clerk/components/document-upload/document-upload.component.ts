@@ -18,6 +18,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Document } from '../../models/document.model';
 import { DocumentStoreService } from '../../services/document-store.service';
+import { DocumentService } from '../../../../core/services/document.service';
 
 @Component({
   selector: 'app-document-upload',
@@ -56,10 +57,10 @@ export class DocumentUploadComponent implements OnInit {
 
   // Document classes with colors
   documentClass = [
-    { value: 'a', viewValue: 'A', color: '#4CAF50' },
-    { value: 'b', viewValue: 'B', color: '#F44336' },
-    { value: 'c', viewValue: 'C', color: '#2196F3' },
-    { value: 'd', viewValue: 'D', color: '#9E9E9E' }
+    { value: 'general', viewValue: 'General', color: '#4CAF50' },
+    { value: 'confidential', viewValue: 'Confidential', color: '#F44336' },
+    { value: 'urgent', viewValue: 'Urgent', color: '#FF9800' },
+    { value: 'others', viewValue: 'Others', color: '#9E9E9E' }
   ];
 
   // Departments from environment
@@ -74,6 +75,7 @@ export class DocumentUploadComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private store: DocumentStoreService,
+    private documentService: DocumentService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -81,6 +83,7 @@ export class DocumentUploadComponent implements OnInit {
       title: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', [Validators.maxLength(500)]],
       documentType: ['', Validators.required],
+      department: ['', Validators.required],
       class: ['', Validators.required],
       type: [''],
       effectiveDate: [new Date(), Validators.required],
@@ -107,8 +110,9 @@ export class DocumentUploadComponent implements OnInit {
         title: document.title,
         description: document.description || '',
         documentType: document.documentType,
+        department: document.department || '',
+        class: (document.class || '').toLowerCase(),
         type: document.type || 'UNKNOWN',
-        department: document.department,
         effectiveDate: document.uploadedDate,
         isConfidential: document.isConfidential || false
       });
@@ -230,7 +234,7 @@ export class DocumentUploadComponent implements OnInit {
 
     // In a real app, you would make an HTTP request to upload the file
     // and handle the response accordingly
-    setTimeout(() => {
+    setTimeout(async () => {
       clearInterval(progressInterval);
       this.uploadProgress = 100;
       this.isUploading = false;
@@ -241,89 +245,15 @@ export class DocumentUploadComponent implements OnInit {
       
       const formValue = this.uploadForm.value;
       
-      if (this.isEditMode && this.editingDocumentId) {
-        // Update existing document
-        const existingDoc = this.store.documents.find(doc => doc.id === this.editingDocumentId);
-        if (existingDoc) {
-          // Allow unlimited re-uploads for rejected documents
-
-          const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : existingDoc.uploadedDate;
-
-          const finalizeUpdate = (maybeFileUrl?: string) => {
-            const updatedDoc: Document = {
-              ...existingDoc,
-              title: formValue.title,
-              description: formValue.description || '',
-              department: formValue.department,
-              documentType: formValue.documentType,
-              class: formValue.class,
-              isConfidential: !!formValue.isConfidential,
-              uploadedDate: effectiveDate,
-              ...(this.selectedFile && {
-                type: this.getReadableType(this.selectedFile),
-                size: this.selectedFile.size,
-                fileUrl: maybeFileUrl ?? existingDoc.fileUrl
-              }),
-              // Keep edit count if present but do not enforce any limit
-              ...(existingDoc.status === 'Rejected' && existingDoc.rejectedEditCount !== undefined && {
-                rejectedEditCount: (existingDoc.rejectedEditCount ?? 0) + 1
-              })
-            };
-            try {
-              this.store.update(updatedDoc);
-              this.onSaveSuccess(successMessage);
-            } catch (error) {
-              this.handleStoreError(error);
-            }
-          };
-
-          if (this.selectedFile) {
-            // Convert to base64 and update fileUrl
-            this.convertFileToBase64(this.selectedFile).then(url => finalizeUpdate(url)).catch(err => {
-              console.error('Error converting file:', err);
-              this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
-                duration: 5000,
-                panelClass: 'error-snackbar'
-              });
-            });
-          } else {
-            finalizeUpdate();
-          }
+      try {
+        if (this.isEditMode) {
+          await this.updateExistingDocument(formValue, successMessage);
+        } else {
+          await this.createNewDocument(formValue, successMessage);
         }
-      } else {
-        // Create new document with file URL
-        this.convertFileToBase64(this.selectedFile!).then(fileUrl => {
-          const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : new Date();
-          const currentUserName = 'Current User';
-          const currentUserDept = formValue.department;
-          const newDoc: Document = {
-            id: 0, // will be assigned by store
-            title: formValue.title,
-            description: formValue.description || '',
-            type: this.getReadableType(this.selectedFile),
-            size: this.selectedFile?.size,
-            uploadedDate: effectiveDate,
-            status: 'Pending',
-            uploadedBy: currentUserName,
-            department: currentUserDept,
-            documentType: formValue.documentType,
-            class: formValue.class,
-            isConfidential: !!formValue.isConfidential,
-            fileUrl: fileUrl
-          };
-          try {
-            this.store.add(newDoc);
-            this.onSaveSuccess(successMessage);
-          } catch (error) {
-            this.handleStoreError(error);
-          }
-        }).catch(err => {
-          console.error('Error converting file:', err);
-          this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
-            duration: 5000,
-            panelClass: 'error-snackbar'
-          });
-        });
+      } catch (error) {
+        console.error('Error saving document:', error);
+        this.handleServiceError(error);
       }
     }, 3000);
   }
@@ -404,5 +334,138 @@ export class DocumentUploadComponent implements OnInit {
       reader.onerror = error => reject(error);
       reader.readAsDataURL(file);
     });
+  }
+
+  private handleServiceError(error: unknown): void {
+    console.error('Document service error:', error);
+    this.snackBar.open('Failed to sync the document with the server. Please try again.', 'Close', {
+      duration: 5000,
+      panelClass: 'error-snackbar'
+    });
+  }
+
+  private async createNewDocument(formValue: any, successMessage: string): Promise<void> {
+    if (!this.selectedFile) {
+      throw new Error('No file selected for upload');
+    }
+
+    try {
+      const fileUrl = await this.convertFileToBase64(this.selectedFile);
+      const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : new Date();
+      const currentUserName = 'Current User';
+      const normalizedClass = (formValue.class || '').toString().trim();
+      const payload: Partial<Document> = {
+        title: formValue.title,
+        description: formValue.description || '',
+        status: 'pending',
+        current_stage: 'clerk',
+        department: formValue.department,
+        documentType: formValue.documentType,
+        class: normalizedClass,
+        isConfidential: !!formValue.isConfidential,
+        effectiveDate,
+        file_url: fileUrl,
+        fileUrl: fileUrl
+      };
+
+      const createdDoc = await this.documentService.createDocument(payload);
+      const enrichedDoc: Document = {
+        ...createdDoc,
+        type: this.getReadableType(this.selectedFile),
+        size: this.selectedFile.size,
+        uploadedBy: currentUserName,
+        fileUrl,
+        documentType: formValue.documentType,
+        class: normalizedClass,
+        department: formValue.department,
+        description: formValue.description || '',
+        isConfidential: !!formValue.isConfidential,
+        effectiveDate
+      };
+
+      try {
+        this.store.add(enrichedDoc);
+        this.onSaveSuccess(successMessage);
+      } catch (storageError) {
+        this.handleStoreError(storageError);
+      }
+    } catch (error) {
+      console.error('Error during document creation:', error);
+      if (error instanceof DOMException) {
+        this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
+          duration: 5000,
+          panelClass: 'error-snackbar'
+        });
+      } else {
+        this.handleServiceError(error);
+      }
+    }
+  }
+
+  private async updateExistingDocument(formValue: any, successMessage: string): Promise<void> {
+    if (!this.editingDocumentId) {
+      throw new Error('Missing document ID for edit');
+    }
+
+    const existingDoc = this.store.documents.find(doc => doc.id === this.editingDocumentId);
+    if (!existingDoc) {
+      throw new Error('Document not found for editing');
+    }
+
+    const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : existingDoc.uploadedDate;
+    let fileUrl: string | undefined;
+
+    if (this.selectedFile) {
+      try {
+        fileUrl = await this.convertFileToBase64(this.selectedFile);
+      } catch (error) {
+        console.error('Error converting file:', error);
+        this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
+          duration: 5000,
+          panelClass: 'error-snackbar'
+        });
+        return;
+      }
+    }
+
+    const normalizedClass = (formValue.class || existingDoc.class || '').toString().trim();
+    const payload: Partial<Document> = {
+      title: formValue.title,
+      description: formValue.description || '',
+      department: formValue.department ?? existingDoc.department,
+      documentType: formValue.documentType,
+      class: normalizedClass,
+      isConfidential: !!formValue.isConfidential,
+      effectiveDate,
+      ...(fileUrl && { file_url: fileUrl })
+    };
+
+    try {
+      const updatedDoc = await this.documentService.updateDocument(String(this.editingDocumentId), payload);
+      const enrichedDoc: Document = {
+        ...existingDoc,
+        ...updatedDoc,
+        documentType: formValue.documentType,
+        class: normalizedClass,
+        department: formValue.department ?? existingDoc.department,
+        description: formValue.description || '',
+        isConfidential: !!formValue.isConfidential,
+        effectiveDate,
+        ...(this.selectedFile && {
+          type: this.getReadableType(this.selectedFile),
+          size: this.selectedFile.size,
+          fileUrl
+        })
+      };
+
+      try {
+        this.store.update(enrichedDoc);
+        this.onSaveSuccess(successMessage);
+      } catch (storageError) {
+        this.handleStoreError(storageError);
+      }
+    } catch (error) {
+      this.handleServiceError(error);
+    }
   }
 }

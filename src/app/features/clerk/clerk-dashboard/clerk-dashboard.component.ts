@@ -43,6 +43,7 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
   totalDocuments = 0;
   approvedDocuments = 0;
   pendingDocuments = 0;
+  rejectedDocuments = 0;
   private userSubscription: Subscription | undefined;
   private routerEventsSubscription: Subscription;
   private documentsSubscription: Subscription | undefined;
@@ -84,9 +85,13 @@ export class ClerkDashboardComponent implements OnInit, OnDestroy {
     });
 
     this.documentsSubscription = this.documentStore.documents$.subscribe(docs => {
-      this.totalDocuments = docs.length;
-      this.approvedDocuments = docs.filter(doc => doc.status === 'Approved').length;
-      this.pendingDocuments = docs.filter(doc => doc.status === 'Pending').length;
+      const totalDocs = docs || [];
+      const normalize = (status?: string) => (status || '').toLowerCase();
+
+      this.totalDocuments = totalDocs.length;
+      this.approvedDocuments = totalDocs.filter(doc => normalize(doc.status) === 'approved').length;
+      this.pendingDocuments = totalDocs.filter(doc => normalize(doc.status) === 'pending').length;
+      this.rejectedDocuments = totalDocs.filter(doc => normalize(doc.status) === 'rejected').length;
     });
   }
 

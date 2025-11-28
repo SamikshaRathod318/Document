@@ -47,17 +47,29 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.store.documents$.subscribe(docs => {
-      const queueMap = new Map<number, Document>();
+      const queueMap = new Map<string | number, Document>();
       docs
-        .filter(d => d.status === 'Pending')
+        .filter(d => {
+          const status = (d.status || '').toLowerCase();
+          return status === 'pending' && !d.needsClerkApproval;
+        })
         .forEach(doc => queueMap.set(doc.id, doc));
       const uniqueQueue = Array.from(queueMap.values());
       this.dataSource.data = uniqueQueue;
 
-      // Stats
-      this.totalPending = docs.filter(d => d.status === 'Pending').length;
-      this.totalApproved = docs.filter(d => d.status === 'Approved').length;
-      this.totalInReview = docs.filter(d => d.status === 'In Review').length;
+      // Stats - exclude documents needing clerk approval from pending count
+      this.totalPending = docs.filter(d => {
+        const status = (d.status || '').toLowerCase();
+        return status === 'pending' && !d.needsClerkApproval;
+      }).length;
+      this.totalApproved = docs.filter(d => {
+        const status = (d.status || '').toLowerCase();
+        return status === 'approved';
+      }).length;
+      this.totalInReview = docs.filter(d => {
+        const status = (d.status || '').toLowerCase();
+        return status === 'pending';
+      }).length;
     });
   }
 
@@ -72,17 +84,17 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
   applyFilter(): void {
     const text = this.searchText.trim().toLowerCase();
     this.dataSource.filterPredicate = (data) =>
-      data.title.toLowerCase().includes(text) ||
-      data.uploadedBy.toLowerCase().includes(text);
+      (data.title || '').toLowerCase().includes(text) ||
+      (data.uploadedBy || '').toLowerCase().includes(text);
     this.dataSource.filter = text;
   }
 
-  verifyAndForward(id: number): void {
+  verifyAndForward(id: string | number): void {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
     this.store.update({
       ...doc,
-      status: 'In Review',
+      status: 'pending',
       reviewedBy: 'Senior Clerk',
       reviewedDate: new Date()
     } as any);
@@ -95,16 +107,16 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
     this.openDocumentInNewTab(doc);
   }
 
-  rejectDocument(id: number): void {
+  rejectDocument(id: string | number): void {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
     this.store.update({
       ...doc,
-      status: 'Rejected',
+      status: 'rejected',
       reviewedBy: 'Senior Clerk',
       reviewedDate: new Date()
     } as any);
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'Rejected', focusDoc: doc.id } });
+    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'rejected', focusDoc: doc.id } });
   }
 
   private openDocumentInNewTab(doc: Document): void {

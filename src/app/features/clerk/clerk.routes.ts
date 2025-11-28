@@ -27,6 +27,18 @@ export const CLERK_ROUTES: Routes = [
     data: { title: 'Upload Document' }
   },
   {
+    path: 'document/:id',
+    loadComponent: () => import('./components/document-view/document-view.component')
+      .then(m => m.DocumentViewComponent),
+    data: { title: 'View Document' }
+  },
+  {
+    path: 'document/:id/edit',
+    loadComponent: () => import('./components/document-edit/document-edit.component')
+      .then(m => m.DocumentEditComponent),
+    data: { title: 'Edit Document' }
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full'

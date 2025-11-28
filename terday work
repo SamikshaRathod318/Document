@@ -1,0 +1,43 @@
+[33m004575b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix(auth-service): updated authentication service logic
+[33m7daeb25[m feat(ui): updated document list and dashboard UIs for accountant, clerk, senior clerk, and HOD
+[33ma9268b6[m feat(document): added Reject and Send for Approval functionality with updates in services, models, and components
+[33mbf73145[m Updated routing, navbar, role guard, auth/database/user services, clerk document list, and login/signup functionality
+[33mb9f9bc8[m i have added some changes in my dashboard
+[33mc117bf8[m updated some chnages in my dashboard page
+[33m0ccf256[m change pending icon button
+[33mecd011a[m Update navbar, contact page, and dashboard with new logo
+[33m8bd62eb[m Update document list: added pending button in action column
+[33m9580bb2[m Create HOD dashboard and add new functionality to HOD and document list pages
+[33m05a04a5[m Create accountant dashboard and add new functionality to senior clerk dashboard
+[33me5f6c43[m add pending functionality in my document list
+[33m690be4d[m  i have updated my admin dashboard page nad also updated my profile page
+[33m300afa2[m i have updated my profile page
+[33m061fa95[m Create signup functionality and update admin dashboard with new features
+[33md15bcd5[m i have create a sign up page and also add changes in my backned and frontend
+[33m451de3d[m added profile page functionality with backend integration and user-role tables
+[33mbc146c4[m i have change and add some functionality in my dashboard page
+[33m32f8a11[m I have add functionality show uploaded documents in documents list in view function
+[33m854c288[m add some fetures in my landing page
+[33m0a2891f[m Change utility and navbar background colour
+[33m6480e61[m Updated some changes in my landing page
+[33m5eb8d63[m Add some changes in my landing page also change in my case studies
+[33m1c481af[m I want to change in my navbar logo
+[33m7ad985a[m i ahve changes some issues
+[33m7477fa8[m Updated all pages and added multi-language support
+[33mb6dd0ac[m Added table column for document class and updated document class color styling
+[33m5497456[m I have added some changes in my document-list and upload document page
+[33m538bd17[m Few changes in my Documnet-list
+[33m113a9e6[m Updated my login page
+[33m52f0edc[m Added view and edit functionality for form display
+[33mc5399db[m change navbar menu dropdown
+[33m23d378c[m Change Login page
+[33mf28d71d[m feat(ui): add utility bar, content section, and menu bar with new features
+[33m5bf32d8[m create forgot password ui and also changes code authenticate
+[33mfa49083[m Merge pull request #2 from SamikshaRathod318/main
+[33m4508772[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m added about some info and fetures
+[33mb42aaae[m Merge pull request #1 from SamikshaRathod318/main
+[33m7870852[m added files
+[33mc09d1c2[m Doc Mnager project
+[33mc869171[m Documane Management system
+[33m82f2937[m initial commit
+[33mcfd5222[m Initial commit

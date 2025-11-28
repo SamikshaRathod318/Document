@@ -51,6 +51,10 @@
           <h3>Approved</h3>
           <p>{{ approvedDocuments }}</p>
         </div>
+        <div class="card" (click)="navigateToDocuments('Rejected')">
+          <h3>Rejected</h3>
+          <p>{{ rejectedDocuments }}</p>
+        </div>
       </div>
 
     </div>

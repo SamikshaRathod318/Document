@@ -48,15 +48,21 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.store.documents$.subscribe(docs => {
-      const queue = docs.filter(doc =>
-        doc.status === 'In Review' &&
-        (doc.reviewedBy?.toLowerCase().includes('account'))
-      );
+      const queue = docs.filter(doc => {
+        const status = (doc.status || '').toLowerCase();
+        return status === 'pending' && (doc.reviewedBy?.toLowerCase().includes('account'));
+      });
       this.dataSource.data = queue;
 
       this.totalInQueue = queue.length;
-      this.totalApproved = docs.filter(doc => doc.status === 'Approved').length;
-      this.totalRejected = docs.filter(doc => doc.status === 'Rejected').length;
+      this.totalApproved = docs.filter(doc => {
+        const status = (doc.status || '').toLowerCase();
+        return status === 'approved';
+      }).length;
+      this.totalRejected = docs.filter(doc => {
+        const status = (doc.status || '').toLowerCase();
+        return status === 'rejected';
+      }).length;
     });
   }
 
@@ -72,35 +78,35 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
   applyFilter(): void {
     const text = this.searchText.trim().toLowerCase();
     this.dataSource.filterPredicate = (data) =>
-      data.title.toLowerCase().includes(text) ||
-      data.uploadedBy.toLowerCase().includes(text);
+      (data.title || '').toLowerCase().includes(text) ||
+      (data.uploadedBy || '').toLowerCase().includes(text);
     this.dataSource.filter = text;
     if (this.paginator) this.paginator.firstPage();
   }
 
-  approveDocument(id: number): void {
+  approveDocument(id: string | number): void {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
     this.store.update({
       ...doc,
-      status: 'Approved',
+      status: 'approved',
       reviewedBy: 'HOD',
       reviewedDate: new Date()
     } as any);
-    this.router.navigate(['/documents'], { queryParams: { status: 'Approved', focusDoc: id } });
+    this.router.navigate(['/documents'], { queryParams: { status: 'approved', focusDoc: id } });
   }
 
-  rejectDocument(id: number): void {
+  rejectDocument(id: string | number): void {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
     this.store.update({
       ...doc,
-      status: 'Rejected',
+      status: 'rejected',
       reviewedBy: 'HOD',
       reviewedDate: new Date(),
       rejectedEditCount: 0
     } as any);
-    this.router.navigate(['/documents'], { queryParams: { status: 'Rejected', focusDoc: id } });
+    this.router.navigate(['/documents'], { queryParams: { status: 'rejected', focusDoc: id } });
   }
 
   viewDocument(doc: Document): void {

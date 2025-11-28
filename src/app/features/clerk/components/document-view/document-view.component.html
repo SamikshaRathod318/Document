@@ -1,0 +1,101 @@
+<div class="document-view-page">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button" matTooltip="Back to Documents">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Document Details</h2>
+  </div>
+
+  <div class="document-view-container" *ngIf="selectedDocument">
+    <div class="document-info-section">
+      <div class="form-field title-field">
+        <div class="field-header">
+          <label>Title:</label>
+        </div>
+        <input type="text" [value]="selectedDocument.title" readonly>
+      </div>
+      <div class="form-field">
+        <label>Type:</label>
+        <input type="text" [value]="selectedDocument.type" readonly>
+      </div>
+      <div class="form-field">
+        <label>Document Type:</label>
+        <input type="text" [value]="selectedDocument.documentType" readonly>
+      </div>
+      <div class="form-field">
+        <label>Class:</label>
+        <span class="class-text">{{ getClassLetter(selectedDocument.class) || '-' }}</span>
+      </div>
+      <div class="form-field">
+        <label>Uploaded Date:</label>
+        <input type="text" [value]="selectedDocument.uploadedDate | date:'MMM d, y'" readonly>
+      </div>
+      <div class="form-field">
+        <label>Status:</label>
+        <span class="status-text">{{ getStatusDisplay(selectedDocument) }}</span>
+      </div>
+      <div class="form-field">
+        <label>Uploaded By:</label>
+        <input type="text" [value]="selectedDocument.uploadedBy" readonly>
+      </div>
+      <div class="form-field">
+        <label>Department:</label>
+        <input type="text" [value]="selectedDocument.department" readonly>
+      </div>
+      <div class="form-field" *ngIf="selectedDocument.description">
+        <label>Description:</label>
+        <textarea [value]="selectedDocument.description" readonly rows="3"></textarea>
+      </div>
+    </div>
+    
+    <!-- Document Preview Section -->
+    <div class="document-preview-section">
+      <h4>Document Preview</h4>
+      <div class="document-viewer">
+        <!-- PDF Viewer -->
+        <div *ngIf="selectedDocument.type === 'PDF' && selectedDocument.fileUrl" class="pdf-viewer">
+          <iframe [src]="getSafeUrl(selectedDocument.fileUrl)" width="100%" height="500px" frameborder="0">
+            Your browser does not support PDF viewing. 
+            <a [href]="selectedDocument.fileUrl" target="_blank">Download PDF</a>
+          </iframe>
+        </div>
+        
+        <!-- Image Viewer -->
+        <div *ngIf="isImageFile(selectedDocument.type) && selectedDocument.fileUrl" class="image-viewer">
+          <img [src]="selectedDocument.fileUrl" [alt]="selectedDocument.title" class="document-image">
+        </div>
+        
+        <!-- Text/Document Viewer -->
+        <div *ngIf="isTextFile(selectedDocument.type) && selectedDocument.fileUrl" class="text-viewer">
+          <iframe [src]="getSafeUrl(selectedDocument.fileUrl)" width="100%" height="400px" frameborder="0">
+            <a [href]="selectedDocument.fileUrl" target="_blank">View Document</a>
+          </iframe>
+        </div>
+        
+        <!-- Download Option for Other Files -->
+        <div class="download-section">
+          <div class="file-icon-large">
+            <mat-icon class="large-icon">
+              {{ getTypeIcon(selectedDocument) }}
+            </mat-icon>
+          </div>
+          <div class="file-details">
+            <p class="file-title">{{ selectedDocument.title }}</p>
+            <p class="file-info">{{ selectedDocument.type }} • {{ getFileSize(selectedDocument.size) }}</p>
+            <p *ngIf="!selectedDocument.fileUrl" class="no-file-message">No file available for preview</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!selectedDocument" class="no-document">
+    <p>Document not found</p>
+    <button mat-raised-button color="primary" (click)="goBack()">Back to Documents</button>
+  </div>
+</div>
+
+
+
+
+
