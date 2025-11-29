@@ -260,6 +260,23 @@ export class DocumentListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  getStatusLabel(status: string | undefined | null): string {
+    if (!status) {
+      return 'Pending';
+    }
+
+    const normalized = status.toString().trim().toLowerCase();
+    const labelMap: Record<string, string> = {
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      completed: 'Completed',
+      'in review': 'In Review'
+    };
+
+    return labelMap[normalized] || status;
+  }
+
   getDisplayType(doc: Document): string {
     if (doc.type && doc.type !== 'UNKNOWN' && doc.type !== 'OTHER') {
       return doc.type;
@@ -314,30 +331,45 @@ export class DocumentListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getClassColor(classValue: string | undefined): string {
-    const normalized = (classValue || '').trim().toLowerCase();
+    const normalized = (classValue || '').trim().toUpperCase();
     switch (normalized) {
-      case 'general': return 'class-general';
-      case 'confidential': return 'class-confidential';
-      case 'urgent': return 'class-urgent';
-      case 'others': return 'class-others';
-      default: return 'class-default';
+      case 'A':
+      case 'CONFIDENTIAL':
+        return 'class-A';
+      case 'B':
+      case 'GENERAL':
+        return 'class-B';
+      case 'C':
+      case 'URGENT':
+        return 'class-C';
+      case 'D':
+      case 'OTHERS':
+      case 'OTHER':
+        return 'class-D';
+      default:
+        return 'class-default';
     }
   }
 
   getClassLabel(classValue: string | undefined): string {
-    const normalized = (classValue || '').trim().toLowerCase();
-    switch (normalized) {
-      case 'general':
-        return 'General';
-      case 'confidential':
-        return 'Confidential';
-      case 'urgent':
-        return 'Urgent';
-      case 'others':
-        return 'Others';
-      default:
-        return '-';
+    if (!classValue) {
+      return 'N/A';
     }
+
+    const normalized = classValue.trim().toUpperCase();
+    const labelMap: Record<string, string> = {
+      A: 'A',
+      B: 'B',
+      C: 'C',
+      D: 'D',
+      CONFIDENTIAL: 'A',
+      GENERAL: 'B',
+      URGENT: 'C',
+      OTHERS: 'D',
+      OTHER: 'D'
+    };
+
+    return labelMap[normalized] || normalized;
   }
 
   viewDocument(document: Document): void {
@@ -499,5 +531,13 @@ export class DocumentListComponent implements OnInit, AfterViewInit, OnDestroy {
       console.error('Error sending for approval:', error);
       this.snackBar.open('Failed to send for approval', 'Dismiss', { duration: 3000 });
     }
+  }
+
+  hasStatus(doc: Document | null | undefined, ...statuses: Array<Document['status'] | string>): boolean {
+    if (!doc?.status || statuses.length === 0) {
+      return false;
+    }
+    const docStatus = doc.status.toString().toLowerCase();
+    return statuses.some(status => status?.toString().toLowerCase() === docStatus);
   }
 }

@@ -13,21 +13,13 @@
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Document Type *</mat-label>
-        <input matInput formControlName="documentType" placeholder="Enter document type">
-        <mat-error *ngIf="uploadForm.get('documentType')?.hasError('required')">
-          Document type is required
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="form-field">
-        <mat-label>Department *</mat-label>
-        <mat-select formControlName="department">
-          <mat-option *ngFor="let department of departments" [value]="department">
-            {{ department }}
+        <mat-select formControlName="documentType">
+          <mat-option *ngFor="let option of documentTypeOptions" [value]="option.value">
+            {{ option.label }}
           </mat-option>
         </mat-select>
-        <mat-error *ngIf="uploadForm.get('department')?.hasError('required')">
-          Department is required
+        <mat-error *ngIf="uploadForm.get('documentType')?.hasError('required')">
+          Document type is required
         </mat-error>
       </mat-form-field>
     </div>

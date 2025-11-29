@@ -11,8 +11,6 @@ export class DocumentService {
   private metadataSupportChecked = false;
   private metadataSupportCheckPromise: Promise<void> | null = null;
   private readonly metadataColumnKeys = [
-    'document_type',
-    'class',
     'department',
     'description',
     'is_confidential',
@@ -306,6 +304,9 @@ export class DocumentService {
   }
 
   private buildInsertPayload(document: Partial<Document>, includeMetadata: boolean): Record<string, any> {
+    const normalizedDocumentType = this.normalizeDocumentTypeValue(document.documentType, document.type);
+    const normalizedClass = this.normalizeClassValue(document.class);
+
     const payload: Record<string, any> = {
       file_url: document.file_url || document.fileUrl || '',
       title: document.title || '',
@@ -314,12 +315,12 @@ export class DocumentService {
       // created_by: document.created_by,
       current_stage: document.current_stage || 'clerk',
       status: document.status || 'pending',
-      assigned_to: document.assigned_to || null
+      assigned_to: document.assigned_to || null,
+      document_type: normalizedDocumentType,
+      class: normalizedClass
     };
 
     if (includeMetadata) {
-      payload['document_type'] = document.documentType ?? null;
-      payload['class'] = document.class ?? null;
       payload['department'] = document.department ?? null;
       payload['description'] = document.description ?? null;
       payload['is_confidential'] = document.isConfidential ?? false;
@@ -339,9 +340,14 @@ export class DocumentService {
     if (updates.status !== undefined) payload['status'] = updates.status;
     if (updates.assigned_to !== undefined) payload['assigned_to'] = updates.assigned_to;
 
+    if (updates.documentType !== undefined || updates.type !== undefined) {
+      payload['document_type'] = this.normalizeDocumentTypeValue(updates.documentType, updates.type);
+    }
+    if (updates.class !== undefined) {
+      payload['class'] = this.normalizeClassValue(updates.class);
+    }
+
     if (includeMetadata) {
-      if (updates.documentType !== undefined) payload['document_type'] = updates.documentType;
-      if (updates.class !== undefined) payload['class'] = updates.class;
       if (updates.department !== undefined) payload['department'] = updates.department;
       if (updates.description !== undefined) payload['description'] = updates.description;
       if (updates.isConfidential !== undefined) payload['is_confidential'] = updates.isConfidential;
@@ -382,15 +388,19 @@ export class DocumentService {
           .rpc('fn_documents_metadata_supported');
 
         if (error) {
-          console.warn('[DocumentService] Metadata support probe failed:', error);
+          this.handleMetadataProbeFailure(error);
           return;
         }
 
         if (typeof data === 'boolean') {
           this.setMetadataSupportState(data);
+        } else {
+          // Unknown response shape, assume whatever our current default is but
+          // avoid probing again.
+          this.metadataSupportChecked = true;
         }
       } catch (probeError) {
-        console.warn('[DocumentService] Metadata support probe threw:', probeError);
+        this.handleMetadataProbeFailure(probeError);
       } finally {
         this.metadataSupportCheckPromise = null;
       }
@@ -402,5 +412,65 @@ export class DocumentService {
   private setMetadataSupportState(isSupported: boolean): void {
     this.metadataColumnsAvailable = isSupported;
     this.metadataSupportChecked = true;
+  }
+
+  private handleMetadataProbeFailure(error: any): void {
+    console.warn('[DocumentService] Metadata support probe failed:', error);
+    if (this.isMetadataProbeFunctionMissing(error)) {
+      // Assume metadata columns exist (default true) but skip future RPC calls
+      // to avoid spamming the API when the helper function has not been deployed yet.
+      this.metadataSupportChecked = true;
+    }
+  }
+
+  private isMetadataProbeFunctionMissing(error: { code?: string; message?: string } | null): boolean {
+    if (!error) {
+      return false;
+    }
+    if (error.code === 'PGRST202') {
+      return true;
+    }
+    const message = (error.message || '').toLowerCase();
+    if (!message) {
+      return false;
+    }
+    return message.includes('fn_documents_metadata_supported') && message.includes('function');
+  }
+
+  private normalizeClassValue(rawClass: string | null | undefined): string | null {
+    if (!rawClass) {
+      return 'general';
+    }
+    const normalized = rawClass.toString().trim().toLowerCase();
+    const map: Record<string, string> = {
+      a: 'confidential',
+      confidential: 'confidential',
+      b: 'general',
+      general: 'general',
+      c: 'urgent',
+      urgent: 'urgent'
+    };
+    return map[normalized] || 'general';
+  }
+
+  private normalizeDocumentTypeValue(
+    preferred: string | null | undefined,
+    fallback?: string | null
+  ): string | null {
+    const value = preferred ?? fallback ?? '';
+    if (!value) {
+      return 'others';
+    }
+    const normalized = value.toString().trim().toLowerCase();
+    if (['pdf', 'image', 'excel', 'word', 'others'].includes(normalized)) {
+      return normalized;
+    }
+    if (normalized.includes('pdf')) return 'pdf';
+    if (normalized.includes('xls') || normalized.includes('sheet')) return 'excel';
+    if (normalized.includes('doc')) return 'word';
+    if (normalized.startsWith('image') || normalized.includes('png') || normalized.includes('jpg') || normalized.includes('jpeg')) {
+      return 'image';
+    }
+    return 'others';
   }
 }

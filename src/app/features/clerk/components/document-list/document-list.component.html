@@ -81,6 +81,7 @@
           </span>
         </td>
       </ng-container>
+      
 
       <!-- Uploaded Date Column -->
       <ng-container matColumnDef="uploadedDate">
@@ -93,7 +94,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
         <td mat-cell *matCellDef="let element">
           <span class="status-badge" [ngClass]="getStatusClass(element.status)">
-            {{element.status}}
+            {{ getStatusLabel(element.status) }}
           </span>
         </td>
       </ng-container>
@@ -114,7 +115,7 @@
             <button mat-icon-button color="primary" (click)="viewDocument(element)" matTooltip="View">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit" *ngIf="element.status !== 'Pending' && element.status !== 'Approved'">
+            <button mat-icon-button color="accent" (click)="editDocument(element)" matTooltip="Edit" *ngIf="!hasStatus(element, 'pending', 'approved')">
               <mat-icon>edit</mat-icon>
             </button>
             <!-- Re-upload allowed when Rejected -->
@@ -126,7 +127,7 @@
             </button>
             <!-- Send for Approval visible when Rejected -->
             <button mat-icon-button color="primary"
-                    *ngIf="element.status === 'Rejected'"
+                    *ngIf="hasStatus(element, 'rejected')"
                     (click)="sendForApproval(element)"
                     matTooltip="Send for Approval">
               <mat-icon>send</mat-icon>
@@ -134,10 +135,10 @@
             <button mat-icon-button
               color="primary"
               (click)="navigateToPendingOwner(element)"
-              matTooltip="Pending with {{ getPendingWith(element) }}" *ngIf="element.status === 'Pending'">
+              matTooltip="Pending with {{ getPendingWith(element) }}" *ngIf="hasStatus(element, 'pending')">
               <mat-icon>hourglass_empty</mat-icon>
             </button>
-            <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document" *ngIf="element.status !== 'Rejected' && element.status !== 'Pending' && element.status !== 'Approved'">
+            <button mat-icon-button color="primary" (click)="navigateToUpload()" matTooltip="Upload Document" *ngIf="!hasStatus(element, 'rejected', 'pending', 'approved')">
               <mat-icon>cloud_upload</mat-icon>
             </button>
             <button mat-icon-button color="warn" (click)="deleteDocument(element)" matTooltip="Delete">

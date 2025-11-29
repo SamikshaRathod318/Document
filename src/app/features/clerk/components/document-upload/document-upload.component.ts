@@ -53,14 +53,21 @@ export class DocumentUploadComponent implements OnInit {
   uploadProgress = 0;
   isDragging = false;
   isEditMode = false;
-  editingDocumentId: number | null = null;
+  editingDocumentId: string | number | null = null;
 
-  // Document classes with colors
+  // Document classes with colors (matches database constraint values)
   documentClass = [
-    { value: 'general', viewValue: 'General', color: '#4CAF50' },
-    { value: 'confidential', viewValue: 'Confidential', color: '#F44336' },
-    { value: 'urgent', viewValue: 'Urgent', color: '#FF9800' },
-    { value: 'others', viewValue: 'Others', color: '#9E9E9E' }
+    { value: 'confidential', viewValue: 'Class A - Confidential', color: '#4CAF50' },
+    { value: 'general', viewValue: 'Class B - General', color: '#F44336' },
+    { value: 'urgent', viewValue: 'Class C - Urgent', color: '#2196F3' }
+  ];
+
+  documentTypeOptions = [
+    { value: 'pdf', label: 'PDF' },
+    { value: 'image', label: 'Image' },
+    { value: 'excel', label: 'Excel / Spreadsheet' },
+    { value: 'word', label: 'Word Document' },
+    { value: 'others', label: 'Others' }
   ];
 
   // Departments from environment
@@ -75,15 +82,14 @@ export class DocumentUploadComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private store: DocumentStoreService,
-    private documentService: DocumentService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private documentService: DocumentService
   ) {
     this.uploadForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', [Validators.maxLength(500)]],
       documentType: ['', Validators.required],
-      department: ['', Validators.required],
       class: ['', Validators.required],
       type: [''],
       effectiveDate: [new Date(), Validators.required],
@@ -95,26 +101,27 @@ export class DocumentUploadComponent implements OnInit {
   ngOnInit(): void {
     // Check if we're in edit mode
     this.route.queryParams.subscribe(params => {
-      if (params['id']) {
+      const docId = params['id'];
+      if (docId) {
         this.isEditMode = true;
-        this.editingDocumentId = +params['id'];
-        this.loadDocumentForEdit(this.editingDocumentId);
+        this.editingDocumentId = docId;
+        this.loadDocumentForEdit(docId);
       }
     });
   }
 
-  private loadDocumentForEdit(id: number): void {
+  private loadDocumentForEdit(id: string | number): void {
     const document = this.store.documents.find(doc => doc.id === id);
     if (document) {
       this.uploadForm.patchValue({
         title: document.title,
         description: document.description || '',
-        documentType: document.documentType,
-        department: document.department || '',
-        class: (document.class || '').toLowerCase(),
+        documentType: this.normalizeDocumentType(document.documentType, document.type),
         type: document.type || 'UNKNOWN',
+        department: document.department,
         effectiveDate: document.uploadedDate,
-        isConfidential: document.isConfidential || false
+        isConfidential: document.isConfidential || false,
+        class: this.normalizeClass(document.class)
       });
       // Make file field not required for edit mode
       this.uploadForm.get('file')?.clearValidators();
@@ -196,11 +203,20 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   loadDocumentsByClass(classValue: string): void {
-    const documents = this.store.documents.filter(doc => doc.class?.toLowerCase() === classValue.toLowerCase());
+    const normalizedSelection = this.normalizeClass(classValue)?.toLowerCase();
+    if (!normalizedSelection) {
+      this.filteredDocuments.data = this.store.documents;
+      return;
+    }
+
+    const documents = this.store.documents.filter(doc => {
+      const docClass = this.normalizeClass(doc.class)?.toLowerCase();
+      return docClass === normalizedSelection;
+    });
     this.filteredDocuments.data = documents;
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     console.log('Upload submit triggered', {
       status: this.uploadForm.status,
       value: this.uploadForm.value,
@@ -222,40 +238,65 @@ export class DocumentUploadComponent implements OnInit {
     }
 
     this.isUploading = true;
-    this.uploadProgress = 0;
+    this.uploadProgress = 10;
 
-    // Simulate file upload progress
-    const progressInterval = setInterval(() => {
-      this.uploadProgress += Math.floor(Math.random() * 10) + 5;
-      if (this.uploadProgress >= 95) {
-        clearInterval(progressInterval);
-      }
-    }, 300);
-
-    // In a real app, you would make an HTTP request to upload the file
-    // and handle the response accordingly
-    setTimeout(async () => {
-      clearInterval(progressInterval);
-      this.uploadProgress = 100;
-      this.isUploading = false;
-      
-      const successMessage = this.isEditMode ? 
-        'Document updated successfully!' : 
-        'Document uploaded successfully!';
-      
+    try {
       const formValue = this.uploadForm.value;
-      
-      try {
-        if (this.isEditMode) {
-          await this.updateExistingDocument(formValue, successMessage);
-        } else {
-          await this.createNewDocument(formValue, successMessage);
-        }
-      } catch (error) {
-        console.error('Error saving document:', error);
-        this.handleServiceError(error);
+      const dataUrl = this.selectedFile ? await this.convertFileToBase64(this.selectedFile) : null;
+      this.uploadProgress = 60;
+
+      const normalizedClass = this.normalizeClass(formValue.class);
+      const fallbackType = this.selectedFile ? this.getReadableType(this.selectedFile) : formValue.type;
+      const normalizedDocType = this.normalizeDocumentType(formValue.documentType, fallbackType);
+      const basePayload: Partial<Document> = {
+        title: formValue.title?.trim(),
+              description: formValue.description || '',
+        documentType: normalizedDocType,
+        class: normalizedClass,
+              isConfidential: !!formValue.isConfidential,
+        effectiveDate: formValue.effectiveDate,
+        department: formValue.department
+      };
+
+      if (fallbackType) {
+        basePayload.type = fallbackType;
       }
-    }, 3000);
+
+      if (dataUrl) {
+        basePayload.file_url = dataUrl;
+        basePayload.fileUrl = dataUrl;
+        basePayload.type = this.getReadableType(this.selectedFile);
+        basePayload.size = this.selectedFile?.size;
+      }
+
+      let savedDoc: Document | null = null;
+      if (this.isEditMode && this.editingDocumentId) {
+        savedDoc = await this.documentService.updateDocument(String(this.editingDocumentId), basePayload);
+        this.store.update(savedDoc);
+      } else {
+        const createPayload: Partial<Document> = {
+          ...basePayload,
+          status: 'pending',
+          current_stage: 'clerk'
+        };
+        savedDoc = await this.documentService.createDocument(createPayload);
+        this.store.add(savedDoc);
+      }
+
+      this.uploadProgress = 100;
+      const successMessage = this.isEditMode
+        ? 'Document updated successfully!'
+        : 'Document uploaded successfully!';
+            this.onSaveSuccess(successMessage);
+          } catch (error) {
+      console.error('Error saving document:', error);
+      this.snackBar.open('Failed to save the document. Please try again.', 'Close', {
+            duration: 5000,
+            panelClass: 'error-snackbar'
+          });
+    } finally {
+      this.isUploading = false;
+      }
   }
 
   // Helper method to get file icon based on file type
@@ -313,20 +354,6 @@ export class DocumentUploadComponent implements OnInit {
     this.router.navigate(['/documents'], { queryParams: { status: 'all' } });
   }
 
-  private handleStoreError(error: unknown): void {
-    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-      this.snackBar.open('Storage is full. Please delete older documents before uploading new ones.', 'Close', {
-        duration: 5000,
-        panelClass: 'error-snackbar'
-      });
-    } else {
-      this.snackBar.open('Failed to save the document. Please try again.', 'Close', {
-        duration: 5000,
-        panelClass: 'error-snackbar'
-      });
-    }
-  }
-
   private convertFileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -336,136 +363,35 @@ export class DocumentUploadComponent implements OnInit {
     });
   }
 
-  private handleServiceError(error: unknown): void {
-    console.error('Document service error:', error);
-    this.snackBar.open('Failed to sync the document with the server. Please try again.', 'Close', {
-      duration: 5000,
-      panelClass: 'error-snackbar'
-    });
-  }
-
-  private async createNewDocument(formValue: any, successMessage: string): Promise<void> {
-    if (!this.selectedFile) {
-      throw new Error('No file selected for upload');
-    }
-
-    try {
-      const fileUrl = await this.convertFileToBase64(this.selectedFile);
-      const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : new Date();
-      const currentUserName = 'Current User';
-      const normalizedClass = (formValue.class || '').toString().trim();
-      const payload: Partial<Document> = {
-        title: formValue.title,
-        description: formValue.description || '',
-        status: 'pending',
-        current_stage: 'clerk',
-        department: formValue.department,
-        documentType: formValue.documentType,
-        class: normalizedClass,
-        isConfidential: !!formValue.isConfidential,
-        effectiveDate,
-        file_url: fileUrl,
-        fileUrl: fileUrl
-      };
-
-      const createdDoc = await this.documentService.createDocument(payload);
-      const enrichedDoc: Document = {
-        ...createdDoc,
-        type: this.getReadableType(this.selectedFile),
-        size: this.selectedFile.size,
-        uploadedBy: currentUserName,
-        fileUrl,
-        documentType: formValue.documentType,
-        class: normalizedClass,
-        department: formValue.department,
-        description: formValue.description || '',
-        isConfidential: !!formValue.isConfidential,
-        effectiveDate
-      };
-
-      try {
-        this.store.add(enrichedDoc);
-        this.onSaveSuccess(successMessage);
-      } catch (storageError) {
-        this.handleStoreError(storageError);
-      }
-    } catch (error) {
-      console.error('Error during document creation:', error);
-      if (error instanceof DOMException) {
-        this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
-          duration: 5000,
-          panelClass: 'error-snackbar'
-        });
-      } else {
-        this.handleServiceError(error);
-      }
-    }
-  }
-
-  private async updateExistingDocument(formValue: any, successMessage: string): Promise<void> {
-    if (!this.editingDocumentId) {
-      throw new Error('Missing document ID for edit');
-    }
-
-    const existingDoc = this.store.documents.find(doc => doc.id === this.editingDocumentId);
-    if (!existingDoc) {
-      throw new Error('Document not found for editing');
-    }
-
-    const effectiveDate = formValue.effectiveDate ? new Date(formValue.effectiveDate) : existingDoc.uploadedDate;
-    let fileUrl: string | undefined;
-
-    if (this.selectedFile) {
-      try {
-        fileUrl = await this.convertFileToBase64(this.selectedFile);
-      } catch (error) {
-        console.error('Error converting file:', error);
-        this.snackBar.open('Failed to read the file. Please try again.', 'Close', {
-          duration: 5000,
-          panelClass: 'error-snackbar'
-        });
-        return;
-      }
-    }
-
-    const normalizedClass = (formValue.class || existingDoc.class || '').toString().trim();
-    const payload: Partial<Document> = {
-      title: formValue.title,
-      description: formValue.description || '',
-      department: formValue.department ?? existingDoc.department,
-      documentType: formValue.documentType,
-      class: normalizedClass,
-      isConfidential: !!formValue.isConfidential,
-      effectiveDate,
-      ...(fileUrl && { file_url: fileUrl })
+  private normalizeClass(value: string | undefined | null): string | undefined {
+    if (!value) return undefined;
+    const normalized = value.toString().trim().toLowerCase();
+    const map: Record<string, string> = {
+      a: 'confidential',
+      confidential: 'confidential',
+      b: 'general',
+      general: 'general',
+      c: 'urgent',
+      urgent: 'urgent'
     };
+    return map[normalized] || 'general';
+  }
 
-    try {
-      const updatedDoc = await this.documentService.updateDocument(String(this.editingDocumentId), payload);
-      const enrichedDoc: Document = {
-        ...existingDoc,
-        ...updatedDoc,
-        documentType: formValue.documentType,
-        class: normalizedClass,
-        department: formValue.department ?? existingDoc.department,
-        description: formValue.description || '',
-        isConfidential: !!formValue.isConfidential,
-        effectiveDate,
-        ...(this.selectedFile && {
-          type: this.getReadableType(this.selectedFile),
-          size: this.selectedFile.size,
-          fileUrl
-        })
-      };
-
-      try {
-        this.store.update(enrichedDoc);
-        this.onSaveSuccess(successMessage);
-      } catch (storageError) {
-        this.handleStoreError(storageError);
-      }
-    } catch (error) {
-      this.handleServiceError(error);
+  private normalizeDocumentType(value: string | undefined | null, fallbackType?: string): string {
+    const normalized = value?.toString().trim().toLowerCase();
+    const allowed = new Set(['pdf', 'image', 'excel', 'word', 'others']);
+    if (normalized && allowed.has(normalized)) {
+      return normalized;
     }
+
+    const fallback = (fallbackType || '').toString().toLowerCase();
+    if (fallback.includes('pdf')) return 'pdf';
+    if (fallback.includes('xls') || fallback.includes('sheet')) return 'excel';
+    if (fallback.includes('doc')) return 'word';
+    if (fallback.includes('img') || fallback.includes('png') || fallback.includes('jpg') || fallback.includes('jpeg')) {
+      return 'image';
+    }
+
+    return 'others';
   }
 }
