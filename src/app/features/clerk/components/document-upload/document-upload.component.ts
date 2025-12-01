@@ -55,18 +55,20 @@ export class DocumentUploadComponent implements OnInit {
   isEditMode = false;
   editingDocumentId: string | number | null = null;
 
-  // Document classes with colors (matches database constraint values)
+  // Document classes with colors
   documentClass = [
-    { value: 'confidential', viewValue: 'Class A - Confidential', color: '#4CAF50' },
-    { value: 'general', viewValue: 'Class B - General', color: '#F44336' },
-    { value: 'urgent', viewValue: 'Class C - Urgent', color: '#2196F3' }
+    { value: 'a', viewValue: 'A', color: '#4CAF50' },
+    { value: 'b', viewValue: 'B', color: '#F44336' },
+    { value: 'c', viewValue: 'C', color: '#2196F3' },
+    { value: 'd', viewValue: 'D', color: '#9E9E9E' }
   ];
 
+  // Document type options
   documentTypeOptions = [
     { value: 'pdf', label: 'PDF' },
-    { value: 'image', label: 'Image' },
-    { value: 'excel', label: 'Excel / Spreadsheet' },
     { value: 'word', label: 'Word Document' },
+    { value: 'excel', label: 'Excel Spreadsheet' },
+    { value: 'image', label: 'Image' },
     { value: 'others', label: 'Others' }
   ];
 
@@ -116,12 +118,11 @@ export class DocumentUploadComponent implements OnInit {
       this.uploadForm.patchValue({
         title: document.title,
         description: document.description || '',
-        documentType: this.normalizeDocumentType(document.documentType, document.type),
+        documentType: document.documentType,
         type: document.type || 'UNKNOWN',
         department: document.department,
         effectiveDate: document.uploadedDate,
-        isConfidential: document.isConfidential || false,
-        class: this.normalizeClass(document.class)
+        isConfidential: document.isConfidential || false
       });
       // Make file field not required for edit mode
       this.uploadForm.get('file')?.clearValidators();
@@ -203,16 +204,7 @@ export class DocumentUploadComponent implements OnInit {
   }
 
   loadDocumentsByClass(classValue: string): void {
-    const normalizedSelection = this.normalizeClass(classValue)?.toLowerCase();
-    if (!normalizedSelection) {
-      this.filteredDocuments.data = this.store.documents;
-      return;
-    }
-
-    const documents = this.store.documents.filter(doc => {
-      const docClass = this.normalizeClass(doc.class)?.toLowerCase();
-      return docClass === normalizedSelection;
-    });
+    const documents = this.store.documents.filter(doc => doc.class?.toLowerCase() === classValue.toLowerCase());
     this.filteredDocuments.data = documents;
   }
 
@@ -246,21 +238,15 @@ export class DocumentUploadComponent implements OnInit {
       this.uploadProgress = 60;
 
       const normalizedClass = this.normalizeClass(formValue.class);
-      const fallbackType = this.selectedFile ? this.getReadableType(this.selectedFile) : formValue.type;
-      const normalizedDocType = this.normalizeDocumentType(formValue.documentType, fallbackType);
       const basePayload: Partial<Document> = {
         title: formValue.title?.trim(),
-              description: formValue.description || '',
-        documentType: normalizedDocType,
+        description: formValue.description || '',
+        documentType: formValue.documentType,
         class: normalizedClass,
-              isConfidential: !!formValue.isConfidential,
+        isConfidential: !!formValue.isConfidential,
         effectiveDate: formValue.effectiveDate,
         department: formValue.department
       };
-
-      if (fallbackType) {
-        basePayload.type = fallbackType;
-      }
 
       if (dataUrl) {
         basePayload.file_url = dataUrl;
@@ -287,16 +273,16 @@ export class DocumentUploadComponent implements OnInit {
       const successMessage = this.isEditMode
         ? 'Document updated successfully!'
         : 'Document uploaded successfully!';
-            this.onSaveSuccess(successMessage);
-          } catch (error) {
+      this.onSaveSuccess(successMessage);
+    } catch (error) {
       console.error('Error saving document:', error);
       this.snackBar.open('Failed to save the document. Please try again.', 'Close', {
-            duration: 5000,
-            panelClass: 'error-snackbar'
-          });
+        duration: 5000,
+        panelClass: 'error-snackbar'
+      });
     } finally {
       this.isUploading = false;
-      }
+    }
   }
 
   // Helper method to get file icon based on file type
@@ -363,35 +349,8 @@ export class DocumentUploadComponent implements OnInit {
     });
   }
 
-  private normalizeClass(value: string | undefined | null): string | undefined {
+  private normalizeClass(value: string): string | undefined {
     if (!value) return undefined;
-    const normalized = value.toString().trim().toLowerCase();
-    const map: Record<string, string> = {
-      a: 'confidential',
-      confidential: 'confidential',
-      b: 'general',
-      general: 'general',
-      c: 'urgent',
-      urgent: 'urgent'
-    };
-    return map[normalized] || 'general';
-  }
-
-  private normalizeDocumentType(value: string | undefined | null, fallbackType?: string): string {
-    const normalized = value?.toString().trim().toLowerCase();
-    const allowed = new Set(['pdf', 'image', 'excel', 'word', 'others']);
-    if (normalized && allowed.has(normalized)) {
-      return normalized;
-    }
-
-    const fallback = (fallbackType || '').toString().toLowerCase();
-    if (fallback.includes('pdf')) return 'pdf';
-    if (fallback.includes('xls') || fallback.includes('sheet')) return 'excel';
-    if (fallback.includes('doc')) return 'word';
-    if (fallback.includes('img') || fallback.includes('png') || fallback.includes('jpg') || fallback.includes('jpeg')) {
-      return 'image';
-    }
-
-    return 'others';
+    return value.trim().toUpperCase();
   }
 }

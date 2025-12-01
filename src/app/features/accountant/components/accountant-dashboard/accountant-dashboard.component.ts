@@ -10,8 +10,10 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { Subscription } from 'rxjs';
 import { DocumentStoreService } from '../../../clerk/services/document-store.service';
+import { DocumentService } from '../../../../core/services/document.service';
 import { Router } from '@angular/router';
 import { Document } from '../../../clerk/models/document.model';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-accountant-dashboard',
@@ -25,13 +27,16 @@ import { Document } from '../../../clerk/models/document.model';
     MatTooltipModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatSnackBarModule
   ],
   templateUrl: './accountant-dashboard.component.html',
   styleUrls: ['./accountant-dashboard.component.css']
 })
 export class AccountantDashboardComponent implements OnInit, OnDestroy {
   private store = inject(DocumentStoreService);
+  private documentService = inject(DocumentService);
+  private snackBar = inject(MatSnackBar);
   private sub?: Subscription;
   private router = inject(Router);
 
@@ -50,7 +55,9 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
       docs
         .filter(d => {
           const status = (d.status || '').toLowerCase();
-          return status === 'pending' && (!d.reviewedBy || d.reviewedBy.toLowerCase().includes('senior'));
+          const stage = d.current_stage || 'clerk';
+          // Show documents pending at accountant stage
+          return status === 'pending' && stage === 'accountant';
         })
         .forEach(doc => queueMap.set(doc.id, doc));
 
@@ -78,17 +85,28 @@ export class AccountantDashboardComponent implements OnInit, OnDestroy {
     if (this.paginator) this.paginator.firstPage();
   }
 
-  forwardToHod(id: string | number): void {
+  async forwardToHod(id: string | number): Promise<void> {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
-    this.store.update({
-      ...doc,
-      status: 'pending',
-      reviewedBy: 'Accountant',
-      reviewedDate: new Date()
-    } as any);
-    // After verify, return to documents page showing all entries
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'all', focusDoc: doc.id } });
+    
+    try {
+      // Approve and move to HOD stage
+      const updatedDoc = await this.documentService.approveAndMoveToNextStage(String(id), 'Accountant');
+      this.store.update(updatedDoc);
+      
+      // Refresh documents
+      const docs = await this.documentService.getDocuments();
+      this.store.setInitial(docs);
+      
+      this.snackBar.open('Document approved and forwarded to HOD!', 'Close', {
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Error forwarding document:', error);
+      this.snackBar.open('Failed to forward document', 'Close', {
+        duration: 3000
+      });
+    }
   }
 
   viewDocument(doc: Document): void {

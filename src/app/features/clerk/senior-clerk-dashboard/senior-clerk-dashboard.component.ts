@@ -12,6 +12,8 @@ import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DocumentStoreService } from '../services/document-store.service';
 import { Document } from '../models/document.model';
+import { DocumentService } from '../../../core/services/document.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-senior-clerk-dashboard',
@@ -25,13 +27,16 @@ import { Document } from '../models/document.model';
     MatIconModule,
     MatTooltipModule,
     MatTableModule,
-    MatSortModule
+    MatSortModule,
+    MatSnackBarModule
   ],
   templateUrl: './senior-clerk-dashboard.component.html',
   styleUrls: ['./senior-clerk-dashboard.component.css']
 })
 export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
   private store = inject(DocumentStoreService);
+  private documentService = inject(DocumentService);
+  private snackBar = inject(MatSnackBar);
   private sub?: Subscription;
   private router = inject(Router);
 
@@ -51,7 +56,9 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
       docs
         .filter(d => {
           const status = (d.status || '').toLowerCase();
-          return status === 'pending' && !d.needsClerkApproval;
+          const stage = d.current_stage || 'clerk';
+          // Show documents pending at senior_clerk stage
+          return status === 'pending' && stage === 'senior_clerk';
         })
         .forEach(doc => queueMap.set(doc.id, doc));
       const uniqueQueue = Array.from(queueMap.values());
@@ -89,18 +96,28 @@ export class SeniorClerkDashboardComponent implements OnInit, OnDestroy {
     this.dataSource.filter = text;
   }
 
-  verifyAndForward(id: string | number): void {
+  async verifyAndForward(id: string | number): Promise<void> {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
-    this.store.update({
-      ...doc,
-      status: 'pending',
-      reviewedBy: 'Senior Clerk',
-      reviewedDate: new Date()
-    } as any);
-
-    // Navigate back to documents list showing all items
-    this.router.navigate(['/clerk/documents'], { queryParams: { status: 'all', focusDoc: doc.id } });
+    
+    try {
+      // Approve and move to accountant stage
+      const updatedDoc = await this.documentService.approveAndMoveToNextStage(String(id), 'Senior Clerk');
+      this.store.update(updatedDoc);
+      
+      // Refresh documents
+      const docs = await this.documentService.getDocuments();
+      this.store.setInitial(docs);
+      
+      this.snackBar.open('Document approved and forwarded to Accountant!', 'Close', {
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Error forwarding document:', error);
+      this.snackBar.open('Failed to forward document', 'Close', {
+        duration: 3000
+      });
+    }
   }
 
   viewDocument(doc: Document): void {

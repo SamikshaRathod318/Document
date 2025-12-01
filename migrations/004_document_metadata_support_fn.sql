@@ -40,3 +40,5 @@ $$;
 grant execute on function public.fn_documents_metadata_supported()
   to anon, authenticated, service_role;
 
+
+

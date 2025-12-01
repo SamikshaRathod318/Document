@@ -10,8 +10,10 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { Subscription } from 'rxjs';
 import { DocumentStoreService } from '../../../clerk/services/document-store.service';
+import { DocumentService } from '../../../../core/services/document.service';
 import { Document } from '../../../clerk/models/document.model';
 import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-hod-dashboard',
@@ -25,13 +27,16 @@ import { Router } from '@angular/router';
     MatTooltipModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatSnackBarModule
   ],
   templateUrl: './hod-dashboard.component.html',
   styleUrls: ['./hod-dashboard.component.css']
 })
 export class HodDashboardComponent implements OnInit, OnDestroy {
   private store = inject(DocumentStoreService);
+  private documentService = inject(DocumentService);
+  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private sub?: Subscription;
 
@@ -50,7 +55,9 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
     this.sub = this.store.documents$.subscribe(docs => {
       const queue = docs.filter(doc => {
         const status = (doc.status || '').toLowerCase();
-        return status === 'pending' && (doc.reviewedBy?.toLowerCase().includes('account'));
+        const stage = doc.current_stage || 'clerk';
+        // Show documents pending at HOD stage
+        return status === 'pending' && stage === 'hod';
       });
       this.dataSource.data = queue;
 
@@ -84,16 +91,28 @@ export class HodDashboardComponent implements OnInit, OnDestroy {
     if (this.paginator) this.paginator.firstPage();
   }
 
-  approveDocument(id: string | number): void {
+  async approveDocument(id: string | number): Promise<void> {
     const doc = this.store.documents.find(d => d.id === id);
     if (!doc) return;
-    this.store.update({
-      ...doc,
-      status: 'approved',
-      reviewedBy: 'HOD',
-      reviewedDate: new Date()
-    } as any);
-    this.router.navigate(['/documents'], { queryParams: { status: 'approved', focusDoc: id } });
+    
+    try {
+      // Approve document (final stage - marks as approved)
+      const updatedDoc = await this.documentService.approveAndMoveToNextStage(String(id), 'HOD');
+      this.store.update(updatedDoc);
+      
+      // Refresh documents
+      const docs = await this.documentService.getDocuments();
+      this.store.setInitial(docs);
+      
+      this.snackBar.open('Document approved successfully!', 'Close', {
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Error approving document:', error);
+      this.snackBar.open('Failed to approve document', 'Close', {
+        duration: 3000
+      });
+    }
   }
 
   rejectDocument(id: string | number): void {

@@ -72,6 +72,14 @@ export class DocumentListComponent implements OnInit, AfterViewInit, OnDestroy {
     { value: 'completed', viewValue: 'Completed' }
   ];
 
+  // Document classes with colors (matching upload form)
+  documentClass = [
+    { value: 'a', viewValue: 'A', color: '#4CAF50' },
+    { value: 'b', viewValue: 'B', color: '#F44336' },
+    { value: 'c', viewValue: 'C', color: '#2196F3' },
+    { value: 'd', viewValue: 'D', color: '#9E9E9E' }
+  ];
+
   searchText = '';
   selectedStatus = 'all';
   isLoading = false;
@@ -348,6 +356,38 @@ export class DocumentListComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'class-D';
       default:
         return 'class-default';
+    }
+  }
+
+  getClassColorValue(classValue: string | undefined): string {
+    if (!classValue) return '#9E9E9E'; // Default gray for D
+    
+    const normalized = (classValue || '').trim().toLowerCase();
+    
+    // Direct match with documentClass values
+    const classItem = this.documentClass.find(c => c.value === normalized);
+    if (classItem) {
+      return classItem.color;
+    }
+    
+    // Map normalized database values to colors
+    const normalizedUpper = normalized.toUpperCase();
+    switch (normalizedUpper) {
+      case 'A':
+      case 'CONFIDENTIAL':
+        return '#4CAF50'; // Green for A
+      case 'B':
+      case 'GENERAL':
+        return '#F44336'; // Red for B
+      case 'C':
+      case 'URGENT':
+        return '#2196F3'; // Blue for C
+      case 'D':
+      case 'OTHERS':
+      case 'OTHER':
+        return '#9E9E9E'; // Gray for D
+      default:
+        return '#9E9E9E'; // Default gray
     }
   }
 

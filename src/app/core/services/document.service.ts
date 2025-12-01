@@ -261,6 +261,58 @@ export class DocumentService {
   }
 
   /**
+   * Approve document and move to next stage in workflow
+   */
+  async approveAndMoveToNextStage(id: string, reviewerRole: string): Promise<Document> {
+    const document = await this.getDocument(id);
+    if (!document) {
+      throw new Error('Document not found');
+    }
+
+    const stageOrder: Document['current_stage'][] = ['clerk', 'senior_clerk', 'accountant', 'admin', 'hod'];
+    const currentIndex = stageOrder.indexOf(document.current_stage || 'clerk');
+    
+    // Map reviewer role to stage for validation
+    const roleToStage: Record<string, Document['current_stage']> = {
+      'Clerk': 'clerk',
+      'Senior Clerk': 'senior_clerk',
+      'Accountant': 'accountant',
+      'HOD': 'hod',
+      'Admin': 'admin'
+    };
+
+    const reviewerStage = roleToStage[reviewerRole];
+    if (reviewerStage && document.current_stage !== reviewerStage) {
+      throw new Error(`Document is not at ${reviewerRole} stage`);
+    }
+
+    // If at HOD stage, mark as approved (final stage)
+    if (currentIndex === stageOrder.length - 1 || document.current_stage === 'hod') {
+      return await this.updateDocument(id, {
+        status: 'approved',
+        reviewedBy: reviewerRole,
+        reviewedDate: new Date()
+      });
+    }
+
+    // Move to next stage
+    if (currentIndex < stageOrder.length - 1) {
+      return await this.updateDocument(id, {
+        current_stage: stageOrder[currentIndex + 1],
+        reviewedBy: reviewerRole,
+        reviewedDate: new Date()
+      });
+    }
+
+    // Fallback: mark as approved
+    return await this.updateDocument(id, {
+      status: 'approved',
+      reviewedBy: reviewerRole,
+      reviewedDate: new Date()
+    });
+  }
+
+  /**
    * Map database document to application Document model
    */
   private mapDatabaseDocument(dbDoc: any): Document {

@@ -76,7 +76,7 @@
       <ng-container matColumnDef="class">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Class</th>
         <td mat-cell *matCellDef="let element">
-          <span class="class-badge" [ngClass]="getClassColor(element.class)">
+          <span class="class-badge" [style.color]="getClassColorValue(element.class)" [style.font-weight]="'bold'">
             {{ getClassLabel(element.class) }}
           </span>
         </td>
